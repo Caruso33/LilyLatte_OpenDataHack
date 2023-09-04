@@ -1,0 +1,280 @@
+$card-border-width: 1px 2px 2px 1px;
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+.app {
+    font-family: Avenir, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color: #2c3e50;
+    background-color: #E4D2FA;
+    width: 100%;
+    height: 100vh;
+
+    &__content {
+        padding: 1rem;
+    }
+}
+
+$base: 8px;
+
+.m {
+    &x-auto {
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    &y-auto {
+        margin-top: auto;
+        margin-bottom: auto;
+    }
+
+    &t-auto {
+        margin-top: auto;
+    }
+
+    &b-auto {
+        margin-bottom: auto;
+    }
+
+    &r-auto {
+        margin-right: auto;
+    }
+
+    &l-auto {
+        margin-left: auto;
+    }
+
+    @mixin list {
+        @for $i from 0 through 8 {
+            &a-#{$i} {
+                margin: $i * $base;
+            }
+
+            &x-#{$i} {
+                margin-left: $i * $base;
+                margin-right: $i * $base;
+            }
+
+            &y-#{$i} {
+                margin-top: $i * $base;
+                margin-bottom: $i * $base;
+            }
+
+            &r-#{$i} {
+                margin-right: $i * $base !important;
+            }
+
+            &l-#{$i} {
+                margin-left: $i * $base !important;
+            }
+
+            &t-#{$i} {
+                margin-top: $i * $base !important;
+            }
+
+            &b-#{$i} {
+                margin-bottom: $i * $base !important;
+            }
+
+            // negetives
+            &a-n#{$i} {
+                margin: -$i * $base;
+            }
+
+            &x-n#{$i} {
+                margin-left: -$i * $base;
+                margin-right: -$i * $base;
+            }
+
+            &y-n#{$i} {
+                margin-top: -$i * $base;
+                margin-bottom: -$i * $base;
+            }
+
+            &r-n#{$i} {
+                margin-right: -$i * $base !important;
+            }
+
+            &l-n#{$i} {
+                margin-left: -$i * $base !important;
+            }
+
+            &t-n#{$i} {
+                margin-top: -$i * $base !important;
+            }
+
+            &b-n#{$i} {
+                margin-bottom: -$i * $base !important;
+            }
+        }
+    }
+
+    @include list;
+}
+
+
+$base: 8px;
+
+@mixin paddings-list {
+    &x-auto {
+        padding-left: auto;
+        padding-right: auto;
+    }
+
+    &y-auto {
+        padding-top: auto;
+        padding-bottom: auto;
+    }
+
+    &t-auto {
+        padding-top: auto;
+    }
+
+    &b-auto {
+        padding-bottom: auto;
+    }
+
+    &r-auto {
+        padding-right: auto;
+    }
+
+    &l-auto {
+        padding-left: auto;
+    }
+
+    @for $i from 0 through 8 {
+        &a-#{$i} {
+            padding: $i * $base !important;
+        }
+
+        &x-#{$i} {
+            padding-left: $i * $base !important;
+            padding-right: $i * $base !important;
+        }
+
+        &y-#{$i} {
+            padding-top: $i * $base !important;
+            padding-bottom: $i * $base !important;
+        }
+
+        &r-#{$i} {
+            padding-right: $i * $base !important;
+        }
+
+        &l-#{$i} {
+            padding-left: $i * $base !important;
+        }
+
+        &t-#{$i} {
+            padding-top: $i * $base !important;
+        }
+
+        &b-#{$i} {
+            padding-bottom: $i * $base !important;
+        }
+    }
+}
+
+.p {
+    @include paddings-list;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.latte-border {
+    border: solid black;
+    border-width: $card-border-width;
+}
+
+
+.fill-btn {
+    background-color: black;
+    color: white;
+}
+
+
+button {
+    min-width: 5rem;
+    box-sizing: border-box;
+    padding: 0.4rem 1rem;
+    border-radius: 0.25rem;
+    background-color: transparent;
+    color: black;
+    font-weight: bold;
+    transition: 0.2s ease-in-out all;
+    cursor: pointer;
+    font-size: 1rem;
+
+    @extend .latte-border;
+
+    &:hover {
+        @extend .fill-btn;
+    }
+}
+
+.large-btn {
+    padding: 1rem 3rem;
+}
+
+.medium-btn {
+    padding: 0.5rem 1.5rem;
+}
+
+.d-flex {
+    display: flex;
+}
+
+.flex-1 {
+    flex: 1;
+}
+
+.flex-column {
+    flex-direction: column;
+}
+
+.justify {
+    &-center {
+        justify-content: center;
+    }
+
+    &-space-between {
+        justify-content: space-between;
+    }
+
+    &-space-around {
+        justify-content: space-around;
+    }
+}
+
+.align-center {
+    align-content: center;
+}
+
+.flex-center {
+    justify-content: center;
+    align-content: center;
+}
+
+.gap {
+    gap: 2rem;
+}
+
+.expand {
+    height: 100%;
+    width: 100%;
+
+    &-vert {
+        height: 100%;
+    }
+
+    &-horiz {
+        width: 100%;
+    }
+}
