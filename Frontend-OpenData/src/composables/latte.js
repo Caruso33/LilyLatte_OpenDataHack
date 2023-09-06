@@ -30,6 +30,18 @@ export const useLatteEth = () => {
     return signer;
   };
 
+  const changeNetwork = async () => {
+    provider.get;
+    provider.Network.add({
+      name: "customNetwork",
+      chainId: 3141,
+      _defaultProvider: () =>
+        new ethers.providers.JsonRpcProvider(
+          "https://customnetwork-rpc-url.com"
+        ),
+    });
+  };
+
   const getTransactions = async () => {
     const ethScanProvider = new ethers.providers.EtherscanProvider(NETWORK);
 

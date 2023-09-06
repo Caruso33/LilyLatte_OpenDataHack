@@ -1,5 +1,5 @@
 <template>
-  <button :disabled="loading" @click="$emit('click')">
+  <button :disabled="loading">
     <div class="d-flex align-center justify-center">
       <Indicator v-if="loading" />
       <slot v-else />

@@ -1,9 +1,30 @@
 <template>
   <div class="expand d-flex flex-column client">
-    <div class="f">
-      <base-button @click="prepareTransaction" class="ma-1">
+    <div class="d-flex">
+      <base-button
+        :loading="lighthouseLoading || loading"
+        @click="uploadEncryptedTransactions"
+        class="ma-1"
+      >
         Upload to lighthouse
       </base-button>
+      <base-button
+        :loading="lighthouseLoading"
+        @click="decryptFile"
+        class="ma-1"
+      >
+        Decrypt lighthouse file
+      </base-button>
+      <!-- <base-button
+        :loading="lighthouseLoading"
+        @click="getUploads"
+        class="ma-1"
+      >
+        Get Uploads
+      </base-button> -->
+    </div>
+
+    <div class="d-flex">
       <base-button
         :loading="tableLandLoading"
         @click="createTable"
@@ -26,6 +47,9 @@
         Fetch Data from Tableland
       </base-button>
     </div>
+
+    <label>File CID</label>
+    <input v-model="CID" />
 
     <label>Table Name</label>
     <input v-model="tableName" />
@@ -63,19 +87,21 @@
 <script setup>
 import { onMounted, ref } from "vue";
 import { useLatteEth } from "@/composables/latte";
-// import tableLand from "@/constants/tableLand";
 import { useTableLand } from "@/composables/tableLand";
-
-import lighthouse from "@lighthouse-web3/sdk";
+import { useLighthouse } from "@/composables/lighthouse";
 
 import { useToast } from "vue-toastification";
 
 const loading = ref(false);
+const CID = ref("");
 const uploadResponse = ref("");
 const tableName = ref("");
 const tableRecords = ref([]);
 
 const latteEth = useLatteEth();
+
+const { lighthouseFunctions, loading: lighthouseLoading } = useLighthouse();
+
 const {
   setSigner,
   tableRef,
@@ -85,16 +111,16 @@ const {
 
 const toaster = useToast();
 
-const lightHouseAPIKey = "d8be86a7.6e6cc09c17184503ae9119cead8c0a00";
+let signer = null;
 
 onMounted(async () => {
-  const signer = await latteEth.getInstance();
+  signer = await latteEth.getInstance();
   setSigner(signer);
 
   tableName.value = tableRef.value ? tableRef.value.split("_")[0] : "";
 });
 
-const prepareTransaction = async () => {
+const uploadTransactions = async () => {
   loading.value = true;
 
   const myTransactions = await latteEth.getTransactions();
@@ -106,19 +132,44 @@ const prepareTransaction = async () => {
   const fileName = "myTransactions.json";
   blob.name = fileName;
 
-  uploadToLightHouse(blob);
+  const result = await lighthouseFunctions.upload(blob);
+
+  uploadResponse.value = result;
+
+  console.log("after upload data", result);
+  loading.value = false;
 };
 
-const uploadToLightHouse = async (buffer) => {
-  const _uploadResponse = await lighthouse.uploadBuffer(
-    buffer,
-    lightHouseAPIKey
+const uploadEncryptedTransactions = async () => {
+  loading.value = true;
+
+  const myTransactions = await latteEth.getTransactions();
+  console.log(myTransactions);
+
+  const result = await lighthouseFunctions.uploadEncrypted(
+    signer,
+    JSON.stringify(myTransactions)
   );
 
-  uploadResponse.value = _uploadResponse.data;
+  uploadResponse.value = result;
 
-  console.log("uploadResponse", uploadResponse.value);
+  console.log("after upload data (encrypted)", result);
   loading.value = false;
+};
+
+const decryptFile = async () => {
+  if (!CID.value.length) {
+    toaster.error("Please set CID first");
+    return;
+  }
+
+  const result = await lighthouseFunctions.decrypt(signer, CID.value);
+
+  console.log("result", result);
+};
+
+const getUploads = async () => {
+  console.log(await lighthouseFunctions.getUploads(signer));
 };
 
 const fetchTableRecords = async () => {
