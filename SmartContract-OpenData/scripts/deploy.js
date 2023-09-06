@@ -8,15 +8,19 @@ const hre = require("hardhat");
 
 async function main() {
   const [deployer] = await hre.ethers.getSigners();
+
   const OpenData = await hre.ethers.getContractFactory("MyToken", deployer);
   console.log("Deploying contracrt . . .");
-
-
-  const open_data = await OpenData.deploy()
+  
+  const open_data = await OpenData.deploy({
+    from: deployer.address,
+    args: [],
+    gasLimit: 1000000000
+  })
 
   await open_data.waitForDeployment()
 
-  console.log(await open_data.getAddress());
+  console.log(`Contract deploy on this address ${await open_data.getAddress()}`);
 }
 
 // We recommend this pattern to be able to use async/await everywhere
