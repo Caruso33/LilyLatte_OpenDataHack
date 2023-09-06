@@ -1,11 +1,11 @@
 <template>
   <div class="expand d-flex flex-column flex-center client">
-    <button @click="connect">Connect Wallet</button>
+    <base-button @click="connect">Connect Wallet</base-button>
   </div>
 </template>
 
 <script setup>
-import { computed, onMounted } from "vue";
+import { onMounted } from "vue";
 import { useStore } from "vuex";
 
 import metamask from "@/provider/metamask";

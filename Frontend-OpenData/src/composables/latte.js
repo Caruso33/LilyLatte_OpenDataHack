@@ -1,4 +1,4 @@
-import { ethers } from "ethers";
+import { ethers, Signer } from "ethers";
 import { ref } from "vue";
 
 const NETWORK = "maticmum";
@@ -16,6 +16,9 @@ export const useLatteEth = () => {
 
   let signer;
 
+  /**
+   * @returns {Promise<Signer>} ethers signer
+   */
   const getInstance = async () => {
     if (instance.value) return instance.value;
 
@@ -37,6 +40,7 @@ export const useLatteEth = () => {
   };
 
   return {
+    getInstance,
     getTransactions,
   };
 };
