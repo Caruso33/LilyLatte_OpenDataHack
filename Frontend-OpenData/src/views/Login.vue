@@ -1,6 +1,9 @@
 <template>
   <div class="expand d-flex flex-column flex-center client">
     <base-button @click="connect">Connect Wallet</base-button>
+    <base-button class="mt-2" @click="addNetwork">
+      Add FVM & Lilypad Networks
+    </base-button>
   </div>
 </template>
 
@@ -10,6 +13,7 @@ import { useStore } from "vuex";
 
 import metamask from "@/provider/metamask";
 import { useRouter } from "vue-router";
+import { FVM, Lilypad } from "@/constants/chains";
 
 /**
  * @type {metamask} metamaskInstance
@@ -35,15 +39,18 @@ const connect = async () => {
       wallet,
     });
 
-    // const web3 = new Web3("https://devnet.fhenix.io");
-
-    // const result = await web3.eth.call({
-    //   to: "0x0000000000000000000000000000000000000044",
-    // });
-
     console.log(wallet);
 
     router.push("/home");
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const addNetwork = async () => {
+  try {
+    await metamaskInstance.addNetwork([FVM]);
+    await metamaskInstance.addNetwork([Lilypad]);
   } catch (error) {
     console.log(error);
   }

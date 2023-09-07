@@ -10,6 +10,13 @@
       </base-button>
       <base-button
         :loading="lighthouseLoading"
+        @click="putAccessConditions"
+        class="ma-1"
+      >
+        Put predefined access condition
+      </base-button>
+      <base-button
+        :loading="lighthouseLoading"
         @click="decryptFile"
         class="ma-1"
       >
@@ -93,7 +100,8 @@ import { useLighthouse } from "@/composables/lighthouse";
 import { useToast } from "vue-toastification";
 
 const loading = ref(false);
-const CID = ref("");
+// const CID = ref("");
+const CID = ref("QmRwPR2i5rHuX8yqo4Pqc2U4ZRyeXpkhP1gTXaBetw4TNE");
 const uploadResponse = ref("");
 const tableName = ref("");
 const tableRecords = ref([]);
@@ -157,6 +165,15 @@ const uploadEncryptedTransactions = async () => {
   loading.value = false;
 };
 
+const putAccessConditions = async () => {
+  const result = await lighthouseFunctions.putAccessConditions(
+    signer,
+    CID.value
+  );
+
+  console.log("after put Access Conditions", result);
+};
+
 const decryptFile = async () => {
   if (!CID.value.length) {
     toaster.error("Please set CID first");
@@ -165,7 +182,10 @@ const decryptFile = async () => {
 
   const result = await lighthouseFunctions.decrypt(signer, CID.value);
 
-  console.log("result", result);
+  console.log(
+    "result",
+    typeof result == "string" ? JSON.parse(result) : result
+  );
 };
 
 const getUploads = async () => {

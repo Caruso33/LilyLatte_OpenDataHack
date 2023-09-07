@@ -95,13 +95,53 @@ export const useLighthouse = () => {
     }
   };
 
+  const putAccessConditions = async (signer, CID) => {
+    loading.value = true;
+
+    const conditions = [
+      {
+        id: 1,
+        chain: "mumbai",
+        method: "balanceOf",
+        standardContractType: "ERC20",
+        contractAddress: "0x48c7f07f6B3d58C03bf39260189DbfEA2d73520B",
+        returnValueTest: { comparator: ">=", value: "1" },
+        parameters: [":userAddress"],
+      },
+    ];
+
+    // Aggregator is what kind of operation to apply to access conditions
+    // Suppose there are two conditions then you can apply ([1] and [2]), ([1] or [2]), !([1] and [2]).
+    const aggregator = "([1])";
+    const { publicKey, signedMessage } = await encryptionSignature(signer);
+
+    const { data } = await lighthouse.applyAccessCondition(
+      publicKey,
+      CID,
+      signedMessage,
+      conditions,
+      aggregator
+    );
+
+    console.log("putAccessConditions", data);
+    loading.value = false;
+
+    return data;
+  };
+
   const getUploads = async (signer) => {
     const address = await signer.getAddress();
     console.log("address before getUploads", address);
     return await lighthouse.getUploads(address);
   };
 
-  const lighthouseFunctions = { upload, uploadEncrypted, decrypt, getUploads };
+  const lighthouseFunctions = {
+    upload,
+    uploadEncrypted,
+    decrypt,
+    getUploads,
+    putAccessConditions,
+  };
 
   return {
     loading,
