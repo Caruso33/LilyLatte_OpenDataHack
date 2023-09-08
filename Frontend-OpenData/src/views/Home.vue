@@ -55,6 +55,12 @@
       </base-button>
     </div>
 
+    <div class="d-flex">
+      <base-button :loading="tableLandLoading" @click="generate" class="ma-1">
+        Generate Lilypad Stable Diffusion
+      </base-button>
+    </div>
+
     <label>File CID</label>
     <input v-model="CID" />
 
@@ -98,6 +104,7 @@ import { useTableLand } from "@/composables/tableLand";
 import { useLighthouse } from "@/composables/lighthouse";
 
 import { useToast } from "vue-toastification";
+import { useLilypad } from "@/composables/lilypad";
 
 const loading = ref(false);
 // const CID = ref("");
@@ -109,6 +116,8 @@ const tableRecords = ref([]);
 const latteEth = useLatteEth();
 
 const { lighthouseFunctions, loading: lighthouseLoading } = useLighthouse();
+
+const { func, loading: lilypadLoading } = useLilypad();
 
 const {
   setSigner,
