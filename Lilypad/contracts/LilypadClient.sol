@@ -9,6 +9,7 @@ interface ModicumContract {
 }
 
 // got to testnet.lilypadnetwork.org to fund your wallet
+// this contract is deployed to 0x30a1b68D207c39924513424F2f9969a02eba2E2E
 contract LilypadClient {
     address public _contractAddress;
     ModicumContract remoteContractInstance;
