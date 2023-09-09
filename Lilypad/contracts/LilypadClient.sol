@@ -9,7 +9,9 @@ interface ModicumContract {
 }
 
 // got to testnet.lilypadnetwork.org to fund your wallet
-// this contract is deployed to 0x30a1b68D207c39924513424F2f9969a02eba2E2E
+// this contract is deployed to:
+// 0x30a1b68D207c39924513424F2f9969a02eba2E2E
+// 0x86406BD74F67fB3245E380294d59A5d2350Ce20e
 contract LilypadClient {
     address public _contractAddress;
     ModicumContract remoteContractInstance;
@@ -44,7 +46,7 @@ contract LilypadClient {
     function runCowsay(string memory sayWhat) public payable returns (uint256) {
         require(
             msg.value == lilypadFee * 1 ether,
-            string(abi.encodePacked("Payment of 2 Ether is required"))
+            string(abi.encodePacked("Payment of Ether is required"))
         );
         return runModule("cowsay:v0.0.1", sayWhat);
     }
@@ -52,7 +54,7 @@ contract LilypadClient {
     function runStablediffusion(string memory prompt) public payable returns (uint256) {
         require(
             msg.value == lilypadFee * 1 ether,
-            string(abi.encodePacked("Payment of 2 Ether is required"))
+            string(abi.encodePacked("Payment of Ether is required"))
         );
         return runModule("stable_diffusion:v0.0.1", prompt);
     }
@@ -60,17 +62,17 @@ contract LilypadClient {
     function runSDXL(string memory prompt) public payable returns (uint256) {
         require(
             msg.value == lilypadFee * 1 ether,
-            string(abi.encodePacked("Payment of 2 Ether is required"))
+            string(abi.encodePacked("Payment of Ether is required"))
         );
         return runModule("sdxl:v0.9-lilypad1", prompt);
     }
 
-    // prompt has to be a cid with the structure like: 
+    // prompt has to be a cid with the structure like:
     // https://ipfs.io/ipfs/QmVSKa3uhU63YneQ4tMAsFq4UkkKhSTfHAkVcRyPDN1UmF
     function runFastChat(string memory prompt) public payable returns (uint256) {
         require(
             msg.value == lilypadFee * 1 ether,
-            string(abi.encodePacked("Payment of 2 Ether is required"))
+            string(abi.encodePacked("Payment of Ether is required"))
         );
         return runModule("fastchat:v0.0.1", prompt);
     }
@@ -78,7 +80,7 @@ contract LilypadClient {
     function runModule(string memory name, string memory params) public payable returns (uint256) {
         require(
             msg.value == lilypadFee * 1 ether,
-            string(abi.encodePacked("Payment of 2 Ether is required"))
+            string(abi.encodePacked("Payment of Ether is required"))
         );
         return remoteContractInstance.runModuleWithDefaultMediators{value: msg.value}(name, params);
     }
