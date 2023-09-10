@@ -1,6 +1,6 @@
 <template>
   <div class="expand d-flex flex-column client">
-    <div class="d-flex">
+    <div class="d-flex flex-wrap">
       <base-button
         :loading="lighthouseLoading || loading"
         @click="uploadEncryptedTransactions"
@@ -31,7 +31,7 @@
       </base-button> -->
     </div>
 
-    <div class="d-flex">
+    <div class="d-flex flex-wrap">
       <base-button
         :loading="tableLandLoading"
         @click="createTable"
@@ -55,11 +55,24 @@
       </base-button>
     </div>
 
-    <div class="d-flex">
-      <base-button :loading="tableLandLoading" @click="generate" class="ma-1">
-        Generate Lilypad Stable Diffusion
+    <div class="d-flex flex-wrap">
+      <base-button :loading="lilypadLoading" @click="sendPrompt" class="ma-1">
+        Send Prompt to lilypad
+      </base-button>
+      <base-button
+        :loading="lilypadLoading"
+        @click="getLilypadResult"
+        class="ma-1"
+      >
+        Get lilypad's Result
       </base-button>
     </div>
+
+    <Image
+      v-if="lilypadImg"
+      :src="lilypadImg"
+      style="width: 200px; height: 200px"
+    />
 
     <label>File CID</label>
     <input v-model="CID" />
@@ -99,6 +112,8 @@
 
 <script setup>
 import { onMounted, ref } from "vue";
+import Image from "@/components/image.vue";
+
 import { useLatteEth } from "@/composables/latte";
 import { useTableLand } from "@/composables/tableLand";
 import { useLighthouse } from "@/composables/lighthouse";
@@ -113,11 +128,13 @@ const uploadResponse = ref("");
 const tableName = ref("");
 const tableRecords = ref([]);
 
+const lilypadImg = ref(null);
+
 const latteEth = useLatteEth();
 
 const { lighthouseFunctions, loading: lighthouseLoading } = useLighthouse();
 
-const { func, loading: lilypadLoading } = useLilypad();
+const { lilypadFunctions, loading: lilypadLoading } = useLilypad();
 
 const {
   setSigner,
@@ -225,6 +242,20 @@ const createTable = async () => {
 
 const insertRecord = async () => {
   const tx = await tableLandFunctions.insertIntoTable();
+};
+
+const sendPrompt = async () => {
+  const result = await lilypadFunctions.generate(
+    "a great view of a modern city up of a penthouse"
+  );
+  console.log(result);
+};
+
+const getLilypadResult = async () => {
+  const result = await lilypadFunctions.getResults();
+  if (result.length)
+    lilypadImg.value = result[0].httpString + "/outputs/image-0.png";
+  console.log("getLilypadResult", result, lilypadImg.value);
 };
 </script>
 

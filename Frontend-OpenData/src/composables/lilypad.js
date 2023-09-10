@@ -1,9 +1,9 @@
-import { onMounted } from "vue";
-import ethers from "ethers";
+import { onMounted, ref } from "vue";
+import { utils, providers, Contract } from "ethers";
 import { LilypadAbi } from "@/constants/lilypad-abi";
 
 // My Lilypad deployed Contract address
-const CONTRACT_ADDRESS = "0x18F6c7059727D3D5a614c8D051D4956A47B6dFc9";
+const CONTRACT_ADDRESS = "0x86406BD74F67fB3245E380294d59A5d2350Ce20e";
 
 export const useLilypad = () => {
   let provider, contract, signer;
@@ -11,31 +11,45 @@ export const useLilypad = () => {
   const loading = ref(false);
 
   onMounted(async () => {
-    provider = new ethers.providers.Web3Provider(window.ethereum);
+    provider = new providers.Web3Provider(window.ethereum);
     signer = provider.getSigner();
-    contract = new ethers.Contract(CONTRACT_ADDRESS, LilypadAbi, signer);
+    contract = new Contract(CONTRACT_ADDRESS, LilypadAbi, signer);
   });
 
   const generate = async (prompt) => {
-    const overrides = {
-      gasLimit: 900000,
-      value: ethers.parseEther("2"),
-    };
+    loading.value = true;
+    try {
+      const overrides = {
+        gasLimit: 3000000,
+        value: utils.parseEther("4"),
+      };
 
-    const tx = await contract.runSDXL(prompt, overrides);
+      const tx = await contract.runSDXL(prompt, overrides);
 
-    const receipt = await tx.wait();
+      const receipt = await tx.wait();
 
-    return receipt;
+      loading.value = false;
+      return receipt;
+    } catch (error) {
+      console.log("error generate", error);
+      loading.value = false;
+      return null;
+    }
+  };
+
+  const getResults = async () => {
+    const tx = await contract.fetchAllResults();
+
+    return tx;
   };
 
   const lilypadFunctions = {
     generate,
+    getResults,
   };
 
   return {
     loading,
-    tableRef,
     lilypadFunctions,
   };
 };

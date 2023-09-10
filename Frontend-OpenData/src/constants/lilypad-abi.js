@@ -155,6 +155,25 @@ export const LilypadAbi = [
     inputs: [
       {
         internalType: "string",
+        name: "prompt",
+        type: "string",
+      },
+    ],
+    name: "runFastChat",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "string",
         name: "name",
         type: "string",
       },

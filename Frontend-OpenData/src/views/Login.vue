@@ -4,6 +4,12 @@
     <base-button class="mt-2" @click="addNetwork">
       Add FVM & Lilypad Networks
     </base-button>
+    <base-button class="mt-2" @click="changeNetwork(FVM.chainId)">
+      Change Network to FVM
+    </base-button>
+    <base-button class="mt-2" @click="changeNetwork(Lilypad.chainId)">
+      Change Network to Lilypad
+    </base-button>
   </div>
 </template>
 
@@ -14,6 +20,7 @@ import { useStore } from "vuex";
 import metamask from "@/provider/metamask";
 import { useRouter } from "vue-router";
 import { FVM, Lilypad } from "@/constants/chains";
+import { switchNetwork } from "@/constants/ethereum-functions";
 
 /**
  * @type {metamask} metamaskInstance
@@ -51,6 +58,14 @@ const addNetwork = async () => {
   try {
     await metamaskInstance.addNetwork([FVM]);
     await metamaskInstance.addNetwork([Lilypad]);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const changeNetwork = async (chainId) => {
+  try {
+    await switchNetwork(chainId);
   } catch (error) {
     console.log(error);
   }
