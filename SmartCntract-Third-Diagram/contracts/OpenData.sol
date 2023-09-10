@@ -5,10 +5,15 @@ import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Burnable.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 contract MyToken is ERC1155, Ownable, Pausable, ERC1155Burnable {
-
-
+    
+    using SafeERC20 for IERC20;
+    IERC20 public immutable rewardsToken;
+    uint256 rewards = 2;
+    event Transfer(address indexed from, address indexed to, uint256 value);
     struct DataOwner {
         address wallet;
         string[] tableIds;
@@ -20,7 +25,9 @@ contract MyToken is ERC1155, Ownable, Pausable, ERC1155Burnable {
 
     DataOwner dataOwner;
 
-    constructor() ERC1155("Test") {}
+    constructor(IERC20 _rewardsToken) ERC1155("Test") {
+        rewardsToken = _rewardsToken;
+    }
 
     function setURI(string memory newuri) public onlyOwner {
         _setURI(newuri);
@@ -64,4 +71,13 @@ contract MyToken is ERC1155, Ownable, Pausable, ERC1155Burnable {
        OwnerToData[wallet] = dataOwner;
     }
 
+    function readAllDaoMemberTableIds(address wallet) public onlyOwner view returns(string[] memory) {
+        return OwnerToData[wallet].tableIds;
+    }
+    // we should check NFT holder and then transfer
+    function claimRewards() external {
+        require(rewards > 0, "You have no rewards to claim");
+        rewardsToken.safeTransfer(msg.sender, rewards);
+        emit Transfer(address(this), msg.sender, rewards);
+    }
 }
