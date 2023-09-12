@@ -12,7 +12,10 @@ contract MyToken is ERC1155, Ownable, Pausable, ERC1155Burnable {
     
     using SafeERC20 for IERC20;
     IERC20 public immutable rewardsToken;
+    //the amount of reward
     uint256 rewards = 2;
+    //the id of NFT can transfer
+    uint256 nft_id = 1;
     event Transfer(address indexed from, address indexed to, uint256 value);
     struct DataOwner {
         address wallet;
@@ -60,7 +63,11 @@ contract MyToken is ERC1155, Ownable, Pausable, ERC1155Burnable {
         whenNotPaused
         override
     {
-        require(from == address(0) || to == address(0), "This a Soulbound token. It cannot be transferred. It can only be burned by the token owner.");
+        //Check nft id and the id of nft that client want to transfer
+        if(nft_id != ids[0]) {
+            require(from == address(0) || to == address(0), "This a Soulbound token. It cannot be transferred. It can only be burned by the token owner.");
+        }
+        super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
     }
 
     function storeTableId(address wallet, string memory id)
@@ -74,7 +81,7 @@ contract MyToken is ERC1155, Ownable, Pausable, ERC1155Burnable {
     function readAllDaoMemberTableIds(address wallet) public onlyOwner view returns(string[] memory) {
         return OwnerToData[wallet].tableIds;
     }
-    // we should check NFT holder and then transfer
+
     function claimRewards() external {
         require(rewards > 0, "You have no rewards to claim");
         rewardsToken.safeTransfer(msg.sender, rewards);
