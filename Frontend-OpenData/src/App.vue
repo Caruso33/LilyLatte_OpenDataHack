@@ -7,7 +7,7 @@
 </template>
 
 <script setup>
-import "@/assets/main.scss";
+import "@/assets/styles/main.scss";
 import { onMounted } from "vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
@@ -16,7 +16,7 @@ const store = useStore();
 const router = useRouter();
 
 onMounted(() => {
-  if (!store.state.wallet) router.replace("/");
+  // if (!store.state.wallet) router.replace("/");
 });
 </script>
 
