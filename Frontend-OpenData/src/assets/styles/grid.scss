@@ -1,0 +1,89 @@
+$panelMaxWidth: 1920px;
+$xLargeScreen: 1200px;
+$largeScreen: 992px;
+$mediumScreen: 768px;
+$smallScreen: 481px;
+$extraSmallScreen: 320px;
+
+$cols-count: 12;
+$grid-spacing: 1%;
+$container-padding: 1.5rem;
+
+$map-breakpoints: (
+    '': 0,
+    '-xs': $extraSmallScreen,
+    '-sm': $smallScreen,
+    '-md': $mediumScreen,
+    '-lg': $largeScreen,
+    '-xl': $xLargeScreen
+);
+
+@mixin create-media-query($size) {
+    @if($size==0) {
+        @content;
+    }
+
+    @else {
+        @media screen and (min-width: $size) {
+            @content;
+        }
+    }
+}
+
+@mixin create-col-classes($modifier, $size) {
+    @include create-media-query($size) {
+        .col#{$modifier}-0 {
+            flex-basis: unset;
+        }
+
+        @for $i from 1 through $cols-count {
+            $item-count-in-row: $cols-count / $i;
+
+            .col#{$modifier}-#{$i} {
+                flex-basis: (100% / $item-count-in-row) - (1 - $grid-spacing / $item-count-in-row);
+            }
+        }
+    }
+}
+
+@mixin create-display-classes($modifier, $size) {
+    @include create-media-query($size) {
+        .hidden#{$modifier} {
+            display: none;
+        }
+
+        .show#{$modifier} {
+            display: inherit;
+        }
+    }
+}
+
+@mixin create-container-breakpoints($size, $width) {
+    @include create-media-query($size) {
+        .container {
+            max-width: calc($width - $container-padding);
+        }
+    }
+}
+
+@each $modifier,
+$size in $map-breakpoints {
+    @include create-col-classes($modifier, $size);
+    @include create-display-classes($modifier, $size);
+}
+
+.row {
+    display: flex;
+    width: 100%;
+    flex-wrap: wrap;
+    column-gap: $grid-spacing;
+    row-gap: $grid-spacing;
+}
+
+.container {
+    width: 100%;
+    padding: $container-padding;
+}
+
+@include create-container-breakpoints($largeScreen, $mediumScreen);
+@include create-container-breakpoints($xLargeScreen, $largeScreen);
