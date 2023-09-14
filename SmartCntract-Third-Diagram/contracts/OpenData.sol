@@ -3,177 +3,153 @@ pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/Pausable.sol";
-import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Burnable.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Receiver.sol";
 
-contract LilyLatte is
-    ERC1155,
-    Ownable,
-    Pausable,
-    ERC1155Burnable
-    // ERC1155Receiver
-{
-    using SafeMath for uint256;
-    using SafeERC20 for IERC20;
-
-    // IERC20 public immutable rewardsToken;
+contract LilyLatte is ERC1155, Ownable {
+    error AlreadyOwner();
+    error AlreadyMember();
+    error NotParticipatedInDialog();
+    error TransferNotAllowed();
+    error FeeNotCovered(uint256 dataAccessFee);
+    error DialogDoesNotExist();
+    error NotOwnerOfDialog();
+    error AlreadyPayedOut();
 
     uint256 public constant MEMBERSHIP = 0;
+    uint256 currentIndex = 1;
 
-    //the amount of reward
-    uint256 rewards = 2;
-    //the id of NFT can transfer
-    uint256 nft_id = 1;
-
-    event Transfer(address indexed from, address indexed to, uint256 value);
+    uint256 public dataAccessFee = 0.1 ether;
 
     struct DataOwner {
         address wallet;
         string tableId;
         bool isMember;
+        string[] dialogTableIds;
     }
 
-    mapping(address => DataOwner) OwnerToData;
-    mapping(uint256 => uint256) tokenPrices;
-
-    // DataOwner dataOwner;
-
-    constructor()
-        // IERC20 _rewardsToken
-        ERC1155("Lilylatte")
-    {
-        // rewardsToken = _rewardsToken;
+    struct Dialog {
+        string tableId;
+        address ownerAddr;
+        uint256 tokenId;
+        uint8 requestedTimes;
     }
+
+    /// @dev Mapping from tokenId to dialog tableland cid
+    /// @notice the id of 0 is for membership tokens
+    mapping(uint256 => string) public tokenIdToDialogTableId;
+
+    /// @dev Mapping from dialog tableland cid to info struct
+    mapping(string => Dialog) public dialogMap;
+
+    /// @dev Mapping owner wallet to his data
+    mapping(address => DataOwner) public ownerToData;
+
+    constructor() ERC1155("Lilylatte") {}
 
     function addOwner(address wallet, string memory tableId) public onlyOwner {
-        OwnerToData[msg.sender].wallet = wallet;
-        OwnerToData[msg.sender].tableId = tableId;
-        OwnerToData[msg.sender].isMember = false;
+        if (ownerToData[msg.sender].wallet == address(0)) {
+            revert AlreadyOwner();
+        }
+
+        ownerToData[msg.sender].wallet = wallet;
+        ownerToData[msg.sender].tableId = tableId;
+        ownerToData[msg.sender].isMember = false;
     }
 
-    function addOwnerAsMember(address wallet) public onlyOwner {
-        DataOwner storage dataOwner = OwnerToData[msg.sender];
+    function addOwnerAsMember(address ownerAddr) public onlyOwner {
+        DataOwner storage dataOwner = ownerToData[msg.sender];
+
+        if (dataOwner.isMember) {
+            revert AlreadyMember();
+        }
+
+        if (ownerToData[ownerAddr].dialogTableIds.length == 0) {
+            revert NotParticipatedInDialog();
+        }
+
         dataOwner.isMember = true;
+
+        _mint(ownerAddr, MEMBERSHIP, 1, "");
     }
 
-    // function setURI(string memory newuri) public onlyOwner {
-    //     _setURI(newuri);
-    // }
+    /// @dev this token will be the gated token for data access
+    /// @notice the first token the dataOwner gets, the next one data buyers
+    function mintNewDialogToken(
+        address ownerAddr,
+        string memory newDialogTableId
+    ) public onlyOwner {
+        tokenIdToDialogTableId[currentIndex] = newDialogTableId;
 
-    // function pause() public onlyOwner {
-    //     _pause();
-    // }
+        Dialog memory dialog = Dialog({
+            tableId: newDialogTableId,
+            ownerAddr: ownerAddr,
+            tokenId: currentIndex,
+            requestedTimes: 0
+        });
+        dialogMap[newDialogTableId] = dialog;
 
-    // function unpause() public onlyOwner {
-    //     _unpause();
-    // }
+        ownerToData[ownerAddr].dialogTableIds.push(newDialogTableId);
 
-    // function mint(
-    //     address to,
-    //     uint256 id,
-    //     uint256 amount,
-    //     bytes memory data
-    // ) public onlyOwner {
-    //     _mint(to, id, amount, data);
-    // }
+        _mint(ownerAddr, currentIndex, 1, "");
 
-    // function mintBatch(
-    //     address to,
-    //     uint256[] memory ids,
-    //     uint256[] memory amounts,
-    //     bytes memory data
-    // ) public onlyOwner {
-    //     _mintBatch(to, ids, amounts, data);
-    // }
+        currentIndex += 1;
+    }
 
-    // function setApprovalForAll(
-    //     address operator,
-    //     bool approved
-    // ) public override {
-    //     emit ApprovalForAll(msg.sender, operator, approved);
-    // }
+    /// @notice get access to the NewDialogToken by minitng a token to the sender
+    function requestDialogTokenAccess(
+        string memory dialogTableId
+    ) public payable onlyOwner {
+        if (msg.value != dataAccessFee) {
+            revert FeeNotCovered(dataAccessFee);
+        }
 
-    // function _beforeTokenTransfer(
-    //     address operator,
-    //     address from,
-    //     address to,
-    //     uint256[] memory ids,
-    //     uint256[] memory amounts,
-    //     bytes memory data
-    // ) internal override whenNotPaused {
-    //     //Check nft id and the id of nft that client want to transfer
-    //     if (from == address(this) || (nft_id == ids[0] && ids.length == 1)) {
-    //         super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
-    //     } else {
-    //         require(
-    //             from == address(0) || to == address(0),
-    //             "This a Soulbound token. It cannot be transferred. It can only be burned by the token owner."
-    //         );
-    //     }
-    // }
+        Dialog memory dialog = dialogMap[dialogTableId];
+        if (dialog.tokenId == 0) {
+            revert DialogDoesNotExist();
+        }
 
-    // function supportsInterface(
-    //     bytes4 interfaceId
-    // ) public view override(ERC1155, ERC1155Receiver) returns (bool) {
-    //     return super.supportsInterface(interfaceId);
-    // }
+        dialog.requestedTimes += 1;
+        dialogMap[dialog.tableId] = dialog;
 
-    // function onERC1155Received(
-    //     address operator,
-    //     address from,
-    //     uint256 id,
-    //     uint256 value,
-    //     bytes calldata data
-    // ) public override returns (bytes4) {
-    //     return this.onERC1155Received.selector;
-    // }
+        _mint(msg.sender, dialog.tokenId, 1, "");
+    }
 
-    // function onERC1155BatchReceived(
-    //     address operator,
-    //     address from,
-    //     uint256[] calldata ids,
-    //     uint256[] calldata values,
-    //     bytes calldata data
-    // ) public override returns (bytes4) {
-    //     return this.onERC1155BatchReceived.selector;
-    // }
+    function receivePayout(
+        string memory dialogTableId
+    ) public payable onlyOwner {
+        Dialog memory dialog = dialogMap[dialogTableId];
+        if (dialog.tokenId == 0) {
+            revert DialogDoesNotExist();
+        }
 
-    // function setTokenPrice(uint256 id, uint256 price) public onlyOwner {
-    //     tokenPrices[id] = price * 1 ether;
-    // }
+        if (dialog.ownerAddr != msg.sender) {
+            revert NotOwnerOfDialog();
+        }
 
-    // function buyToken(uint256 id, uint256 amount) public payable {
-    //     require(msg.value >= tokenPrices[id].mul(amount), "Insufficient funds");
-    //     _safeTransferFrom(address(this), msg.sender, id, amount, "");
-    // }
+        if (dialog.requestedTimes == 0) {
+            revert AlreadyPayedOut();
+        }
 
-    // function withdraw() public onlyOwner {
-    //     payable(owner()).transfer(address(this).balance);
-    // }
+        dialog.requestedTimes = 0;
+        dialogMap[dialog.tableId] = dialog;
 
-    // function storeTableId(address wallet, string memory id) public {
-    //     dataOwner.wallet = wallet;
-    //     dataOwner.tableIds.push(id);
-    //     OwnerToData[wallet] = dataOwner;
-    // }
+        payable(msg.sender).transfer(dataAccessFee * dialog.requestedTimes);
+    }
 
-    // function readAllDaoMemberTableIds(
-    //     address wallet
-    // ) public view onlyOwner returns (string[] memory) {
-    //     return OwnerToData[wallet].tableIds;
-    // }
+    function safeTransferFrom(
+        address from,
+        address to,
+        uint256 id,
+        uint256 amount,
+        bytes memory data
+    ) public override {
+        if (id != MEMBERSHIP) {
+            revert TransferNotAllowed();
+        }
 
-    // function claimRewards() external {
-    //     require(rewards > 0, "You have no rewards to claim");
-    //     rewardsToken.safeTransfer(msg.sender, rewards);
-    //     emit Transfer(address(this), msg.sender, rewards);
-    // }
+        super.safeTransferFrom(from, to, id, amount, data);
+    }
 
-    // function returnPrice(uint256 id) public view returns (uint256) {
-    //     return tokenPrices[id];
-    // }
+    function setURI(string memory newuri) public onlyOwner {
+        _setURI(newuri);
+    }
 }
