@@ -113,9 +113,7 @@ contract LilyLatte is ERC1155, Ownable {
         _mint(msg.sender, dialog.tokenId, 1, "");
     }
 
-    function receivePayout(
-        string memory dialogCid
-    ) public payable onlyOwner {
+    function receivePayout(string memory dialogCid) public payable onlyOwner {
         Dialog memory dialog = dialogMap[dialogCid];
         if (dialog.tokenId == 0) {
             revert DialogDoesNotExist();
@@ -129,10 +127,12 @@ contract LilyLatte is ERC1155, Ownable {
             revert AlreadyPayedOut();
         }
 
+        uint8 requestedTimes = dialog.requestedTimes;
         dialog.requestedTimes = 0;
+
         dialogMap[dialog.tableId] = dialog;
 
-        payable(msg.sender).transfer(dataAccessFee * dialog.requestedTimes);
+        payable(msg.sender).transfer(dataAccessFee * requestedTimes);
     }
 
     function safeTransferFrom(
