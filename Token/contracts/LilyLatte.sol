@@ -23,7 +23,7 @@ contract LilyLatte is ERC1155, Ownable {
         address wallet;
         string tableId;
         bool isMember;
-        string[] dialogTableIds;
+        string[] dialogCids;
     }
 
     struct Dialog {
@@ -35,7 +35,7 @@ contract LilyLatte is ERC1155, Ownable {
 
     /// @dev Mapping from tokenId to dialog tableland cid
     /// @notice the id of 0 is for membership tokens
-    mapping(uint256 => string) public tokenIdToDialogTableId;
+    mapping(uint256 => string) public tokenIdToDialogCid;
 
     /// @dev Mapping from dialog tableland cid to info struct
     mapping(string => Dialog) public dialogMap;
@@ -62,7 +62,7 @@ contract LilyLatte is ERC1155, Ownable {
             revert AlreadyMember();
         }
 
-        if (ownerToData[ownerAddr].dialogTableIds.length == 0) {
+        if (ownerToData[ownerAddr].dialogCids.length == 0) {
             revert NotParticipatedInDialog();
         }
 
@@ -75,19 +75,19 @@ contract LilyLatte is ERC1155, Ownable {
     /// @notice the first token the dataOwner gets, the next one data buyers
     function mintNewDialogToken(
         address ownerAddr,
-        string memory newDialogTableId
+        string memory newDialogCid
     ) public onlyOwner {
-        tokenIdToDialogTableId[currentIndex] = newDialogTableId;
+        tokenIdToDialogCid[currentIndex] = newDialogCid;
 
         Dialog memory dialog = Dialog({
-            tableId: newDialogTableId,
+            tableId: newDialogCid,
             ownerAddr: ownerAddr,
             tokenId: currentIndex,
             requestedTimes: 0
         });
-        dialogMap[newDialogTableId] = dialog;
+        dialogMap[newDialogCid] = dialog;
 
-        ownerToData[ownerAddr].dialogTableIds.push(newDialogTableId);
+        ownerToData[ownerAddr].dialogCids.push(newDialogCid);
 
         _mint(ownerAddr, currentIndex, 1, "");
 
@@ -96,13 +96,13 @@ contract LilyLatte is ERC1155, Ownable {
 
     /// @notice get access to the NewDialogToken by minitng a token to the sender
     function requestDialogTokenAccess(
-        string memory dialogTableId
+        string memory dialogCid
     ) public payable onlyOwner {
         if (msg.value != dataAccessFee) {
             revert FeeNotCovered(dataAccessFee);
         }
 
-        Dialog memory dialog = dialogMap[dialogTableId];
+        Dialog memory dialog = dialogMap[dialogCid];
         if (dialog.tokenId == 0) {
             revert DialogDoesNotExist();
         }
@@ -114,9 +114,9 @@ contract LilyLatte is ERC1155, Ownable {
     }
 
     function receivePayout(
-        string memory dialogTableId
+        string memory dialogCid
     ) public payable onlyOwner {
-        Dialog memory dialog = dialogMap[dialogTableId];
+        Dialog memory dialog = dialogMap[dialogCid];
         if (dialog.tokenId == 0) {
             revert DialogDoesNotExist();
         }
