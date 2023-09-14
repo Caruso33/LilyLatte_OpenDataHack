@@ -1,4 +1,4 @@
-import { ethers } from "ethers";
+import { ethers, Signer } from "ethers";
 import { ref } from "vue";
 
 const NETWORK = "maticmum";
@@ -16,6 +16,9 @@ export const useLatteEth = () => {
 
   let signer;
 
+  /**
+   * @returns {Promise<Signer>} ethers signer
+   */
   const getInstance = async () => {
     if (instance.value) return instance.value;
 
@@ -25,6 +28,18 @@ export const useLatteEth = () => {
     walletAddress.value = wallet;
 
     return signer;
+  };
+
+  const changeNetwork = async () => {
+    provider.get;
+    provider.Network.add({
+      name: "customNetwork",
+      chainId: 3141,
+      _defaultProvider: () =>
+        new ethers.providers.JsonRpcProvider(
+          "https://customnetwork-rpc-url.com"
+        ),
+    });
   };
 
   const getTransactions = async () => {
@@ -37,6 +52,7 @@ export const useLatteEth = () => {
   };
 
   return {
+    getInstance,
     getTransactions,
   };
 };

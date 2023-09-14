@@ -6,7 +6,7 @@ class MetamaskProvider {
    */
   #provider;
   #wallet;
-  #definedChainId = "0x89";
+  #definedChainId = "0xc45";
 
   constructor({ provider }) {
     this.#provider = this.createWeb3Instance(provider);
@@ -83,10 +83,10 @@ class MetamaskProvider {
     //     const polygonParams = [
     //       {
     //         chainId: this.#definedChainId,
-    //         chainName: "Polygon Mainnet",
+    //         chainName: "Filecoin - Hyperspace testnet",
     //         nativeCurrency: {
-    //           name: "MATIC",
-    //           symbol: "MATIC",
+    //           name: "tFIL",
+    //           symbol: "tFIL",
     //           decimals: 18,
     //         },
     //         rpcUrls: ["https://rpc-mainnet.maticvigil.com/"],

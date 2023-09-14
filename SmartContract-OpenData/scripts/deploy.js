@@ -8,7 +8,6 @@ const hre = require("hardhat");
 
 async function main() {
   const [deployer] = await hre.ethers.getSigners();
-
   const OpenData = await hre.ethers.getContractFactory("MyToken", deployer);
   console.log("Deploying contracrt . . .");
   
