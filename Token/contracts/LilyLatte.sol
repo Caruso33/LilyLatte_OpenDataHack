@@ -45,8 +45,8 @@ contract LilyLatte is ERC1155, Ownable {
 
     constructor() ERC1155("Lilylatte") {}
 
-    function addOwner(address wallet, string memory tableId) public onlyOwner {
-        if (ownerToData[msg.sender].wallet == address(0)) {
+    function addOwner(address wallet, string memory tableId) public {
+        if (ownerToData[msg.sender].wallet != address(0)) {
             revert AlreadyOwner();
         }
 
@@ -55,7 +55,7 @@ contract LilyLatte is ERC1155, Ownable {
         ownerToData[msg.sender].isMember = false;
     }
 
-    function addOwnerAsMember(address ownerAddr) public onlyOwner {
+    function addOwnerAsMember(address ownerAddr) public {
         DataOwner storage dataOwner = ownerToData[msg.sender];
 
         if (dataOwner.isMember) {
@@ -76,7 +76,7 @@ contract LilyLatte is ERC1155, Ownable {
     function mintNewDialogToken(
         address ownerAddr,
         string memory newDialogCid
-    ) public onlyOwner {
+    ) public {
         tokenIdToDialogCid[currentIndex] = newDialogCid;
 
         Dialog memory dialog = Dialog({
@@ -95,9 +95,7 @@ contract LilyLatte is ERC1155, Ownable {
     }
 
     /// @notice get access to the NewDialogToken by minitng a token to the sender
-    function requestDialogTokenAccess(
-        string memory dialogCid
-    ) public payable onlyOwner {
+    function requestDialogTokenAccess(string memory dialogCid) public payable {
         if (msg.value != dataAccessFee) {
             revert FeeNotCovered(dataAccessFee);
         }
@@ -113,7 +111,7 @@ contract LilyLatte is ERC1155, Ownable {
         _mint(msg.sender, dialog.tokenId, 1, "");
     }
 
-    function receivePayout(string memory dialogCid) public payable onlyOwner {
+    function receivePayout(string memory dialogCid) public payable {
         Dialog memory dialog = dialogMap[dialogCid];
         if (dialog.tokenId == 0) {
             revert DialogDoesNotExist();
