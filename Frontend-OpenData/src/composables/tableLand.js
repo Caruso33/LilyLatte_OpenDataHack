@@ -1,5 +1,5 @@
 import { onMounted, ref } from "vue";
-import { Database, helpers } from "@tableland/sdk";
+import { Database } from "@tableland/sdk";
 import { useToast } from "vue-toastification";
 
 export const useTableLand = () => {
@@ -22,15 +22,14 @@ export const useTableLand = () => {
   const createTable = async (tableName) => {
     loading.value = true;
 
-    const chainId = await signer.getChainId();
-    // Note: the `baseUrl` is not required for `Registry` API calls
     const db = new Database({
       signer,
-      baseUrl: helpers.getBaseUrl(chainId),
     });
 
     const { meta } = await db
-      .prepare(`CREATE TABLE ${tableName} (id integer primary key, val text);`)
+      .prepare(
+        `CREATE TABLE ${tableName} (id integer primary key, Features text, dataRequest text, dataDialog text);`
+      )
       .run();
 
     console.log("table has been created successfully", meta);
@@ -40,12 +39,12 @@ export const useTableLand = () => {
 
     console.log("tableRef name", _tableRef);
 
-    localStorage.setItem("table_land_name", _tableRef);
+    localStorage.setItem("tableRef", _tableRef);
 
     tableRef.value = _tableRef;
 
     loading.value = false;
-    return tableRef;
+    return _tableRef;
   };
 
   const getRows = async (db) => {
@@ -93,7 +92,6 @@ export const useTableLand = () => {
       .bind("marcus sample text " + Math.floor(Math.random() * 100))
       .run();
 
-    // Wait for transaction finality
     const tx = await insert.txn.wait();
     console.log("after inserting record", tx);
 

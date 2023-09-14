@@ -4,6 +4,7 @@
       v-for="(item, i) in items"
       :key="i"
       class="col-6"
+      :disabled="disabled"
       v-bind="item"
       v-on="!disabled ? item : {}"
     />

@@ -33,10 +33,21 @@
 import { onMounted, ref } from "vue";
 import Indicator from "@/components/indicator.vue";
 import { useToast } from "vue-toastification";
-import { switchNetwork } from "@/constants/ethereum-functions";
+import { addNetwork, switchNetwork } from "@/constants/ethereum-functions";
 import { FVM, Lilypad } from "@/constants/chains";
 
+import { useTableLand } from "@/composables/tableLand";
+import { useLatteEth } from "@/composables/latte";
+
 const toast = useToast();
+
+const {
+  setSigner,
+  tableRef,
+  tableLandFunctions,
+  loading: tableLandLoading,
+} = useTableLand();
+const latteEth = useLatteEth();
 
 const emit = defineEmits(["afterMintGraph"]);
 
@@ -50,8 +61,8 @@ const steps = ref([
     onRun: () => mintGraph(),
   },
   {
-    title: "Change network to FIL",
-    onRun: () => changeNetworkToFIL(),
+    title: "Change network to Lily",
+    onRun: () => changeNetworkToLily(),
   },
   {
     title: "Summon Lily, your AI Interviewer and start your first conversation",
@@ -63,7 +74,9 @@ const steps = ref([
   },
 ]);
 
-onMounted(() => {
+onMounted(async () => {
+  const signer = await latteEth.getInstance();
+  setSigner(signer);
   steps.value[step.value].onRun();
 });
 
@@ -72,14 +85,15 @@ const retry = () => {
   steps.value[step.value].onRun();
 };
 
-const onError = () => {
+const onError = (error) => {
+  console.log("error", error);
   hasError.value = true;
-  if (steps.value[step.value]?.title)
-    toast.error(
-      `Something went wrong in '${
-        steps.value[step.value]?.title
-      }' step. please try again`
-    );
+  // if (steps.value[step.value]?.title)
+  //   toast.error(
+  //     `Something went wrong in '${
+  //       steps.value[step.value]?.title
+  //     }' step. please try again`
+  //   );
 };
 
 const nextStep = () => {
@@ -89,16 +103,21 @@ const nextStep = () => {
 
 const mintGraph = async () => {
   try {
-    setTimeout(() => {
+    if (localStorage.getItem("tableRef")) {
       nextStep();
-    }, 1000);
-    // nextStep();
+      return;
+    }
+
+    await addNetwork([FVM]);
+    await switchNetwork(FVM.chainId);
+    await tableLandFunctions.createTable("OpenData");
+    nextStep();
   } catch (error) {
     onError(error);
   }
 };
 
-const changeNetworkToFIL = async () => {
+const changeNetworkToLily = async () => {
   try {
     await switchNetwork(Lilypad.chainId);
 

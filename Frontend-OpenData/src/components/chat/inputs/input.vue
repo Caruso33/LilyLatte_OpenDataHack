@@ -42,7 +42,7 @@ const model = computed({
 
 <style scoped lang="scss">
 .prompt-form {
-  background-color: #40414f;
+  background-color: var(--primary);
   padding: 10px 20px;
   border-radius: var(--border-radius);
   width: 100%;

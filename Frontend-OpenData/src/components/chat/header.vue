@@ -4,6 +4,10 @@
 
     <div class="spacer" />
 
+    <Progress v-if="$store.state.step" :progress="$store.state.step" />
+
+    <div class="spacer" />
+
     <div v-if="wallet" class="d-flex cursor-pointer align-center">
       <div class="bullet green-bg mr-1"></div>
       <small>Address connected</small>
@@ -19,6 +23,7 @@
 <script setup>
 import Logo from "@/assets/icons/logo.vue";
 import { useMetamask } from "@/composables/metamask";
+import Progress from "@/components/progress.vue";
 
 const { metamaskFunctions, wallet } = useMetamask();
 </script>
@@ -27,7 +32,7 @@ const { metamaskFunctions, wallet } = useMetamask();
 header {
   padding: 0.75rem;
   display: flex;
-  background-color: #40414f;
+  background-color: var(--primary);
   color: white;
   border-bottom: 1px solid black;
 

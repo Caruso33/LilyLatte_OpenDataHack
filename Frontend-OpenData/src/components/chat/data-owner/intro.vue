@@ -37,8 +37,8 @@ import { inject, nextTick, ref } from "vue";
 import ChatInput from "@/components/chat/inputs/input.vue";
 import ChatItem from "@/components/chat/item.vue";
 import MultiBtns from "@/components/chat/inputs/multi-btns.vue";
-import MintGraph from "@/components/chat/mint-graph.vue";
-import GeneratedQuestionsMessage from "@/components/chat/generated-questions-message.vue";
+import MintGraph from "@/components/chat/data-owner/mint-graph.vue";
+import GeneratedQuestionsMessage from "@/components/chat/data-owner/generated-questions-message.vue";
 
 import { useMetamask } from "@/composables/metamask";
 
@@ -55,8 +55,8 @@ const step = ref(0);
 const currentStepInputs = ref([
   [
     {
-      title: "Got it",
-      subtitle: "to catch attention, the second one is less oustanding",
+      title: "Let's go! ",
+      subtitle: "I get it, lots of Metamask popups, I’m used to it.",
       click: () => gotIt(),
     },
   ],
@@ -74,26 +74,8 @@ const currentStepInputs = ref([
       distinct: true,
       click: () => startMinGraph(),
     },
-    {
-      title: "Using what?",
-      subtitle: "And why is good for me?",
-    },
   ],
   [],
-  [
-    {
-      title: "What next?",
-      click: () => whatsNext(),
-    },
-  ],
-  [
-    {
-      title: "Generate interview questions",
-      subtitle: "(est. gas fee: 0.05$)",
-      distinct: true,
-      click: () => generateQuestions(),
-    },
-  ],
   [],
 ]);
 
@@ -112,8 +94,6 @@ const scrollToEnd = async () => {
   parentDiv.scrollTop = parentDiv.scrollHeight - parentDiv.clientHeight;
 };
 
-const send = (item, text) => {};
-
 const nextStep = (newChats) => {
   chats.value.push(...newChats);
   step.value += 1;
@@ -124,7 +104,7 @@ const nextStep = (newChats) => {
 const onSuccessConnectWallet = () => {
   nextStep([
     {
-      message: "(Wallet connected)",
+      message: "Wallet connected.",
       isMine: true,
     },
     {
@@ -137,11 +117,11 @@ const onSuccessConnectWallet = () => {
 const gotIt = () => {
   nextStep([
     {
-      message: "I get it, lots of wallet popups, I’m used to it.",
+      message: "I get it, lots of metamask popups, I’m used to it.",
       isMine: true,
     },
     {
-      message: "(Connect wallet)",
+      message: "Connect your wallet please.",
     },
   ]);
 };
@@ -161,32 +141,15 @@ const startMinGraph = () => {
 const afterMintGraph = () => {
   nextStep([
     {
-      message: "Nice work.  Your       Profile is ready. ",
-    },
-  ]);
-};
-
-const whatsNext = () => {
-  nextStep([
-    {
-      message: "What next?",
-      isMine: true,
-    },
-    {
       message:
-        "We will generate your first interview questions according to your onchain data.Can we start it?",
+        "🌺 Hey there, I'm Lily, your AI Interviewer! 🌺 <br/>I've just taken a quick peek at your on-chain behavior, and I must say, you're a true web3 citizen! 🚀 <br/>🤔 Curious Topics Await!You'll see some topics popping up on the left side of your screen. These are subjects I'm really curious to dive into with you. <br/>👈 Your Choice, Your Voice!Feel free to pick any topic that piques your interest. Remember, this is all about you and your thoughts!",
     },
   ]);
+
+  generateQuestions();
 };
 
 const generateQuestions = () => {
-  nextStep([
-    {
-      message: "<b>Yes!</b> Start generating interview questions! ",
-      isMine: true,
-    },
-  ]);
-
   setTimeout(() => {
     setTopics([
       {

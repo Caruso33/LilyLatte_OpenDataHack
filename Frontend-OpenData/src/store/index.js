@@ -7,6 +7,7 @@ export default createStore({
      */
     web3: null,
     wallet: null,
+    step: null,
   },
   getters: {},
   mutations: {
@@ -15,6 +16,9 @@ export default createStore({
     },
     setWallet(state, { wallet }) {
       state.wallet = wallet;
+    },
+    setProgressStep(state, { step }) {
+      state.step = step;
     },
   },
   actions: {},

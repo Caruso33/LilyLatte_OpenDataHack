@@ -7,6 +7,7 @@
     "build": "vue-cli-service build"
   },
   "dependencies": {
+    "@cowprotocol/ts-dune-client": "^0.0.2",
     "@lighthouse-web3/sdk": "^0.2.7",
     "@tableland/sdk": "^4.5.1",
     "core-js": "^3.8.3",

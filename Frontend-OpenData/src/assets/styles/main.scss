@@ -4,7 +4,11 @@ $card-border-width: 1px 2px 2px 1px;
 
 :root {
     --border-radius: 0.5rem;
-    --hover-transition: 0.2s all ease-in-out
+    --hover-transition: 0.2s all ease-in-out;
+
+    --primary: #40414f;
+    --secondary: #343541;
+    --tertiary: #4d4d4f;
 }
 
 * {
@@ -22,6 +26,14 @@ $card-border-width: 1px 2px 2px 1px;
     background-color: #E4D2FA;
     width: 100%;
     height: 100vh;
+}
+
+.primary-bg {
+    background-color: var(--primary);
+}
+
+.secondary-bg {
+    background-color: var(--secondary);
 }
 
 $base: 8px;
@@ -333,6 +345,15 @@ $base: 8px;
         width: 4rem;
         height: 4rem;
     }
+
+    &-80 {
+        width: 5rem;
+        height: 5rem;
+    }
+}
+
+.overflow-auto {
+    overflow: auto;
 }
 
 ul {

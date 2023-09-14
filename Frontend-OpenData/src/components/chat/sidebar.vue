@@ -7,11 +7,16 @@
         :title="topic.title"
         :isActive="model?.id == topic.id"
         :withNewText="topic.isNew"
-        @click="model = topic"
+        @click="$router.push(`/${topic.id}`)"
       />
     </div>
     <div class="mt-auto">
-      <topic :title="'My profile'" :isActive="i == 1" :withBorder="false" />
+      <topic
+        :title="'My profile'"
+        :isActive="route.path == '/profile'"
+        :withBorder="false"
+        @click="$router.push(`/profile`)"
+      />
       <topic :title="'Gitbook'" :isActive="i == 1" :withBorder="false" />
       <topic :title="'Landing'" :isActive="i == 1" :withBorder="false" />
     </div>
@@ -21,12 +26,15 @@
 <script setup>
 import Topic from "@/components/chat/topic.vue";
 import { computed, inject } from "vue";
+import { useRoute } from "vue-router";
 
 const props = defineProps({
   modelValue: String,
 });
 
 const emit = defineEmits(["update:modelValue"]);
+
+const route = useRoute();
 
 const topics = inject("topics");
 
