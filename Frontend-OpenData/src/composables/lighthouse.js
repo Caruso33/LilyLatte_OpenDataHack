@@ -28,6 +28,21 @@ export const useLighthouse = () => {
     return _uploadResponse.data;
   };
 
+  const uploadJson = async (data) => {
+    const blob = new Blob([JSON.stringify(data)], {
+      type: "application/json;charset=utf-8",
+    });
+
+    const fileName = "question.json";
+    blob.name = fileName;
+
+    const result = await lighthouseFunctions.upload(blob);
+
+    console.log("result of uploadFastChatQuestion", result);
+
+    return result?.Hash || "";
+  };
+
   const progressCallback = (progressData) => {
     let percentageDone =
       100 - (progressData?.total / progressData?.uploaded)?.toFixed(2);
@@ -48,7 +63,7 @@ export const useLighthouse = () => {
       API_KEY,
       signature.publicKey,
       signature.signedMessage,
-      "Filename_marcus",
+      "conversation_open_data",
       progressCallback
     );
 
@@ -101,7 +116,7 @@ export const useLighthouse = () => {
     const conditions = [
       {
         id: 1,
-        chain: "mumbai",
+        chain: "FVM",
         method: "balanceOf",
         standardContractType: "ERC20",
         contractAddress: "0x48c7f07f6B3d58C03bf39260189DbfEA2d73520B",
@@ -137,6 +152,7 @@ export const useLighthouse = () => {
 
   const lighthouseFunctions = {
     upload,
+    uploadJson,
     uploadEncrypted,
     decrypt,
     getUploads,

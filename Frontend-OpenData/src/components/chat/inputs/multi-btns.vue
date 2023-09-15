@@ -1,6 +1,6 @@
 <template>
   <div class="row row-reverse">
-    <SelectableBtn
+    <topic
       v-for="(item, i) in items"
       :key="i"
       class="col-6"
@@ -12,7 +12,7 @@
 </template>
 
 <script setup>
-import SelectableBtn from "@/components/chat/inputs/selectable-btn.vue";
+import Topic from "@/components/chat/topic.vue";
 
 defineProps({
   items: {

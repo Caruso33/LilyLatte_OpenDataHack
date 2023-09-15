@@ -1,20 +1,23 @@
 <template>
   <div class="sideBar d-flex flex-column expand-height">
     <div class="chat-group flex-1">
-      <topic
-        v-for="(topic, i) in topics"
-        :key="i"
-        :title="topic.title"
-        :isActive="model?.id == topic.id"
-        :withNewText="topic.isNew"
-        @click="$router.push(`/${topic.id}`)"
-      />
+      <transition-group>
+        <topic
+          v-for="topic in topics"
+          :key="topic.id"
+          :title="topic.title"
+          :isActive="model?.id == topic.id"
+          :withNewText="topic.isNew"
+          @click="$router.push(`/${topic.id}`)"
+        />
+      </transition-group>
     </div>
     <div class="mt-auto">
       <topic
         :title="'My profile'"
         :isActive="route.path == '/profile'"
         :withBorder="false"
+        :disabled="!$store.state.isProfileEnabled"
         @click="$router.push(`/profile`)"
       />
       <topic :title="'Gitbook'" :isActive="i == 1" :withBorder="false" />

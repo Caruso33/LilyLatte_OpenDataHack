@@ -47,6 +47,7 @@ const {
   tableLandFunctions,
   loading: tableLandLoading,
 } = useTableLand();
+
 const latteEth = useLatteEth();
 
 const emit = defineEmits(["afterMintGraph"]);

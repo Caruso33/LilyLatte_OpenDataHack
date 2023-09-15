@@ -47,7 +47,7 @@ export const useTableLand = () => {
     return _tableRef;
   };
 
-  const getRows = async (db) => {
+  const getRows = async (_tableRef, db) => {
     loading.value = true;
 
     if (!db && signer) db = new Database({ signer });
@@ -57,7 +57,7 @@ export const useTableLand = () => {
     }
 
     const { results } = await db
-      .prepare(`SELECT * FROM ${tableRef.value};`)
+      .prepare(`SELECT * FROM ${_tableRef ?? tableRef.value};`)
       .all();
 
     loading.value = false;
@@ -80,7 +80,7 @@ export const useTableLand = () => {
     return results?.length ? results[0].count : 0;
   };
 
-  const insertIntoTable = async () => {
+  const insertIntoTable = async (features, dataRequest, dataDialog) => {
     loading.value = true;
 
     const db = new Database({
@@ -88,8 +88,10 @@ export const useTableLand = () => {
     });
 
     const { meta: insert } = await db
-      .prepare(`INSERT INTO ${tableRef.value} (val) VALUES (?);`)
-      .bind("marcus sample text " + Math.floor(Math.random() * 100))
+      .prepare(
+        `INSERT INTO ${tableRef.value} (Features, dataRequest, dataDialog) VALUES (?, ?, ?);`
+      )
+      .bind(features, dataRequest, dataDialog)
       .run();
 
     const tx = await insert.txn.wait();

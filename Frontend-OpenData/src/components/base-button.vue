@@ -8,7 +8,7 @@
 </template>
 
 <script setup>
-import Indicator from "./indicator.vue";
+import Indicator from "@/components/indicator.vue";
 
 defineProps({
   loading: Boolean,

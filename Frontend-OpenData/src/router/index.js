@@ -18,14 +18,24 @@ const routes = [
     component: Chat,
   },
   {
-    path: "/profile/:id?",
-    name: "Profile",
-    component: () => import("@/views/profile.vue"),
+    path: "/myprofile",
+    name: "myProfile",
+    component: () => import("@/views/myprofile.vue"),
   },
   {
     path: "/profiles",
     name: "Profiles",
     component: () => import("@/views/profiles.vue"),
+  },
+  {
+    path: "/profiles/:address",
+    name: "Profile",
+    component: () => import("@/views/profile.vue"),
+  },
+  {
+    path: "/profiles/:address/:title",
+    name: "PrivateChat",
+    component: () => import("@/views/privateChat.vue"),
   },
   // {
   //   path: "/",

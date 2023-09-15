@@ -39,12 +39,14 @@ import ChatItem from "@/components/chat/item.vue";
 import MultiBtns from "@/components/chat/inputs/multi-btns.vue";
 
 import { useMetamask } from "@/composables/metamask";
+import { useRouter } from "vue-router";
 
-const message = ref("");
-
+const router = useRouter();
 const { metamaskFunctions } = useMetamask();
 
 const setTopics = inject("setTopics");
+
+const message = ref("");
 
 const isInputsDisable = ref(false);
 
@@ -95,15 +97,6 @@ const nextStep = (newChats) => {
   isInputsDisable.value = false;
 };
 
-const onSuccessConnectWallet = () => {
-  nextStep([
-    {
-      message: "Wallet connected.",
-      isMine: true,
-    },
-  ]);
-};
-
 const gotIt = () => {
   nextStep([
     {
@@ -114,6 +107,17 @@ const gotIt = () => {
       message: "Connect your wallet please.",
     },
   ]);
+};
+
+const onSuccessConnectWallet = () => {
+  nextStep([
+    {
+      message: "Wallet connected.",
+      isMine: true,
+    },
+  ]);
+
+  router.replace("/profiles");
 };
 </script>
 

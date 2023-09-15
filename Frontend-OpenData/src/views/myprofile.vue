@@ -1,5 +1,5 @@
 <template>
-  <div class="profile-item" @click="routeToUserProfile">
+  <div class="primary-bg">
     <div class="container mx-auto">
       <div class="d-flex justify-space-between">
         <div>
@@ -28,38 +28,12 @@
 import Chip from "@/components/chip.vue";
 import Detail from "@/components/profile/detail.vue";
 import DAO from "@/assets/icons/DAO.vue";
-import { useRouter } from "vue-router";
-import { useStore } from "vuex";
-
-const props = defineProps({
-  item: Object,
-});
-
-const router = useRouter();
-const store = useStore();
-
-const routeToUserProfile = () => {
-  store.commit("setUserProfile", props.item);
-  router.replace({
-    name: "Profile",
-    params: {
-      address: props.item?.address || 1,
-    },
-  });
-};
 </script>
 
 <style scoped lang="scss">
-.profile-item {
-  border: 1px solid var(--sky-blue);
-  margin: 0.5rem 0;
-  cursor: pointer;
-  padding: 10px;
-  border-radius: var(--border-radius);
-  transition: var(--hover-transition);
-
-  &:hover {
-    background-color: var(--primary);
+.profile {
+  &__details {
+    max-width: 30rem;
   }
 }
 </style>

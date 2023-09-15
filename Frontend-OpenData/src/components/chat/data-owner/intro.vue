@@ -41,10 +41,18 @@ import MintGraph from "@/components/chat/data-owner/mint-graph.vue";
 import GeneratedQuestionsMessage from "@/components/chat/data-owner/generated-questions-message.vue";
 
 import { useMetamask } from "@/composables/metamask";
+import { useLighthouse } from "@/composables/lighthouse";
+import { useLilypad } from "@/composables/lilypad";
+import { useStore } from "vuex";
 
 const message = ref("");
 
+const store = useStore();
+
 const { metamaskFunctions } = useMetamask();
+
+const { lighthouseFunctions } = useLighthouse();
+const { lilypadFunctions } = useLilypad();
 
 const setTopics = inject("setTopics");
 
@@ -101,6 +109,18 @@ const nextStep = (newChats) => {
   isInputsDisable.value = false;
 };
 
+const gotIt = () => {
+  nextStep([
+    {
+      message: "I get it, lots of metamask popups, I’m used to it.",
+      isMine: true,
+    },
+    {
+      message: "Connect your wallet please.",
+    },
+  ]);
+};
+
 const onSuccessConnectWallet = () => {
   nextStep([
     {
@@ -110,18 +130,6 @@ const onSuccessConnectWallet = () => {
     {
       message:
         "<b>Nice! Almost there! Before we start your interview </b>  you need to accept several popups. This steps will needs a little gas fee. (Why?)  It wont cost you more than 2-3 (?) usd equivalent FIL. <br/> <br/><ul><li>Mint a dataGraph (Why?) </li><li>Change network to FIL (Why?) </li><li>Summon Lily, your AI Interviewer and start your first conversation </li><li>(Upload this to your profile)</li></ul> <br/> <br/>Can we start this?",
-    },
-  ]);
-};
-
-const gotIt = () => {
-  nextStep([
-    {
-      message: "I get it, lots of metamask popups, I’m used to it.",
-      isMine: true,
-    },
-    {
-      message: "Connect your wallet please.",
     },
   ]);
 };
@@ -146,10 +154,15 @@ const afterMintGraph = () => {
     },
   ]);
 
+  store.commit("setProfileFlag", true);
+
   generateQuestions();
 };
 
-const generateQuestions = () => {
+const generateQuestions = async () => {
+  const cid = await uploadFastChatQuestion();
+  const result = await requestFastChatAnswers(cid);
+  console.log("result requestFastChatAnswers", result);
   setTimeout(() => {
     setTopics([
       {
@@ -170,6 +183,28 @@ const generateQuestions = () => {
       },
     ]);
   }, 3000);
+};
+
+const uploadFastChatQuestion = async () => {
+  const template = {
+    template:
+      "You are a friendly chatbot assistant that responds conversationally to users' questions. \n Keep the answers short, unless specifically asked by the user to elaborate on something. \n \n Question: {question} \n \n Answer:",
+    parameters: {
+      question: "Ask me 3 random questions and separate them with #",
+    },
+  };
+
+  const cid = await lighthouseFunctions.uploadJson(template);
+
+  return cid;
+};
+
+const requestFastChatAnswers = async (cid) => {
+  const results = await lilypadFunctions.requestAndGetNewResults(cid);
+
+  console.log(results);
+
+  return results;
 };
 </script>
 

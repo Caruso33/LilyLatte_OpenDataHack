@@ -14,12 +14,9 @@ import ChatOwnerIntro from "@/components/chat/data-owner/intro.vue";
 import ChatBuyerIntro from "@/components/chat/data-buyer/intro.vue";
 import ChatConversation from "@/components/chat/data-owner/conversation.vue";
 import { useDune } from "@/composables/dune";
-import { useLatteEth } from "@/composables/latte";
 import { useMetamask } from "@/composables/metamask";
 
 const route = useRoute();
-
-const { duneFunctions } = useDune();
 
 const { wallet, metamaskFunctions } = useMetamask();
 
@@ -30,7 +27,6 @@ const topics = inject("topics");
 
 onMounted(async () => {
   await metamaskFunctions.connect();
-  duneFunctions.get(wallet.value);
 });
 
 watch(route, () => {
