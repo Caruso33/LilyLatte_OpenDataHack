@@ -1,19 +1,32 @@
 <template>
   <div class="sideBar d-flex flex-column expand-height">
     <div class="chat-group flex-1">
-      <topic
-        v-for="(topic, i) in topics"
-        :key="i"
-        :title="topic.title"
-        :isActive="model?.id == topic.id"
-        :withNewText="topic.isNew"
-        @click="model = topic"
-      />
+      <transition-group>
+        <topic
+          v-for="topic in topics"
+          :key="topic.path"
+          :title="topic.title"
+          :isActive="model?.path == topic.path"
+          :withNewText="topic.isNew"
+          @click="$router.push(`${topic.path}`)"
+        />
+      </transition-group>
     </div>
     <div class="mt-auto">
-      <topic :title="'My profile'" :isActive="i == 1" :withBorder="false" />
-      <topic :title="'Gitbook'" :isActive="i == 1" :withBorder="false" />
-      <topic :title="'Landing'" :isActive="i == 1" :withBorder="false" />
+      <topic
+        :title="'My profile'"
+        :isActive="route.path == '/profile'"
+        :withBorder="false"
+        :disabled="!$store.state.isProfileEnabled"
+        @click="$router.push(`/profile`)"
+      />
+      <topic
+        :title="'Opinions of DAO'"
+        :withBorder="false"
+        @click="$router.push(`/opinions`)"
+      />
+      <topic :title="'Gitbook'" :withBorder="false" />
+      <topic :title="'Landing'" :withBorder="false" />
     </div>
   </div>
 </template>
@@ -21,12 +34,15 @@
 <script setup>
 import Topic from "@/components/chat/topic.vue";
 import { computed, inject } from "vue";
+import { useRoute } from "vue-router";
 
 const props = defineProps({
   modelValue: String,
 });
 
 const emit = defineEmits(["update:modelValue"]);
+
+const route = useRoute();
 
 const topics = inject("topics");
 

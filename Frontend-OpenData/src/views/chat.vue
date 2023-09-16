@@ -1,36 +1,45 @@
 <template>
-  <div class="d-flex flex-column expand">
-    <chat-header />
-    <div class="chat flex-1 expand">
-      <sidebar v-model="selectedTopic" />
-
-      <div class="content">
-        <div class="d-flex flex-column expand">
-          <chat-intro v-if="selectedTopic == null" />
-          <chat-conversation v-else :topic="selectedTopic" />
-        </div>
-      </div>
-    </div>
-  </div>
+  <component
+    v-if="selectedTopic == null"
+    :is="$route.params.type == 'owner' ? ChatOwnerIntro : ChatBuyerIntro"
+  />
+  <chat-conversation v-else :topic="selectedTopic" />
 </template>
 
 <script setup>
-import { provide, ref } from "vue";
+import { inject, onMounted, watch } from "vue";
+import { useRoute } from "vue-router";
 
-import ChatHeader from "@/components/chat/header.vue";
-import Sidebar from "@/components/chat/sidebar.vue";
-import ChatIntro from "@/components/chat/intro.vue";
-import ChatConversation from "@/components/chat/conversation.vue";
+import ChatOwnerIntro from "@/components/chat/data-owner/intro.vue";
+import ChatBuyerIntro from "@/components/chat/data-buyer/intro.vue";
+import ChatConversation from "@/components/chat/data-owner/conversation.vue";
+import { useDune } from "@/composables/dune";
+import { useMetamask } from "@/composables/metamask";
 
-const selectedTopic = ref(null);
-const topics = ref([]);
+const route = useRoute();
 
-const setTopics = (_topics) => {
-  topics.value = _topics;
-};
+const selectedTopic = inject("selectedTopic");
+const setSelectedTopic = inject("setSelectedTopic");
 
-provide("topics", topics);
-provide("setTopics", setTopics);
+const topics = inject("topics");
+
+watch(
+  route,
+  () => {
+    if (!route.params.title) {
+      setSelectedTopic(null);
+      return;
+    }
+
+    const topic = topics.value.find((topic) =>
+      topic.title.includes(route.params.title)
+    );
+    setSelectedTopic(topic || null);
+  },
+  {
+    immediate: true,
+  }
+);
 </script>
 
 <style scoped lang="scss">
@@ -49,65 +58,6 @@ provide("setTopics", setTopics);
 .content {
   width: 100%;
   height: 100%;
-  background-color: #343541;
-}
-
-h1 {
-  font-size: 36px;
-  color: #ececf1;
-}
-
-.default-chat {
-  margin-top: 50px;
-  display: flex;
-  justify-content: center;
-  margin-bottom: 15px;
-}
-
-.def-promt {
-  width: 1000px;
-  display: flex;
-  justify-content: center;
-  margin: auto;
-  padding: 5px 150px;
-  gap: 10px;
-}
-
-.prompt-A {
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-  align-items: center;
-  background-color: #3e3f4b;
-  text-align: center;
-  padding: 15px 18px;
-  margin-bottom: 5px;
-  border-radius: 5px;
-}
-
-.prompt-A p {
-  font-size: 14px;
-}
-
-.message-prompt {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: rebeccapurple;
-}
-
-.final {
-  justify-content: space-between;
-  text-align: center;
-  align-items: center;
-}
-
-.final p {
-  font-size: 12px;
-  color: #c5c5d2;
-}
-u {
-  font-size: 12px;
-  color: #c5c5d2;
+  background-color: var(--secondary);
 }
 </style>

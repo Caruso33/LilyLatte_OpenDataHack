@@ -7,6 +7,10 @@ export default createStore({
      */
     web3: null,
     wallet: null,
+    step: null,
+    isProfileEnabled: false,
+    selectedUser: null,
+    questions: [],
   },
   getters: {},
   mutations: {
@@ -15,6 +19,18 @@ export default createStore({
     },
     setWallet(state, { wallet }) {
       state.wallet = wallet;
+    },
+    setProgressStep(state, { step }) {
+      state.step = step;
+    },
+    setProfileFlag(state, isProfileEnabled) {
+      state.isProfileEnabled = isProfileEnabled;
+    },
+    setUserProfile(state, selectedUser) {
+      state.selectedUser = selectedUser;
+    },
+    setQuestions(state, questions) {
+      state.questions = questions;
     },
   },
   actions: {},

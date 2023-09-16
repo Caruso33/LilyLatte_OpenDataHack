@@ -1,6 +1,10 @@
 <template>
   <header class="pr-4">
-    <Logo class="icon icon-32" />
+    <Logo class="icon icon-32 cursor-pointer" @click="$router.push('/')" />
+
+    <div class="spacer" />
+
+    <Progress v-if="$store.state.step != null" :progress="$store.state.step" />
 
     <div class="spacer" />
 
@@ -19,6 +23,7 @@
 <script setup>
 import Logo from "@/assets/icons/logo.vue";
 import { useMetamask } from "@/composables/metamask";
+import Progress from "@/components/progress.vue";
 
 const { metamaskFunctions, wallet } = useMetamask();
 </script>
@@ -27,7 +32,7 @@ const { metamaskFunctions, wallet } = useMetamask();
 header {
   padding: 0.75rem;
   display: flex;
-  background-color: #40414f;
+  background-color: var(--primary);
   color: white;
   border-bottom: 1px solid black;
 

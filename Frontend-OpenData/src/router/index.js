@@ -1,11 +1,51 @@
 import { createRouter, createWebHistory } from "vue-router";
-import Login from "@/views/Login.vue";
+// import Login from "@/views/Login.vue";
+import Intro from "@/views/intro.vue";
+import Chat from "@/views/chat.vue";
 
 const routes = [
   {
     path: "/",
+    name: "Intro",
+    component: Intro,
+    meta: {
+      hideSideBar: true,
+    },
+  },
+  {
+    path: "/chat/:type/:title?",
+    name: "Chat",
+    component: Chat,
+  },
+  {
+    path: "/myprofile",
+    name: "myProfile",
+    component: () => import("@/views/myprofile.vue"),
+  },
+  {
+    path: "/profiles",
+    name: "Profiles",
+    component: () => import("@/views/profiles.vue"),
+  },
+  {
+    path: "/profiles/:address",
+    name: "Profile",
+    component: () => import("@/views/profile.vue"),
+  },
+  {
+    path: "/profiles/:address/:title",
+    name: "PrivateChat",
+    component: () => import("@/views/privateChat.vue"),
+  },
+  {
+    path: "/opinions",
+    name: "Opinions",
+    component: () => import("@/views/opinions.vue"),
+  },
+  {
+    path: "/login",
     name: "Login",
-    component: Login,
+    component: () => import("@/views/Login.vue"),
   },
   {
     path: "/home",
@@ -17,11 +57,11 @@ const routes = [
     name: "User",
     component: () => import("@/views/User.vue"),
   },
-  {
-    path: "/chat",
-    name: "Chat",
-    component: () => import("@/views/chat.vue"),
-  },
+  // {
+  //   path: "/chat",
+  //   name: "Chat",
+  //   component: () => import("@/views/chat.vue"),
+  // },
 ];
 
 const router = createRouter({

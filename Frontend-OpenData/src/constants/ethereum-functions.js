@@ -4,6 +4,19 @@ export async function getChainId() {
   });
 }
 
+export async function getWallet() {
+  return window.ethereum.request({
+    method: "eth_requestAccounts",
+  });
+}
+
+export async function addNetwork(params) {
+  return window.ethereum.request({
+    method: "wallet_addEthereumChain",
+    params,
+  });
+}
+
 export async function switchNetwork(chainId) {
   const currentChainId = await getChainId();
   if (currentChainId == chainId) return;

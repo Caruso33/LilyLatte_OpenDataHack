@@ -5,6 +5,7 @@
       type="text"
       placeholder="Send a messages"
       class="flex-1"
+      @keyup.enter="$emit('onSend')"
     />
 
     <button class="mr-1" @click="$emit('onSend')">
@@ -42,7 +43,7 @@ const model = computed({
 
 <style scoped lang="scss">
 .prompt-form {
-  background-color: #40414f;
+  background-color: var(--primary);
   padding: 10px 20px;
   border-radius: var(--border-radius);
   width: 100%;

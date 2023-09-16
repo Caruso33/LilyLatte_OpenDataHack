@@ -1,5 +1,5 @@
 import { onMounted, ref } from "vue";
-import { Database, helpers } from "@tableland/sdk";
+import { Database } from "@tableland/sdk";
 import { useToast } from "vue-toastification";
 
 export const useTableLand = () => {
@@ -11,7 +11,7 @@ export const useTableLand = () => {
   let signer;
 
   onMounted(() => {
-    const _tableRef = localStorage.getItem("table_land_name");
+    const _tableRef = localStorage.getItem("tableRef");
     tableRef.value = _tableRef ?? "";
   });
 
@@ -22,15 +22,14 @@ export const useTableLand = () => {
   const createTable = async (tableName) => {
     loading.value = true;
 
-    const chainId = await signer.getChainId();
-    // Note: the `baseUrl` is not required for `Registry` API calls
     const db = new Database({
       signer,
-      baseUrl: helpers.getBaseUrl(chainId),
     });
 
     const { meta } = await db
-      .prepare(`CREATE TABLE ${tableName} (id integer primary key, val text);`)
+      .prepare(
+        `CREATE TABLE ${tableName} (id integer primary key, Features text, dataRequest text, dataDialog text);`
+      )
       .run();
 
     console.log("table has been created successfully", meta);
@@ -40,15 +39,15 @@ export const useTableLand = () => {
 
     console.log("tableRef name", _tableRef);
 
-    localStorage.setItem("table_land_name", _tableRef);
+    localStorage.setItem("tableRef", _tableRef);
 
     tableRef.value = _tableRef;
 
     loading.value = false;
-    return tableRef;
+    return _tableRef;
   };
 
-  const getRows = async (db) => {
+  const getRows = async (_tableRef = undefined, db) => {
     loading.value = true;
 
     if (!db && signer) db = new Database({ signer });
@@ -58,7 +57,7 @@ export const useTableLand = () => {
     }
 
     const { results } = await db
-      .prepare(`SELECT * FROM ${tableRef.value};`)
+      .prepare(`SELECT * FROM ${_tableRef ?? tableRef.value};`)
       .all();
 
     loading.value = false;
@@ -81,7 +80,10 @@ export const useTableLand = () => {
     return results?.length ? results[0].count : 0;
   };
 
-  const insertIntoTable = async () => {
+  const insertIntoTable = async (
+    { features, dataRequest, dataDialog },
+    _tableRef
+  ) => {
     loading.value = true;
 
     const db = new Database({
@@ -89,11 +91,58 @@ export const useTableLand = () => {
     });
 
     const { meta: insert } = await db
-      .prepare(`INSERT INTO ${tableRef.value} (val) VALUES (?);`)
-      .bind("marcus sample text " + Math.floor(Math.random() * 100))
+      .prepare(
+        `INSERT INTO ${
+          _tableRef ?? tableRef.value
+        } (Features, dataRequest, dataDialog) VALUES (?, ?, ?);`
+      )
+      .bind(features, dataRequest, dataDialog)
       .run();
 
-    // Wait for transaction finality
+    const tx = await insert.txn.wait();
+    console.log("after inserting record", tx);
+
+    loading.value = false;
+    return tx;
+  };
+
+  const insertMultipleIntoTable = async (data, _tableRef) => {
+    loading.value = true;
+
+    const db = new Database({
+      signer,
+    });
+
+    const { meta: insert } = await db
+      .prepare(
+        `INSERT INTO ${
+          _tableRef ?? tableRef.value
+        } (Features, dataRequest, dataDialog) VALUES ${data};`
+      )
+      .run();
+
+    const tx = await insert.txn.wait();
+    console.log("after inserting record", tx);
+
+    loading.value = false;
+    return tx;
+  };
+
+  const updateDataDialog = async (cid, tableId, _tableRef = undefined) => {
+    loading.value = true;
+
+    const db = new Database({
+      signer,
+    });
+
+    const { meta: insert } = await db
+      .prepare(
+        `UPDATE ${
+          _tableRef ?? tableRef.value
+        } SET dataDialog = ${cid} WHERE id = ${tableId};`
+      )
+      .run();
+
     const tx = await insert.txn.wait();
     console.log("after inserting record", tx);
 
@@ -104,6 +153,8 @@ export const useTableLand = () => {
   const tableLandFunctions = {
     createTable,
     insertIntoTable,
+    insertMultipleIntoTable,
+    updateDataDialog,
     getRows,
     getRowsCount,
   };
