@@ -13,6 +13,8 @@ contract LilyLatte is ERC1155, Ownable {
     error DialogDoesNotExist();
     error NotOwnerOfDialog();
     error AlreadyPayedOut();
+    error OpinionPollDoesNotExist();
+    error OpinionPollAlreadyVoted();
 
     uint256 public constant MEMBERSHIP = 0;
     uint256 currentIndex = 1;
@@ -39,6 +41,7 @@ contract LilyLatte is ERC1155, Ownable {
         uint64 columnId;
         uint64 pro;
         uint64 contra;
+        address[] voters;
     }
 
     /// @dev Mapping from tokenId to dialog tableland cid
@@ -57,6 +60,32 @@ contract LilyLatte is ERC1155, Ownable {
     /// @dev Mapping from tag to array of opinion polls
     mapping(string => OpinionPoll[]) public opinionPollMap;
 
+    event OwnerAdded(address wallet, string tableId);
+    event MemberAdded(address wallet, string tableId);
+    event DialogCreated(string tableId, address ownerAddr, uint256 tokenId);
+    event DialogAccessRequested(
+        string dialogCid,
+        address ownerAddr,
+        uint256 tokenId
+    );
+    event PayedOut(address ownerAddr, string dialogCid, uint256 tokenId);
+    event OpinionPollCreated(
+        address ownerAddr,
+        string tag,
+        uint256 rowId,
+        uint256 columnId
+    );
+    event OpinionPollVoted(
+        address ownerAddr,
+        address voter,
+        string tag,
+        uint256 rowId,
+        uint256 columnId,
+        bool votedPro,
+        uint256 pro,
+        uint256 contra
+    );
+
     constructor() ERC1155("Lilylatte") {}
 
     function addOwner(address wallet, string memory tableId) public {
@@ -67,6 +96,8 @@ contract LilyLatte is ERC1155, Ownable {
         ownerToData[msg.sender].wallet = wallet;
         ownerToData[msg.sender].tableId = tableId;
         ownerToData[msg.sender].isMember = false;
+
+        emit OwnerAdded(wallet, tableId);
     }
 
     function addOwnerAsMember(address ownerAddr) public {
@@ -83,6 +114,8 @@ contract LilyLatte is ERC1155, Ownable {
         dataOwner.isMember = true;
 
         _mint(ownerAddr, MEMBERSHIP, 1, "");
+
+        emit MemberAdded(ownerAddr, dataOwner.tableId);
     }
 
     /// @dev this token will be the gated token for data access
@@ -105,6 +138,8 @@ contract LilyLatte is ERC1155, Ownable {
 
         _mint(ownerAddr, currentIndex, 1, "");
 
+        emit DialogCreated(newDialogCid, ownerAddr, currentIndex);
+
         currentIndex += 1;
     }
 
@@ -123,6 +158,8 @@ contract LilyLatte is ERC1155, Ownable {
         dialogMap[dialog.tableId] = dialog;
 
         _mint(msg.sender, dialog.tokenId, 1, "");
+
+        emit DialogAccessRequested(dialogCid, msg.sender, dialog.tokenId);
     }
 
     function receivePayout(string memory dialogCid) public payable {
@@ -145,6 +182,8 @@ contract LilyLatte is ERC1155, Ownable {
         dialogMap[dialog.tableId] = dialog;
 
         payable(msg.sender).transfer(dataAccessFee * requestedTimes);
+
+        emit PayedOut(msg.sender, dialogCid, dialog.tokenId);
     }
 
     function addOpinionPoll(
@@ -159,11 +198,13 @@ contract LilyLatte is ERC1155, Ownable {
             rowId: rowId,
             columnId: columnId,
             pro: pro,
-            contra: contra
+            contra: contra,
+            voters: new address[](0)
         });
         opinionPollMap[tag].push(poll);
 
-        // add tag to opinionTags if not exist
+        emit OpinionPollCreated(msg.sender, tag, rowId, columnId);
+
         for (uint256 i = 0; i < opinionTags.length; i++) {
             if (keccak256(bytes(opinionTags[i])) == keccak256(bytes(tag))) {
                 return;
@@ -172,6 +213,48 @@ contract LilyLatte is ERC1155, Ownable {
         opinionTags.push(tag);
     }
 
+    function voteOpinionPoll(
+        string memory tag,
+        uint256 pollIndex,
+        bool votePro
+    ) public {
+        OpinionPoll[] memory polls = opinionPollMap[tag];
+        if (polls.length == 0 || pollIndex >= polls.length) {
+            revert OpinionPollDoesNotExist();
+        }
+
+        OpinionPoll memory poll = polls[pollIndex];
+
+        address[] memory voters = poll.voters;
+        for (uint256 i = 0; i < voters.length; i++) {
+            if (voters[i] == msg.sender) {
+                revert OpinionPollAlreadyVoted();
+            }
+        }
+
+        if (votePro) {
+            poll.pro += 1;
+        } else {
+            poll.contra += 1;
+        }
+
+        opinionPollMap[tag][pollIndex] = poll;
+        opinionPollMap[tag][pollIndex].voters.push(msg.sender);
+
+        emit OpinionPollVoted(
+            poll.ownerAddr,
+            msg.sender,
+            tag,
+            poll.rowId,
+            poll.columnId,
+            votePro,
+            poll.pro,
+            poll.contra
+        );
+    }
+
+    /// @notice only allow transfer of ownership token
+    /// no data access token should be transferable
     function safeTransferFrom(
         address from,
         address to,
