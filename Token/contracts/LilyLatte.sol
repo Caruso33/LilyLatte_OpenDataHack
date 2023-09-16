@@ -33,6 +33,14 @@ contract LilyLatte is ERC1155, Ownable {
         uint8 requestedTimes;
     }
 
+    struct OpinionPoll {
+        address ownerAddr;
+        uint64 rowId;
+        uint64 columnId;
+        uint64 pro;
+        uint64 contra;
+    }
+
     /// @dev Mapping from tokenId to dialog tableland cid
     /// @notice the id of 0 is for membership tokens
     mapping(uint256 => string) public tokenIdToDialogCid;
@@ -43,10 +51,16 @@ contract LilyLatte is ERC1155, Ownable {
     /// @dev Mapping owner wallet to his data
     mapping(address => DataOwner) public ownerToData;
 
+    /// @dev all available tags
+    string[] public opinionTags;
+
+    /// @dev Mapping from tag to array of opinion polls
+    mapping(string => OpinionPoll[]) public opinionPollMap;
+
     constructor() ERC1155("Lilylatte") {}
 
-    function addOwner(address wallet, string memory tableId) public onlyOwner {
-        if (ownerToData[msg.sender].wallet == address(0)) {
+    function addOwner(address wallet, string memory tableId) public {
+        if (ownerToData[msg.sender].wallet != address(0)) {
             revert AlreadyOwner();
         }
 
@@ -55,7 +69,7 @@ contract LilyLatte is ERC1155, Ownable {
         ownerToData[msg.sender].isMember = false;
     }
 
-    function addOwnerAsMember(address ownerAddr) public onlyOwner {
+    function addOwnerAsMember(address ownerAddr) public {
         DataOwner storage dataOwner = ownerToData[msg.sender];
 
         if (dataOwner.isMember) {
@@ -76,7 +90,7 @@ contract LilyLatte is ERC1155, Ownable {
     function mintNewDialogToken(
         address ownerAddr,
         string memory newDialogCid
-    ) public onlyOwner {
+    ) public {
         tokenIdToDialogCid[currentIndex] = newDialogCid;
 
         Dialog memory dialog = Dialog({
@@ -95,9 +109,7 @@ contract LilyLatte is ERC1155, Ownable {
     }
 
     /// @notice get access to the NewDialogToken by minitng a token to the sender
-    function requestDialogTokenAccess(
-        string memory dialogCid
-    ) public payable onlyOwner {
+    function requestDialogTokenAccess(string memory dialogCid) public payable {
         if (msg.value != dataAccessFee) {
             revert FeeNotCovered(dataAccessFee);
         }
@@ -113,7 +125,7 @@ contract LilyLatte is ERC1155, Ownable {
         _mint(msg.sender, dialog.tokenId, 1, "");
     }
 
-    function receivePayout(string memory dialogCid) public payable onlyOwner {
+    function receivePayout(string memory dialogCid) public payable {
         Dialog memory dialog = dialogMap[dialogCid];
         if (dialog.tokenId == 0) {
             revert DialogDoesNotExist();
@@ -133,6 +145,31 @@ contract LilyLatte is ERC1155, Ownable {
         dialogMap[dialog.tableId] = dialog;
 
         payable(msg.sender).transfer(dataAccessFee * requestedTimes);
+    }
+
+    function addOpinionPoll(
+        string memory tag,
+        uint64 rowId,
+        uint64 columnId,
+        uint64 pro,
+        uint64 contra
+    ) public {
+        OpinionPoll memory poll = OpinionPoll({
+            ownerAddr: msg.sender,
+            rowId: rowId,
+            columnId: columnId,
+            pro: pro,
+            contra: contra
+        });
+        opinionPollMap[tag].push(poll);
+
+        // add tag to opinionTags if not exist
+        for (uint256 i = 0; i < opinionTags.length; i++) {
+            if (keccak256(bytes(opinionTags[i])) == keccak256(bytes(tag))) {
+                return;
+            }
+        }
+        opinionTags.push(tag);
     }
 
     function safeTransferFrom(
