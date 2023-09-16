@@ -15,9 +15,12 @@ contract LilyLatte is ERC1155, Ownable {
     error NotOwnerOfDialog();
     error AlreadyPayedOut();
     error NotMember();
+    error UserNotFound();
     error OpinionPollDoesNotExist();
     error OwnerOfDialogCantVote();
     error OpinionPollAlreadyVoted();
+    error DataQuestDoesNotExist();
+    error NotTargetOfDataQuest();
 
     uint256 public constant MEMBERSHIP = 0;
     uint256 currentIndex = 1;
@@ -29,6 +32,7 @@ contract LilyLatte is ERC1155, Ownable {
         string tableId;
         bool isMember;
         string[] dialogCids;
+        string[] dataQuestCids;
     }
 
     struct Dialog {
@@ -47,6 +51,16 @@ contract LilyLatte is ERC1155, Ownable {
         address[] voters;
     }
 
+    struct DataQuest {
+        address ownerAddr;
+        address requester;
+        string questionCid;
+        string answer;
+        uint256 fee;
+        uint256 tokenId;
+        bool isPayedOut;
+    }
+
     /// @dev Mapping from tokenId to dialog tableland cid
     /// @notice the id of 0 is for membership tokens
     mapping(uint256 => string) public tokenIdToDialogCid;
@@ -54,8 +68,14 @@ contract LilyLatte is ERC1155, Ownable {
     /// @dev Mapping from dialog tableland cid to info struct
     mapping(string => Dialog) public dialogMap;
 
+    /// @dev Mapping from tokenId to dataQuest struct
+    mapping(string => DataQuest) public dataQuestMap;
+
     /// @dev Mapping owner wallet to his data
     mapping(address => DataOwner) public ownerToData;
+
+    /// @dev Mapping tableId to owner
+    mapping(string => address) public tableIdToOwner;
 
     /// @dev all available tags
     string[] public opinionTags;
@@ -71,7 +91,7 @@ contract LilyLatte is ERC1155, Ownable {
         address ownerAddr,
         uint256 tokenId
     );
-    event PayedOut(address ownerAddr, string dialogCid, uint256 tokenId);
+    event PayedOutDialog(address ownerAddr, string dialogCid, uint256 tokenId);
     event OpinionPollCreated(
         address ownerAddr,
         string tag,
@@ -88,6 +108,19 @@ contract LilyLatte is ERC1155, Ownable {
         uint256 pro,
         uint256 contra
     );
+    event DataQuestCreated(
+        address ownerAddr,
+        address requester,
+        string question,
+        uint256 fee,
+        uint256 tokenId
+    );
+    event PayedOutDataQuest(
+        address ownerAddr,
+        address requester,
+        string dataQuestCid,
+        uint256 tokenId
+    );
 
     constructor() ERC1155("Lilylatte") {}
 
@@ -99,6 +132,8 @@ contract LilyLatte is ERC1155, Ownable {
         ownerToData[msg.sender].wallet = msg.sender;
         ownerToData[msg.sender].tableId = tableId;
         ownerToData[msg.sender].isMember = false;
+
+        tableIdToOwner[tableId] = msg.sender;
 
         emit OwnerAdded(msg.sender, tableId);
     }
@@ -167,7 +202,7 @@ contract LilyLatte is ERC1155, Ownable {
         emit DialogAccessRequested(dialogCid, msg.sender, dialog.tokenId);
     }
 
-    function receivePayout(string memory dialogCid) public payable {
+    function receiveDialogPayout(string memory dialogCid) public payable {
         Dialog memory dialog = dialogMap[dialogCid];
         if (dialog.tokenId == 0) {
             revert DialogDoesNotExist();
@@ -188,7 +223,7 @@ contract LilyLatte is ERC1155, Ownable {
 
         payable(msg.sender).transfer(dataAccessFee * requestedTimes);
 
-        emit PayedOut(msg.sender, dialogCid, dialog.tokenId);
+        emit PayedOutDialog(msg.sender, dialogCid, dialog.tokenId);
     }
 
     /// @notice add a new opinion poll
@@ -264,6 +299,80 @@ contract LilyLatte is ERC1155, Ownable {
             votePro,
             poll.pro,
             poll.contra
+        );
+    }
+
+    /// @notice add a data quest to target specific user for answering bounty
+    function addDataQuest(
+        address ownerAddr,
+        string memory questionCid
+    ) public payable {
+        if (msg.value < dataAccessFee) {
+            revert FeeNotCovered(dataAccessFee);
+        }
+
+        DataQuest memory dataQuest = DataQuest({
+            ownerAddr: ownerAddr,
+            requester: msg.sender,
+            questionCid: questionCid,
+            answer: "",
+            fee: msg.value,
+            tokenId: currentIndex,
+            isPayedOut: false
+        });
+        DataOwner storage dataOwner = ownerToData[ownerAddr];
+        dataOwner.dataQuestCids.push(questionCid);
+
+        dataQuestMap[questionCid] = dataQuest;
+
+        _mint(msg.sender, currentIndex, 1, "");
+
+        emit DataQuestCreated(
+            ownerAddr,
+            msg.sender,
+            questionCid,
+            msg.value,
+            currentIndex
+        );
+
+        currentIndex += 1;
+    }
+
+    function receiveDataQuestPayout(string memory dataQuestCid) public payable {
+        DataQuest memory dataQuest = dataQuestMap[dataQuestCid];
+        if (dataQuest.tokenId == 0) {
+            revert DataQuestDoesNotExist();
+        }
+
+        DataOwner memory dataOwner = ownerToData[msg.sender];
+        if (dataOwner.wallet == address(0)) {
+            revert UserNotFound();
+        }
+
+        bool senderIsTarget = false;
+        for (uint256 i = 0; i < dataOwner.dataQuestCids.length; i++) {
+            if (
+                keccak256(bytes(dataOwner.dataQuestCids[i])) ==
+                keccak256(bytes(dataQuestCid))
+            ) {
+                senderIsTarget = true;
+            }
+        }
+
+        if (!senderIsTarget) {
+            revert NotTargetOfDataQuest();
+        }
+
+        dataQuest.isPayedOut = true;
+        dataQuestMap[dataQuestCid] = dataQuest;
+
+        payable(msg.sender).transfer(dataQuest.fee);
+
+        emit PayedOutDataQuest(
+            dataQuest.ownerAddr,
+            dataQuest.requester,
+            dataQuestCid,
+            dataQuest.tokenId
         );
     }
 
