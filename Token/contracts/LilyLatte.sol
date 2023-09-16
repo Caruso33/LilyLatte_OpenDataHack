@@ -55,7 +55,7 @@ contract LilyLatte is ERC1155, Ownable {
         address ownerAddr;
         address requester;
         string questionCid;
-        string answer;
+        string answerCid;
         uint256 fee;
         uint256 tokenId;
         bool isPayedOut;
@@ -315,7 +315,7 @@ contract LilyLatte is ERC1155, Ownable {
             ownerAddr: ownerAddr,
             requester: msg.sender,
             questionCid: questionCid,
-            answer: "",
+            answerCid: "",
             fee: msg.value,
             tokenId: currentIndex,
             isPayedOut: false
@@ -338,7 +338,10 @@ contract LilyLatte is ERC1155, Ownable {
         currentIndex += 1;
     }
 
-    function receiveDataQuestPayout(string memory dataQuestCid) public payable {
+    function receiveDataQuestPayout(
+        string memory dataQuestCid,
+        string memory answerCid
+    ) public payable {
         DataQuest memory dataQuest = dataQuestMap[dataQuestCid];
         if (dataQuest.tokenId == 0) {
             revert DataQuestDoesNotExist();
@@ -356,6 +359,7 @@ contract LilyLatte is ERC1155, Ownable {
                 keccak256(bytes(dataQuestCid))
             ) {
                 senderIsTarget = true;
+                break;
             }
         }
 
@@ -364,6 +368,7 @@ contract LilyLatte is ERC1155, Ownable {
         }
 
         dataQuest.isPayedOut = true;
+        dataQuest.answerCid = answerCid;
         dataQuestMap[dataQuestCid] = dataQuest;
 
         payable(msg.sender).transfer(dataQuest.fee);
