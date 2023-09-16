@@ -14,21 +14,26 @@ const QUERY_IDs = {
 export const useDune = () => {
   const loading = ref(false);
 
+  const requestDune = async (walletAddress, queryName) => {
+    const client = new DuneClient(API_KEY);
+    // const parameters = [QueryParameter.text("wallet_address", walletAddress)];
+    const parameters = [
+      QueryParameter.text(
+        "wallet_address",
+        "0x275ab2f4e5dd3cb7aa8ec4f16a79f4023cc5f7ef"
+      ),
+    ];
+
+    const { result } = await client.refresh(QUERY_IDs[queryName], parameters);
+
+    return result;
+  };
+
   const get = async (walletAddress, queryName) => {
     loading.value = true;
     try {
-      const client = new DuneClient(API_KEY);
-      // const parameters = [QueryParameter.text("wallet_address", walletAddress)];
-      const parameters = [
-        QueryParameter.text(
-          "wallet_address",
-          "0x275ab2f4e5dd3cb7aa8ec4f16a79f4023cc5f7ef"
-        ),
-      ];
-
-      const { result } = await client.refresh(QUERY_IDs[queryName], parameters);
-
       loading.value = false;
+      const result = await requestDune(walletAddress, queryName);
       return result;
     } catch (error) {
       console.log("error generate", error);
@@ -37,8 +42,17 @@ export const useDune = () => {
     }
   };
 
+  const getAll = async (walletAddress) => {
+    return Promise.all(
+      Object.keys(QUERY_IDs).map((QUERY_ID) =>
+        requestDune(walletAddress, QUERY_ID)
+      )
+    );
+  };
+
   const duneFunctions = {
     get,
+    getAll,
   };
 
   return {

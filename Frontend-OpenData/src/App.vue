@@ -30,7 +30,7 @@ const selectedTopic = ref(null);
 const topics = ref([
   {
     title: "Intro",
-    id: "",
+    path: "/chat/owner",
   },
 ]);
 

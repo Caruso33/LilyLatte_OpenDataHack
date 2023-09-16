@@ -1,5 +1,6 @@
 import { ref } from "vue";
 import lighthouse from "@lighthouse-web3/sdk";
+import { CONTRACT_ADDRESS } from "@/composables/lilylatte";
 
 const API_KEY = "d8be86a7.6e6cc09c17184503ae9119cead8c0a00";
 
@@ -119,7 +120,8 @@ export const useLighthouse = () => {
         chain: "FVM",
         method: "balanceOf",
         standardContractType: "ERC20",
-        contractAddress: "0x48c7f07f6B3d58C03bf39260189DbfEA2d73520B",
+        // todo: change it to our lilylatte contract address
+        contractAddress: CONTRACT_ADDRESS,
         returnValueTest: { comparator: ">=", value: "1" },
         parameters: [":userAddress"],
       },

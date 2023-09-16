@@ -13,7 +13,7 @@ const routes = [
     },
   },
   {
-    path: "/chat/:type/:id?",
+    path: "/chat/:type/:title?",
     name: "Chat",
     component: Chat,
   },
@@ -37,11 +37,16 @@ const routes = [
     name: "PrivateChat",
     component: () => import("@/views/privateChat.vue"),
   },
-  // {
-  //   path: "/",
-  //   name: "Login",
-  //   component: Login,
-  // },
+  {
+    path: "/opinions",
+    name: "Opinions",
+    component: () => import("@/views/opinions.vue"),
+  },
+  {
+    path: "/login",
+    name: "Login",
+    component: () => import("@/views/Login.vue"),
+  },
   {
     path: "/home",
     name: "Home",

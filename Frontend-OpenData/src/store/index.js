@@ -10,6 +10,7 @@ export default createStore({
     step: null,
     isProfileEnabled: false,
     selectedUser: null,
+    questions: [],
   },
   getters: {},
   mutations: {
@@ -27,6 +28,9 @@ export default createStore({
     },
     setUserProfile(state, selectedUser) {
       state.selectedUser = selectedUser;
+    },
+    setQuestions(state, questions) {
+      state.questions = questions;
     },
   },
   actions: {},

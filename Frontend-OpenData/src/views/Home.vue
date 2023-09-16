@@ -241,7 +241,13 @@ const createTable = async () => {
 };
 
 const insertRecord = async () => {
-  const tx = await tableLandFunctions.insertIntoTable();
+  const tx = await tableLandFunctions.insertIntoTable({
+    features: "test1",
+    dataRequest: "test2",
+    dataDialog: "test3",
+  });
+
+  console.log("tx", tx);
 };
 
 const sendPrompt = async () => {

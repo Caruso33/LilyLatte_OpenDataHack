@@ -99,25 +99,9 @@ const fetchTableData = async () => {
   loading.value = false;
 };
 
-const fetchFile = async () => {
-  try {
-    const result = await lighthouseFunctions.decrypt(
-      signer,
-      conversationCID.value
-    );
-
-    if (!result) throw "Access Denied";
-
-    console.log("result of fetchFile", result);
-    data.value = result;
-  } catch (error) {
-    console.log(error);
-  }
-};
-
 const buyDataToken = async () => {
   try {
-    // mint data token
+    // todo: mint data token
     // const result = await lilyLatteFunctions.mintNewDialogToken(chatsCid);
     await fetchFile();
 
@@ -130,6 +114,22 @@ const buyDataToken = async () => {
       },
     ];
   } catch (error) {}
+};
+
+const fetchFile = async () => {
+  try {
+    const result = await lighthouseFunctions.decrypt(
+      signer,
+      conversationCID.value
+    );
+
+    if (!result) throw "Access Denied";
+
+    console.log("result of fetchFile", result);
+    data.value = JSON.parse(result);
+  } catch (error) {
+    console.log(error);
+  }
 };
 </script>
 

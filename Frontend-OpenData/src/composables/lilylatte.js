@@ -4,7 +4,7 @@ import { LilyLatteAbi } from "@/constants/lilylatte-abi";
 import { getWallet } from "@/constants/ethereum-functions";
 
 // Lilylatte deployed Contract address
-const CONTRACT_ADDRESS = "";
+export const CONTRACT_ADDRESS = "0xef6d29ddff75c3ac09c7aa37b3ea58aa2bb24eb5";
 
 export const useLilyLatte = () => {
   let provider, contract, signer;
@@ -17,6 +17,7 @@ export const useLilyLatte = () => {
     contract = new Contract(CONTRACT_ADDRESS, LilyLatteAbi, signer);
   });
 
+  // todo: add other contract's functions
   const mintNewDialogToken = async (chatsCid) => {
     loading.value = true;
     try {

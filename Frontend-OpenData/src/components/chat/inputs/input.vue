@@ -5,6 +5,7 @@
       type="text"
       placeholder="Send a messages"
       class="flex-1"
+      @keyup.enter="$emit('onSend')"
     />
 
     <button class="mr-1" @click="$emit('onSend')">

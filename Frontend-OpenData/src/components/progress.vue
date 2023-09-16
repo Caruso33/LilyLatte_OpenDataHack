@@ -1,9 +1,12 @@
 <template>
-  <div class="progress-bar">
-    <div
-      class="progress-bar-inner"
-      :style="{ width: (progress * 100) / length + '%' }"
-    ></div>
+  <div class="progress-container text-center">
+    <small>Conversation progress</small>
+    <div class="progress-bar">
+      <div
+        class="progress-bar-inner"
+        :style="{ width: (progress * 100) / length + '%' }"
+      />
+    </div>
   </div>
 </template>
 
@@ -22,9 +25,13 @@ defineProps({
 </script>
 
 <style scoped lang="scss">
-.progress-bar {
+.progress-container {
   flex: 1;
   max-width: 300px;
+}
+
+.progress-bar {
+  flex: 1;
   height: 10px;
   background-color: #f0f0f0;
   border-radius: 10px;

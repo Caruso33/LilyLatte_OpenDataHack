@@ -4,14 +4,33 @@
     <div class="row mt-1">
       <div class="col-6"></div>
       <div class="col-2 blue-text">est. value</div>
-      <div class="col-2">est.$</div>
-      <div class="col-2">est.%</div>
+      <div class="col-2 blue-text">total value</div>
+      <!-- <div class="col-2">est.$</div>
+      <div class="col-2">est.%</div> -->
 
-      <template v-for="(item, i) in 3" :key="i">
-        <div class="col-6 mt-2">{{ i + 1 }}. Polygon (POLYGON chain)</div>
-        <div class="col-2 mt-2 blue-text">~3003</div>
-        <div class="col-2 mt-2">~3003</div>
-        <div class="col-2 mt-2">~3003</div>
+      <template v-if="loading">
+        <div class="col-6 mt-2">
+          <indicator />
+        </div>
+        <div class="col-2 mt-2 blue-text">
+          <indicator />
+        </div>
+        <div class="col-2 mt-2">
+          <indicator />
+        </div>
+        <!-- <div class="col-2 mt-2">
+          <indicator />
+        </div> -->
+      </template>
+      <template v-else v-for="(item, i) in data" :key="i">
+        <div class="col-6 mt-2">{{ i + 1 }}. {{ item.blockchain }}</div>
+        <div class="col-2 mt-2 blue-text">
+          {{ Math.round(item.total_usd) }}
+        </div>
+        <div class="col-2 mt-2">
+          {{ Math.round(item.total_value) }}
+        </div>
+        <!-- <div class="col-2 mt-2">~3003</div> -->
       </template>
     </div>
   </div>
@@ -28,7 +47,7 @@ const props = defineProps({
 
 const { duneFunctions, loading } = useDune();
 
-const data = ref({});
+const data = ref([]);
 
 onMounted(() => {
   fetchData();

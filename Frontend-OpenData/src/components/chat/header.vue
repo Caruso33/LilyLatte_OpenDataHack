@@ -1,10 +1,10 @@
 <template>
   <header class="pr-4">
-    <Logo class="icon icon-32" />
+    <Logo class="icon icon-32 cursor-pointer" @click="$router.push('/')" />
 
     <div class="spacer" />
 
-    <Progress v-if="$store.state.step" :progress="$store.state.step" />
+    <Progress v-if="$store.state.step != null" :progress="$store.state.step" />
 
     <div class="spacer" />
 

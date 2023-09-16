@@ -14,17 +14,21 @@
     </chat-item>
   </div>
 
-  <div class="d-flex flex-column justify-center align-center container mx-auto">
+  <div
+    v-if="currentStepInputs != null"
+    class="d-flex flex-column justify-center align-center container mx-auto"
+  >
     <chat-input
       v-if="typeof currentStepInputs == 'string'"
       v-model="message"
       :loading="loading"
       @onSend="send"
     />
-    <multi-btns
-      v-else-if="currentStepInputs"
-      :items="step <= currentStepInputs.length ? currentStepInputs[step] : []"
-    />
+    <multi-btns v-else-if="currentStepInputs" :items="currentStepInputs" />
+
+    <base-button v-if="myMessages.length > 5" dark @click="startMinting">
+      Stop
+    </base-button>
   </div>
 </template>
 
@@ -41,6 +45,7 @@ import {
 import ChatInput from "@/components/chat/inputs/input.vue";
 import ChatItem from "@/components/chat/item.vue";
 import MultiBtns from "@/components/chat/inputs/multi-btns.vue";
+import MintDataToken from "@/components/chat/data-owner/mint-data-token.vue";
 import indicator from "@/components/indicator.vue";
 
 import { useLighthouse } from "@/composables/lighthouse";
@@ -49,6 +54,10 @@ import { useStore } from "vuex";
 import { switchNetwork } from "@/constants/ethereum-functions";
 import { FVM } from "@/constants/chains";
 import { useLilyLatte } from "@/composables/lilylatte";
+import { useOpenAI } from "@/composables/openai";
+import { prompts } from "@/constants/prompts";
+import { useRoute } from "vue-router";
+import { useTableLand } from "@/composables/tableLand";
 
 const props = defineProps({
   topic: String,
@@ -59,14 +68,16 @@ const message = ref("");
 const loading = ref(false);
 
 const store = useStore();
+const route = useRoute();
 
-const { lighthouseFunctions } = useLighthouse();
-const { lilypadFunctions } = useLilypad();
-const { lilyLatteFunctions } = useLilyLatte();
+const { openAIFunctions } = useOpenAI();
+const { tableLandFunctions } = useTableLand();
 
 const step = ref(0);
 
 const currentStepInputs = ref("");
+
+const conversationId = ref(null);
 
 const chats = ref([
   {
@@ -84,12 +95,7 @@ onMounted(() => {
         message: props.topic.title,
       },
     ];
-
-  const storageValue = localStorage.getItem(props.topic);
-  if (storageValue) chats.value = JSON.parse(storageValue);
-  store.commit("setProgressStep", {
-    step: myMessages.value?.length || 0,
-  });
+  setConversationMetaData();
 });
 
 onBeforeUnmount(() => {
@@ -106,8 +112,23 @@ watch(
         message: props.topic.title,
       },
     ];
+
+    setConversationMetaData();
   }
 );
+
+const setConversationMetaData = () => {
+  const storageValue = localStorage.getItem(props.topic.title);
+  if (storageValue) {
+    const parsedData = JSON.parse(storageValue);
+    chats.value = parsedData.chats;
+    conversationId.value = parsedData.conversationId;
+  }
+  store.commit("setProgressStep", {
+    step: myMessages.value?.length || 0,
+  });
+  scrollToEnd();
+};
 
 const scrollToEnd = async () => {
   await nextTick();
@@ -127,53 +148,125 @@ const send = async () => {
 
   scrollToEnd();
 
-  const cid = await uploadFastChatQuestion(message.value);
-
-  const newChats = await requestFastChatAnswers(cid);
+  const result = await sendMessageToOpenAI(message.value);
 
   chats.value.push({
-    message: newChats.slice(-1),
+    message: result,
   });
 
-  localStorage.setItem(props.topic, JSON.stringify());
+  if (props.topic.title)
+    localStorage.setItem(
+      props.topic.title,
+      JSON.stringify({
+        chats: chats.value,
+        conversationId: conversationId.value,
+      })
+    );
 
   message.value = "";
 
-  if (myMessages.value.length < 5) return;
+  if (myMessages.value.length <= 5)
+    store.commit("setProgressStep", {
+      step: myMessages.value.length,
+    });
+
+  loading.value = false;
+
+  // if (myMessages.value.length < 5) return;
+
+  // currentStepInputs.value = [
+  //   {
+  //     title: "Conclude the conversation!",
+  //     subtitle: "Lily got a generative surprise for you!",
+  //     click: () => startMinting(),
+  //   },
+  // ];
+};
+
+const sendMessageToOpenAI = async () => {
+  const firstMessage = prompts.first_message
+    .replaceAll("§question§", route.params.title)
+    .replaceAll("§answer§", chats.value[1].message);
+
+  const { choices } = await openAIFunctions.sendMultiple([
+    {
+      role: "user",
+      content: firstMessage,
+    },
+    ...chats.value.slice(2).map((chat) => ({
+      role: chat.isMine ? "user" : "assistant",
+      content: chat.message,
+    })),
+  ]);
+
+  if (choices.length && choices[0].message?.content)
+    return choices[0].message?.content;
+
+  return [];
+};
+
+const startMinting = async () => {
+  chats.value.push(
+    {
+      message:
+        "Let’s go back to FVM Network. I can mint your surprise for you there :) There are some steps along the way that needs your signature.<br/> <br/> Step 1: Change back to FVM network. <br/> Step 2: Mint an access token to monetize your dialog with Lilly.<br/> Step 3: Encrypt and store your dialog. <br/> Step 4: Add your dialog CID to your dataGraph.<br/> Step 5: Mint your membership NFT. <br/> <br/> Let’s go!!!",
+    },
+    {
+      component: MintDataToken,
+      onFinish: () => {},
+      isMine: true,
+    }
+  );
 
   currentStepInputs.value = null;
 
-  await switchNetwork(FVM.chainId);
+  scrollToEnd();
 
-  const chatsCid = await lighthouseFunctions.uploadJson(chats.value);
-
-  mintDataToken(chatsCid);
+  const keywords = await fetchConversationKeywords();
+  await addKeywordsToTableLand(keywords);
 };
 
-const uploadFastChatQuestion = async () => {
-  const template = {
-    template:
-      "You are a friendly chatbot assistant that responds conversationally to users' questions. \n Keep the answers short, unless specifically asked by the user to elaborate on something. \n \n Question: {question} \n \n Answer:",
-    parameters: {
-      question: "Ask me 3 random questions and separate them with #",
-    },
-  };
+const fetchConversationKeywords = async () => {
+  try {
+    const firstMessage = prompts.first_message
+      .replaceAll("§question§", route.params.title)
+      .replaceAll("§answer§", chats.value[1].message);
 
-  const cid = await lighthouseFunctions.uploadJson(template);
+    const { choices } = await openAIFunctions.sendMultiple([
+      {
+        role: "user",
+        content: firstMessage,
+      },
+      ...chats.value.slice(2).map((chat) => ({
+        role: chat.isMine ? "user" : "assistant",
+        content: chat.message,
+      })),
+      {
+        role: "user",
+        content: prompts.keywords,
+      },
+    ]);
 
-  return cid;
+    if (choices.length && choices[0].message?.content)
+      return choices[0].message?.content.split("§");
+
+    return [];
+  } catch (error) {
+    console.log(error);
+  }
 };
 
-const requestFastChatAnswers = async (cid) => {
-  const results = await lilypadFunctions.requestAndGetNewResults(cid);
-
-  console.log(results);
-
-  return results;
-};
-
-const mintDataToken = async (chatsCid) => {
-  const result = await lilyLatteFunctions.mintNewDialogToken(chatsCid);
+const addKeywordsToTableLand = async (keywords) => {
+  try {
+    // todo: complete inserting keywords to our global table on tableland
+    const result = await tableLandFunctions.insertIntoTable(
+      { features: "", dataDialog: "", dataRequest: "" },
+      "GLOBAL_TABLE_NAME"
+    );
+    return [];
+  } catch (error) {
+    console.log(error);
+  }
 };
 </script>
 

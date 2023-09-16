@@ -361,7 +361,8 @@ $base: 8px;
     overflow: auto;
 }
 
-ul {
+ul,
+ol {
     padding-left: 1.5rem;
 }
 
@@ -378,4 +379,8 @@ ul {
     transition: var(--hover-transition);
     border: 1px solid var(--border-color);
     background-color: var(--background);
+}
+
+.white-text {
+    color: white;
 }

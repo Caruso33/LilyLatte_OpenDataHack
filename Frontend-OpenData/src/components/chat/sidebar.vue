@@ -4,11 +4,11 @@
       <transition-group>
         <topic
           v-for="topic in topics"
-          :key="topic.id"
+          :key="topic.path"
           :title="topic.title"
-          :isActive="model?.id == topic.id"
+          :isActive="model?.path == topic.path"
           :withNewText="topic.isNew"
-          @click="$router.push(`/${topic.id}`)"
+          @click="$router.push(`${topic.path}`)"
         />
       </transition-group>
     </div>
@@ -20,8 +20,13 @@
         :disabled="!$store.state.isProfileEnabled"
         @click="$router.push(`/profile`)"
       />
-      <topic :title="'Gitbook'" :isActive="i == 1" :withBorder="false" />
-      <topic :title="'Landing'" :isActive="i == 1" :withBorder="false" />
+      <topic
+        :title="'Opinions of DAO'"
+        :withBorder="false"
+        @click="$router.push(`/opinions`)"
+      />
+      <topic :title="'Gitbook'" :withBorder="false" />
+      <topic :title="'Landing'" :withBorder="false" />
     </div>
   </div>
 </template>

@@ -18,26 +18,28 @@ import { useMetamask } from "@/composables/metamask";
 
 const route = useRoute();
 
-const { wallet, metamaskFunctions } = useMetamask();
-
 const selectedTopic = inject("selectedTopic");
 const setSelectedTopic = inject("setSelectedTopic");
 
 const topics = inject("topics");
 
-onMounted(async () => {
-  await metamaskFunctions.connect();
-});
+watch(
+  route,
+  () => {
+    if (!route.params.title) {
+      setSelectedTopic(null);
+      return;
+    }
 
-watch(route, () => {
-  if (!route.params.id) {
-    setSelectedTopic(null);
-    return;
+    const topic = topics.value.find((topic) =>
+      topic.title.includes(route.params.title)
+    );
+    setSelectedTopic(topic || null);
+  },
+  {
+    immediate: true,
   }
-
-  const topic = topics.value.find((topic) => topic.id == +route.params.id);
-  setSelectedTopic(topic || null);
-});
+);
 </script>
 
 <style scoped lang="scss">
