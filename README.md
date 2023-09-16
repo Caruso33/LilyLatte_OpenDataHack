@@ -4,7 +4,7 @@
 
 Contract for storing our logic regarding token membership, data request, data token gated access and payouts.
 
-Deployed to Calibration on `0xB9Fb2370AE80B34CAC5b29CE0B98531A218b9FD0`.
+Deployed to Calibration on `0x148B94D622c2Ac3abfb550AEaF48F25F105EA18b`.
 
 ## Lilypad
 
