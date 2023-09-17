@@ -17,32 +17,188 @@ export const useLilyLatte = () => {
     contract = new Contract(CONTRACT_ADDRESS, LilyLatteAbi, signer);
   });
 
-  // todo: add other contract's functions
-  const mintNewDialogToken = async (chatsCid) => {
+  const addOwner = async (tableId) => {
     loading.value = true;
+
     try {
       const wallet = await getWallet();
 
-      const overrides = {
-        gasLimit: 3000000,
-        value: utils.parseEther("4"),
-      };
-
-      const tx = await contract.mintNewDialogToken(wallet, chatsCid, overrides);
+      const tx = await contract.addOwner(tableId);
 
       const receipt = await tx.wait();
 
-      loading.value = false;
       return receipt;
     } catch (error) {
-      console.log("error generate", error);
+      console.log("error addOwner", error);
+    } finally {
       loading.value = false;
-      return null;
+    }
+  };
+  const addPfpToOwner = async (pfpCid) => {
+    loading.value = true;
+
+    try {
+      const wallet = await getWallet();
+
+      const tx = await contract.addPfpToOwner(pfpCid);
+
+      const receipt = await tx.wait();
+
+      return receipt;
+    } catch (error) {
+      console.log("error addPfpToOwner", error);
+    } finally {
+      loading.value = false;
+    }
+  };
+  const addOwnerAsMember = async () => {
+    loading.value = true;
+
+    try {
+      const wallet = await getWallet();
+
+      const tx = await contract.addOwnerAsMember();
+
+      const receipt = await tx.wait();
+
+      return receipt;
+    } catch (error) {
+      console.log("error addOwnerAsMember", error);
+    } finally {
+      loading.value = false;
+    }
+  };
+  const addNewDialog = async (newDialogCid) => {
+    loading.value = true;
+
+    try {
+      const wallet = await getWallet();
+
+      const tx = await contract.addNewDialog(newDialogCid);
+
+      const receipt = await tx.wait();
+
+      return receipt;
+    } catch (error) {
+      console.log("error addNewDialog", error);
+    } finally {
+      loading.value = false;
+    }
+  };
+  const requestDialogTokenAccess = async (dialogCid) => {
+    loading.value = true;
+
+    try {
+      const wallet = await getWallet();
+
+      const tx = await contract.requestDialogTokenAccess(dialogCid);
+
+      const receipt = await tx.wait();
+
+      return receipt;
+    } catch (error) {
+      console.log("error requestDialogTokenAccess", error);
+    } finally {
+      loading.value = false;
+    }
+  };
+  const receiveDialogPayout = async (dialogCid) => {
+    loading.value = true;
+
+    try {
+      const wallet = await getWallet();
+
+      const tx = await contract.receiveDialogPayout(dialogCid);
+
+      const receipt = await tx.wait();
+
+      return receipt;
+    } catch (error) {
+      console.log("error receiveDialogPayout", error);
+    } finally {
+      loading.value = false;
+    }
+  };
+  const addOpinionPoll = async (tag, rowId, columnId) => {
+    loading.value = true;
+
+    try {
+      const wallet = await getWallet();
+
+      const tx = await contract.addOpinionPoll(tag, rowId, columnId);
+
+      const receipt = await tx.wait();
+
+      return receipt;
+    } catch (error) {
+      console.log("error addOpinionPoll", error);
+    } finally {
+      loading.value = false;
+    }
+  };
+  const voteOpinionPoll = async (tag, pollIndex, votePro) => {
+    loading.value = true;
+
+    try {
+      const wallet = await getWallet();
+
+      const tx = await contract.voteOpinionPoll(tag, pollIndex, votePro);
+
+      const receipt = await tx.wait();
+
+      return receipt;
+    } catch (error) {
+      console.log("error voteOpinionPoll", error);
+    } finally {
+      loading.value = false;
+    }
+  };
+  const addDataQuest = async (ownerAddr, questionCid) => {
+    loading.value = true;
+
+    try {
+      const wallet = await getWallet();
+
+      const tx = await contract.addDataQuest(ownerAddr, questionCid);
+
+      const receipt = await tx.wait();
+
+      return receipt;
+    } catch (error) {
+      console.log("error addDataQuest", error);
+    } finally {
+      loading.value = false;
+    }
+  };
+  const receiveDataQuestPayout = async (dataQuestCid, answerCid) => {
+    loading.value = true;
+
+    try {
+      const wallet = await getWallet();
+
+      const tx = await contract.receiveDataQuestPayout(dataQuestCid, answerCid);
+
+      const receipt = await tx.wait();
+
+      return receipt;
+    } catch (error) {
+      console.log("error receiveDataQuestPayout", error);
+    } finally {
+      loading.value = false;
     }
   };
 
   const lilyLatteFunctions = {
-    mintNewDialogToken,
+    addOwner,
+    addPfpToOwner,
+    addOwnerAsMember,
+    addNewDialog,
+    requestDialogTokenAccess,
+    receiveDialogPayout,
+    addOpinionPoll,
+    voteOpinionPoll,
+    addDataQuest,
+    receiveDataQuestPayout,
   };
 
   return {
