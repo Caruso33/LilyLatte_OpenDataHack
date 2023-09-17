@@ -1,10 +1,5 @@
 <template>
-  <multi-steps
-    :step="step"
-    :steps="steps"
-    :hasError="hasError"
-    @retry="retry"
-  />
+  <multi-steps :step="step" :steps="steps" :hasError="hasError" @retry="retry" />
 </template>
 
 <script setup>
@@ -111,7 +106,7 @@ const changeNetworkToFVM = async () => {
 const mintAccessToken = async () => {
   try {
     // todo: connect mint dataToken for data owner
-    const result = await lilyLatteFunctions.mintNewDialogToken();
+    const result = await lilyLatteFunctions.addNewDialog()
 
     nextStep();
   } catch (error) {
