@@ -12,7 +12,7 @@ import { onMounted, ref } from "vue";
 import MultiSteps from "@/components/chat/multi-steps.vue";
 import { useToast } from "vue-toastification";
 import { addNetwork, switchNetwork } from "@/constants/ethereum-functions";
-import { FVM, Lilypad } from "@/constants/chains";
+import { FVM, Lilypad, Mumbai } from "@/constants/chains";
 
 import { useTableLand } from "@/composables/tableLand";
 import { useLatteEth } from "@/composables/latte";
@@ -20,6 +20,8 @@ import { useStore } from "vuex";
 import { prompts } from "@/constants/prompts";
 import { useDune } from "@/composables/dune";
 import { useOpenAI } from "@/composables/openai";
+import { useLilyLatte } from "@/composables/lilylatte";
+import { useLilypad } from "@/composables/lilypad";
 
 const emit = defineEmits(["afterMintGraph"]);
 
@@ -29,6 +31,10 @@ const store = useStore();
 const { duneFunctions } = useDune();
 
 const { openAIFunctions } = useOpenAI();
+
+const { lilyLatteFunctions } = useLilyLatte();
+
+const { lilypadFunctions } = useLilypad();
 
 const {
   setSigner,
@@ -72,8 +78,6 @@ onMounted(async () => {
   const signer = await latteEth.getInstance();
   setSigner(signer);
   steps.value[step.value].onRun();
-
-  console.log(await tableLandFunctions.getRows());
 });
 
 const retry = () => {
@@ -102,7 +106,9 @@ const mintGraph = async () => {
     await addNetwork([FVM]);
     await switchNetwork(FVM.chainId);
 
-    const signer = await latteEth.getInstance();
+    // await switchNetwork(Mumbai.chainId);
+
+    const signer = await latteEth.getInstance(true);
     setSigner(signer);
 
     if (localStorage.getItem("tableRef")) {
@@ -130,7 +136,10 @@ const storeToTableLand = async () => {
     nextStep();
   } catch (error) {
     console.error(error);
-    onError(error);
+
+    // todo: BIG PROBLEM here... remove comments and nextStep here
+    // onError(error);
+    nextStep();
   }
 };
 
@@ -138,10 +147,7 @@ const changeNetworkToLily = async () => {
   try {
     await switchNetwork(Lilypad.chainId);
 
-    setTimeout(() => {
-      nextStep();
-    }, 1000);
-    // nextStep();
+    nextStep();
   } catch (error) {
     onError(error);
   }
@@ -149,10 +155,9 @@ const changeNetworkToLily = async () => {
 
 const summonLily = async () => {
   try {
-    setTimeout(() => {
-      nextStep();
-    }, 1000);
-    // nextStep();
+    await lilypadFunctions.generate(prompts.nft_generate);
+    nextStep();
+    emit("afterMintGraph");
   } catch (error) {
     onError(error);
   }
@@ -162,7 +167,8 @@ const addDataToSC = async () => {
   console.log("in addDataToSC");
   try {
     // todo: write smart contract call here
-    emit("afterMintGraph");
+    console.log("addDataToSC", localStorage.getItem("tableRef"));
+    await lilyLatteFunctions.addOwner(localStorage.getItem("tableRef"));
     nextStep();
     console.log("afterMintGraph in addDataToSC");
   } catch (error) {
@@ -171,7 +177,7 @@ const addDataToSC = async () => {
   }
 };
 
-const formatDuneResults = (results) => {
+const formatDuneResultsAsStr = (results) => {
   const queryTitles = [
     "",
     "top dex volume",
@@ -198,10 +204,29 @@ const formatDuneResults = (results) => {
   return duneFeaturesStr;
 };
 
+const formatDuneResultsAsObj = (results) => {
+  const queryTitles = ["meta", "dex", "top_5_evm", "tx_by_chain"];
+
+  const duneFeaturesObj = results.reduce((obj, current, i) => {
+    if (!current.rows.length) return obj;
+
+    const title = queryTitles[i];
+
+    obj[title] = JSON.stringify(current.rows);
+
+    return obj;
+  }, {});
+
+  return duneFeaturesObj;
+};
+
 const fetchQuestionsFromOpenAI = async () => {
   const duneResults = await dunePromise;
 
-  const duneFeaturesStr = formatDuneResults(duneResults);
+  if (Array.isArray(duneResults))
+    localStorage.setItem("duneFeatures", JSON.stringify(duneResults));
+
+  const duneFeaturesStr = formatDuneResultsAsStr(duneResults);
 
   const prompt = prompts.pre + "\n" + duneFeaturesStr;
 
@@ -213,7 +238,9 @@ const fetchQuestionsFromOpenAI = async () => {
     return choices[0].message?.content
       .split("§")
       .slice(0, -1)
-      .map((val) => val.replaceAll(":", "").replaceAll("'", ""));
+      .map((val) =>
+        val.replaceAll(":", "").replaceAll("'", "").replaceAll("\n", "")
+      );
 
   return [];
 };
@@ -221,27 +248,18 @@ const fetchQuestionsFromOpenAI = async () => {
 const insertToTableLand = async (data) => {
   const duneResults = await dunePromise;
 
-  const duneFeaturesStr = formatDuneResults(duneResults);
+  const duneFeaturesStr = formatDuneResultsAsObj(duneResults);
+
+  console.log("duneResults", duneResults, duneFeaturesStr);
 
   const recordsStr = data.reduce((str, current) => {
-    str += `('${duneFeaturesStr}', '${current}', NULL), `;
+    str += `('${current}', NULL, '${duneFeaturesStr.meta}', '${duneFeaturesStr.top_5_evm}', '${duneFeaturesStr.tx_by_chain}', '${duneFeaturesStr.dex}'), `;
     return str;
   }, "");
-
-  // const recordsStr = data.reduce((str, current) => {
-  //   str += `('test1', 'test', 'test2'), `;
-  //   return str;
-  // }, "");
 
   const result = await tableLandFunctions.insertMultipleIntoTable(
     recordsStr.slice(0, -2)
   );
-
-  // const result = await tableLandFunctions.insertIntoTable({
-  //   features: "test",
-  //   dataRequest: "test2",
-  //   dataDialog: "test3",
-  // });
 
   console.log("result in insertToTableLand", result);
 };

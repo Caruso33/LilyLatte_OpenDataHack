@@ -17,8 +17,9 @@
 import OpinionItem from "@/components/opinions/item.vue";
 import Chip from "@/components/chip.vue";
 import { useRoute } from "vue-router";
+import { ref } from "vue";
 
-const hasButton = true;
+const hasButton = ref(true);
 </script>
 
 <style></style>

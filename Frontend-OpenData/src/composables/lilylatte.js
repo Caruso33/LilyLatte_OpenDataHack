@@ -4,7 +4,7 @@ import { LilyLatteAbi } from "@/constants/lilylatte-abi";
 import { getWallet } from "@/constants/ethereum-functions";
 
 // Lilylatte deployed Contract address
-export const CONTRACT_ADDRESS = "0xef6d29ddff75c3ac09c7aa37b3ea58aa2bb24eb5";
+export const CONTRACT_ADDRESS = "0xB9Fb2370AE80B34CAC5b29CE0B98531A218b9FD0";
 
 export const useLilyLatte = () => {
   let provider, contract, signer;
@@ -41,8 +41,55 @@ export const useLilyLatte = () => {
     }
   };
 
+  const addOwner = async (tableRef) => {
+    loading.value = true;
+    const overrides = {
+      gasLimit: 3000000,
+      // value: utils.parseEther("4"),
+    };
+
+    const tx = await contract.addOwner(tableRef, overrides);
+
+    const receipt = await tx.wait();
+
+    loading.value = false;
+    return receipt;
+  };
+
+  const addOpinionPol = async (tableRef) => {
+    loading.value = true;
+    const overrides = {
+      gasLimit: 3000000,
+      // value: utils.parseEther("4"),
+    };
+
+    const tx = await contract.addOwner(tableRef, overrides);
+
+    const receipt = await tx.wait();
+
+    loading.value = false;
+    return receipt;
+  };
+
+  const addNewDialog = async (dialogCID) => {
+    loading.value = true;
+    const overrides = {
+      gasLimit: 3000000,
+      // value: utils.parseEther("4"),
+    };
+
+    const tx = await contract.addNewDialog(dialogCID, overrides);
+
+    const receipt = await tx.wait();
+
+    loading.value = false;
+    return receipt;
+  };
+
   const lilyLatteFunctions = {
     mintNewDialogToken,
+    addOwner,
+    addNewDialog,
   };
 
   return {

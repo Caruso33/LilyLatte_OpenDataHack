@@ -168,7 +168,7 @@ const afterMintGraph = () => {
 
   store.commit("setProfileFlag", true);
 
-  generateQuestions(questions);
+  generateQuestions();
 };
 
 const generateQuestions = async () => {

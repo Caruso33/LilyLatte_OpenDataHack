@@ -2,7 +2,7 @@ import { ref } from "vue";
 import { DuneClient, QueryParameter } from "@cowprotocol/ts-dune-client";
 
 // API key name: opendata
-const API_KEY = "SLGkV11PY5yhtQYvmOFTazP8aRwSqNUV";
+const API_KEY = "qxk2LaHPfNJxx8PPQiarTy4ouiIwjIac";
 
 const QUERY_IDs = {
   wallet_age: 3024874,
@@ -30,10 +30,10 @@ export const useDune = () => {
   };
 
   const get = async (walletAddress, queryName) => {
-    loading.value = true;
     try {
-      loading.value = false;
+      loading.value = true;
       const result = await requestDune(walletAddress, queryName);
+      loading.value = false;
       return result;
     } catch (error) {
       console.log("error generate", error);
@@ -43,6 +43,9 @@ export const useDune = () => {
   };
 
   const getAll = async (walletAddress) => {
+    if (localStorage.getItem("duneFeatures"))
+      return JSON.parse(localStorage.getItem("duneFeatures"));
+
     return Promise.all(
       Object.keys(QUERY_IDs).map((QUERY_ID) =>
         requestDune(walletAddress, QUERY_ID)

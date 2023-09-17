@@ -21,6 +21,16 @@ export const LilyLatteAbi = [
   },
   {
     inputs: [],
+    name: "DataQuestDoesNotExist",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "DialogAlreadyExists",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "DialogDoesNotExist",
     type: "error",
   },
@@ -37,6 +47,11 @@ export const LilyLatteAbi = [
   },
   {
     inputs: [],
+    name: "NotMember",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "NotOwnerOfDialog",
     type: "error",
   },
@@ -47,7 +62,32 @@ export const LilyLatteAbi = [
   },
   {
     inputs: [],
+    name: "NotTargetOfDataQuest",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "OpinionPollAlreadyVoted",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "OpinionPollDoesNotExist",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "OwnerOfDialogCantVote",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "TransferNotAllowed",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "UserNotFound",
     type: "error",
   },
   {
@@ -79,6 +119,217 @@ export const LilyLatteAbi = [
     anonymous: false,
     inputs: [
       {
+        indexed: false,
+        internalType: "address",
+        name: "ownerAddr",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "requester",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "string",
+        name: "question",
+        type: "string",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "fee",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+    ],
+    name: "DataQuestCreated",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "string",
+        name: "dialogCid",
+        type: "string",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "ownerAddr",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+    ],
+    name: "DialogAccessRequested",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "string",
+        name: "tableId",
+        type: "string",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "ownerAddr",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+    ],
+    name: "DialogCreated",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "address",
+        name: "wallet",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "string",
+        name: "tableId",
+        type: "string",
+      },
+    ],
+    name: "MemberAdded",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "address",
+        name: "ownerAddr",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "string",
+        name: "tag",
+        type: "string",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "rowId",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "columnId",
+        type: "uint256",
+      },
+    ],
+    name: "OpinionPollCreated",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "address",
+        name: "ownerAddr",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "voter",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "string",
+        name: "tag",
+        type: "string",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "rowId",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "columnId",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "bool",
+        name: "votedPro",
+        type: "bool",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "pro",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "contra",
+        type: "uint256",
+      },
+    ],
+    name: "OpinionPollVoted",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "address",
+        name: "wallet",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "string",
+        name: "tableId",
+        type: "string",
+      },
+    ],
+    name: "OwnerAdded",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
         indexed: true,
         internalType: "address",
         name: "previousOwner",
@@ -92,6 +343,62 @@ export const LilyLatteAbi = [
       },
     ],
     name: "OwnershipTransferred",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "address",
+        name: "ownerAddr",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "requester",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "string",
+        name: "dataQuestCid",
+        type: "string",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+    ],
+    name: "PayedOutDataQuest",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "address",
+        name: "ownerAddr",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "string",
+        name: "dialogCid",
+        type: "string",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+    ],
+    name: "PayedOutDialog",
     type: "event",
   },
   {
@@ -204,9 +511,58 @@ export const LilyLatteAbi = [
     inputs: [
       {
         internalType: "address",
-        name: "wallet",
+        name: "ownerAddr",
         type: "address",
       },
+      {
+        internalType: "string",
+        name: "questionCid",
+        type: "string",
+      },
+    ],
+    name: "addDataQuest",
+    outputs: [],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "string",
+        name: "newDialogCid",
+        type: "string",
+      },
+    ],
+    name: "addNewDialog",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "string",
+        name: "tag",
+        type: "string",
+      },
+      {
+        internalType: "uint64",
+        name: "rowId",
+        type: "uint64",
+      },
+      {
+        internalType: "uint64",
+        name: "columnId",
+        type: "uint64",
+      },
+    ],
+    name: "addOpinionPoll",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
       {
         internalType: "string",
         name: "tableId",
@@ -219,13 +575,7 @@ export const LilyLatteAbi = [
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "address",
-        name: "ownerAddr",
-        type: "address",
-      },
-    ],
+    inputs: [],
     name: "addOwnerAsMember",
     outputs: [],
     stateMutability: "nonpayable",
@@ -300,6 +650,55 @@ export const LilyLatteAbi = [
         type: "string",
       },
     ],
+    name: "dataQuestMap",
+    outputs: [
+      {
+        internalType: "address",
+        name: "ownerAddr",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "requester",
+        type: "address",
+      },
+      {
+        internalType: "string",
+        name: "questionCid",
+        type: "string",
+      },
+      {
+        internalType: "string",
+        name: "answerCid",
+        type: "string",
+      },
+      {
+        internalType: "uint256",
+        name: "fee",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+      {
+        internalType: "bool",
+        name: "isPayedOut",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "string",
+        name: "",
+        type: "string",
+      },
+    ],
     name: "dialogMap",
     outputs: [
       {
@@ -353,19 +752,64 @@ export const LilyLatteAbi = [
   {
     inputs: [
       {
+        internalType: "string",
+        name: "",
+        type: "string",
+      },
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    name: "opinionPollMap",
+    outputs: [
+      {
         internalType: "address",
         name: "ownerAddr",
         type: "address",
       },
       {
+        internalType: "uint64",
+        name: "rowId",
+        type: "uint64",
+      },
+      {
+        internalType: "uint64",
+        name: "columnId",
+        type: "uint64",
+      },
+      {
+        internalType: "uint64",
+        name: "pro",
+        type: "uint64",
+      },
+      {
+        internalType: "uint64",
+        name: "contra",
+        type: "uint64",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    name: "opinionTags",
+    outputs: [
+      {
         internalType: "string",
-        name: "newDialogTableId",
+        name: "",
         type: "string",
       },
     ],
-    name: "mintNewDialogToken",
-    outputs: [],
-    stateMutability: "nonpayable",
+    stateMutability: "view",
     type: "function",
   },
   {
@@ -414,11 +858,29 @@ export const LilyLatteAbi = [
     inputs: [
       {
         internalType: "string",
-        name: "dialogTableId",
+        name: "dataQuestCid",
+        type: "string",
+      },
+      {
+        internalType: "string",
+        name: "answerCid",
         type: "string",
       },
     ],
-    name: "receivePayout",
+    name: "receiveDataQuestPayout",
+    outputs: [],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "string",
+        name: "dialogCid",
+        type: "string",
+      },
+    ],
+    name: "receiveDialogPayout",
     outputs: [],
     stateMutability: "payable",
     type: "function",
@@ -434,7 +896,7 @@ export const LilyLatteAbi = [
     inputs: [
       {
         internalType: "string",
-        name: "dialogTableId",
+        name: "dialogCid",
         type: "string",
       },
     ],
@@ -562,12 +1024,31 @@ export const LilyLatteAbi = [
   {
     inputs: [
       {
+        internalType: "string",
+        name: "",
+        type: "string",
+      },
+    ],
+    name: "tableIdToOwner",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "uint256",
         name: "",
         type: "uint256",
       },
     ],
-    name: "tokenIdToDialogTableId",
+    name: "tokenIdToDialogCid",
     outputs: [
       {
         internalType: "string",
@@ -608,6 +1089,29 @@ export const LilyLatteAbi = [
       },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "string",
+        name: "tag",
+        type: "string",
+      },
+      {
+        internalType: "uint256",
+        name: "pollIndex",
+        type: "uint256",
+      },
+      {
+        internalType: "bool",
+        name: "votePro",
+        type: "bool",
+      },
+    ],
+    name: "voteOpinionPoll",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
 ];
