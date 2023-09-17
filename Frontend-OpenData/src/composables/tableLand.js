@@ -28,7 +28,7 @@ export const useTableLand = () => {
 
     const { meta } = await db
       .prepare(
-        `CREATE TABLE ${tableName} (id integer primary key, Features text, dataRequest text, dataDialog text);`
+        `CREATE TABLE ${tableName} (id integer primary key, dataRequest text, dataDialog text, Features text, top_5_evm text, tx_by_chain text, dex text);`
       )
       .run();
 
@@ -81,7 +81,7 @@ export const useTableLand = () => {
   };
 
   const insertIntoTable = async (
-    { features, dataRequest, dataDialog },
+    { features, dataRequest, dataDialog, top_5_evm, tx_by_chain, dex },
     _tableRef
   ) => {
     loading.value = true;
@@ -94,9 +94,9 @@ export const useTableLand = () => {
       .prepare(
         `INSERT INTO ${
           _tableRef ?? tableRef.value
-        } (Features, dataRequest, dataDialog) VALUES (?, ?, ?);`
+        } (dataRequest, dataDialog, Features, top_5_evm, tx_by_chain, dex) VALUES (?, ?, ?, ?, ?, ?);`
       )
-      .bind(features, dataRequest, dataDialog)
+      .bind(dataRequest, dataDialog, features, top_5_evm, tx_by_chain, dex)
       .run();
 
     const tx = await insert.txn.wait();
@@ -106,7 +106,11 @@ export const useTableLand = () => {
     return tx;
   };
 
-  const insertMultipleIntoTable = async (data, _tableRef) => {
+  const insertMultipleIntoTable = async (
+    data,
+    _tableRef,
+    columns = "dataRequest, dataDialog, Features, top_5_evm, tx_by_chain, dex"
+  ) => {
     loading.value = true;
 
     const db = new Database({
@@ -117,7 +121,7 @@ export const useTableLand = () => {
       .prepare(
         `INSERT INTO ${
           _tableRef ?? tableRef.value
-        } (Features, dataRequest, dataDialog) VALUES ${data};`
+        } (${columns}) VALUES ${data};`
       )
       .run();
 

@@ -3,7 +3,7 @@ import { ref } from "vue";
 
 const NETWORK = "maticmum";
 
-const provider = new ethers.providers.Web3Provider(window.ethereum);
+let provider = new ethers.providers.Web3Provider(window.ethereum);
 
 export const getWallet = async (provider) =>
   provider.request({
@@ -19,8 +19,10 @@ export const useLatteEth = () => {
   /**
    * @returns {Promise<Signer>} ethers signer
    */
-  const getInstance = async () => {
-    if (instance.value) return instance.value;
+  const getInstance = async (force = false) => {
+    if (instance.value && !force) return instance.value;
+
+    provider = new ethers.providers.Web3Provider(window.ethereum);
 
     signer = provider.getSigner();
 
@@ -31,7 +33,6 @@ export const useLatteEth = () => {
   };
 
   const changeNetwork = async () => {
-    provider.get;
     provider.Network.add({
       name: "customNetwork",
       chainId: 3141,

@@ -6,13 +6,18 @@
 import { onMounted, ref } from "vue";
 import MultiSteps from "@/components/chat/multi-steps.vue";
 import { useToast } from "vue-toastification";
-import { addNetwork, switchNetwork } from "@/constants/ethereum-functions";
+import { switchNetwork } from "@/constants/ethereum-functions";
 import { FVM } from "@/constants/chains";
 
 import { useTableLand } from "@/composables/tableLand";
 import { useLatteEth } from "@/composables/latte";
 import { useLighthouse } from "@/composables/lighthouse";
 import { useLilyLatte } from "@/composables/lilylatte";
+import { useMetamask } from "@/composables/metamask";
+import { prompts } from "@/constants/prompts";
+import { useRoute } from "vue-router";
+import { useOpenAI } from "@/composables/openai";
+import { constants } from "@/constants";
 
 const props = defineProps({
   chats: Array,
@@ -25,6 +30,7 @@ const props = defineProps({
 const emit = defineEmits(["onFinish"]);
 
 const toast = useToast();
+const route = useRoute();
 
 const {
   setSigner,
@@ -33,13 +39,15 @@ const {
   loading: tableLandLoading,
 } = useTableLand();
 
+const { openAIFunctions } = useOpenAI();
 const { lighthouseFunctions } = useLighthouse();
-
 const { lilyLatteFunctions } = useLilyLatte();
-
+const { metamaskFunctions } = useMetamask();
 const latteEth = useLatteEth();
 
 const hasError = ref(false);
+
+const conversationFileCID = ref("");
 
 const step = ref(0);
 
@@ -49,20 +57,24 @@ const steps = ref([
     onRun: () => changeNetworkToFVM(),
   },
   {
-    title: "Mint an access token",
-    onRun: () => mintAccessToken(),
+    title: "Mint your membership NFT",
+    onRun: () => mintNFT(),
+  },
+  {
+    title: "Upload Keywords",
+    onRun: () => uploadKeywords(),
   },
   {
     title: "Encrypt and store your dialog",
     onRun: () => storeEncryptedDialog(),
   },
   {
-    title: "Add your dialog CID to your dataGraph",
-    onRun: () => addCIDToTableLand(),
+    title: "Mint an access token",
+    onRun: () => mintAccessToken(),
   },
   {
-    title: "Mint your membership NFT",
-    onRun: () => mintNFT(),
+    title: "Add your dialog CID to your dataGraph",
+    onRun: () => addCIDToTableLand(),
   },
 ]);
 
@@ -91,6 +103,73 @@ const nextStep = () => {
   if (step.value < steps.value.length) steps.value[step.value].onRun();
 };
 
+const uploadKeywords = async () => {
+  try {
+    const keywords = await fetchConversationKeywords();
+    await addKeywordsToTableLand(keywords);
+    nextStep();
+  } catch (error) {
+    nextStep();
+  }
+};
+
+const fetchConversationKeywords = async () => {
+  try {
+    const firstMessage = prompts.first_message
+      .replaceAll("§question§", route.params.title)
+      .replaceAll("§answer§", props.chats[1].message);
+
+    const { choices } = await openAIFunctions.sendMultiple([
+      {
+        role: "user",
+        content: firstMessage,
+      },
+      ...props.chats.slice(2).map((chat) => ({
+        role: chat.isMine ? "user" : "assistant",
+        content: chat.message,
+      })),
+      {
+        role: "user",
+        content: prompts.keywords,
+      },
+    ]);
+
+    if (choices.length && choices[0].message?.content)
+      return choices[0].message?.content.replaceAll("\n", "").split("§");
+
+    return [];
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const addKeywordsToTableLand = async (keywords) => {
+  try {
+    const wallet = await metamaskFunctions.connect();
+
+    const keywordsStr = keywords.reduce((str, current, i) => {
+      if (!current.length) return str;
+
+      const [keyword, opinion] = current.split("-");
+
+      if (!keyword?.length || !opinion?.length) return str;
+
+      str += `('${keyword.trim()}', '${opinion.trim()}', '${wallet}'), `;
+
+      return str;
+    }, "");
+
+    const result = await tableLandFunctions.insertMultipleIntoTable(
+      keywordsStr.slice(0, -2),
+      constants.keywordsTable,
+      "exchange,summarize,data_owner_id"
+    );
+    console.log("addKeywordsToTableLand", result);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 const changeNetworkToFVM = async () => {
   try {
     await switchNetwork(FVM.chainId);
@@ -106,8 +185,10 @@ const changeNetworkToFVM = async () => {
 const mintAccessToken = async () => {
   try {
     // todo: connect mint dataToken for data owner
-    const result = await lilyLatteFunctions.addNewDialog()
-
+    const result = await lilyLatteFunctions.addNewDialog(
+      conversationFileCID.value
+    );
+    console.log("mintAccessToken", result);
     nextStep();
   } catch (error) {
     onError(error);
@@ -121,6 +202,9 @@ const storeEncryptedDialog = async () => {
       JSON.stringify(props.chats)
     );
     await lighthouseFunctions.putAccessConditions(signer, Hash);
+
+    conversationFileCID.value = Hash;
+
     nextStep();
   } catch (error) {
     onError(error);
@@ -136,6 +220,7 @@ const addCIDToTableLand = async () => {
       dataRequest: "",
     });
     nextStep();
+    emit("afterMintGraph");
   } catch (error) {
     onError(error);
   }
@@ -144,7 +229,6 @@ const addCIDToTableLand = async () => {
 const mintNFT = async () => {
   try {
     nextStep();
-    emit("afterMintGraph");
   } catch (error) {
     console.log(error);
     onError(error);

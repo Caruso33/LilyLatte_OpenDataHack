@@ -4,7 +4,7 @@ import { LilyLatteAbi } from "@/constants/lilylatte-abi";
 import { getWallet } from "@/constants/ethereum-functions";
 
 // Lilylatte deployed Contract address
-export const CONTRACT_ADDRESS = "0xef6d29ddff75c3ac09c7aa37b3ea58aa2bb24eb5";
+export const CONTRACT_ADDRESS = "0xB9Fb2370AE80B34CAC5b29CE0B98531A218b9FD0";
 
 export const useLilyLatte = () => {
   let provider, contract, signer;
@@ -17,23 +17,6 @@ export const useLilyLatte = () => {
     contract = new Contract(CONTRACT_ADDRESS, LilyLatteAbi, signer);
   });
 
-  const addOwner = async (tableId) => {
-    loading.value = true;
-
-    try {
-      const wallet = await getWallet();
-
-      const tx = await contract.addOwner(tableId);
-
-      const receipt = await tx.wait();
-
-      return receipt;
-    } catch (error) {
-      console.log("error addOwner", error);
-    } finally {
-      loading.value = false;
-    }
-  };
   const addPfpToOwner = async (pfpCid) => {
     loading.value = true;
 
@@ -51,6 +34,7 @@ export const useLilyLatte = () => {
       loading.value = false;
     }
   };
+
   const addOwnerAsMember = async () => {
     loading.value = true;
 
@@ -68,23 +52,7 @@ export const useLilyLatte = () => {
       loading.value = false;
     }
   };
-  const addNewDialog = async (newDialogCid) => {
-    loading.value = true;
 
-    try {
-      const wallet = await getWallet();
-
-      const tx = await contract.addNewDialog(newDialogCid);
-
-      const receipt = await tx.wait();
-
-      return receipt;
-    } catch (error) {
-      console.log("error addNewDialog", error);
-    } finally {
-      loading.value = false;
-    }
-  };
   const requestDialogTokenAccess = async (dialogCid) => {
     loading.value = true;
 
@@ -102,6 +70,7 @@ export const useLilyLatte = () => {
       loading.value = false;
     }
   };
+
   const receiveDialogPayout = async (dialogCid) => {
     loading.value = true;
 
@@ -186,6 +155,51 @@ export const useLilyLatte = () => {
     } finally {
       loading.value = false;
     }
+  };
+
+  const addOwner = async (tableRef) => {
+    loading.value = true;
+    const overrides = {
+      gasLimit: 3000000,
+      // value: utils.parseEther("4"),
+    };
+
+    const tx = await contract.addOwner(tableRef, overrides);
+
+    const receipt = await tx.wait();
+
+    loading.value = false;
+    return receipt;
+  };
+
+  const addOpinionPol = async (tableRef) => {
+    loading.value = true;
+    const overrides = {
+      gasLimit: 3000000,
+      // value: utils.parseEther("4"),
+    };
+
+    const tx = await contract.addOwner(tableRef, overrides);
+
+    const receipt = await tx.wait();
+
+    loading.value = false;
+    return receipt;
+  };
+
+  const addNewDialog = async (dialogCID) => {
+    loading.value = true;
+    const overrides = {
+      gasLimit: 3000000,
+      // value: utils.parseEther("4"),
+    };
+
+    const tx = await contract.addNewDialog(dialogCID, overrides);
+
+    const receipt = await tx.wait();
+
+    loading.value = false;
+    return receipt;
   };
 
   const lilyLatteFunctions = {

@@ -21,3 +21,7 @@ export const Lilypad = {
   rpcUrls: ["http://testnet.lilypadnetwork.org:8545"],
   blockExplorerUrls: [""],
 };
+
+export const Mumbai = {
+  chainId: "0x13881",
+};

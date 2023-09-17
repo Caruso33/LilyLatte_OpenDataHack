@@ -29,7 +29,9 @@ export const useMetamask = () => {
         wallet,
       });
 
-      if (typeof resolve == "function") resolve();
+      if (typeof resolve == "function") resolve(wallet);
+
+      return wallet;
     } catch (error) {
       console.log(error);
     }

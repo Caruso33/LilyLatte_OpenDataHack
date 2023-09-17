@@ -569,7 +569,20 @@ export const LilyLatteAbi = [
         type: "string",
       },
     ],
-    name: "addOwner",
+    name: "addDataQuest",
+    outputs: [],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "string",
+        name: "newDialogCid",
+        type: "string",
+      },
+    ],
+    name: "addNewDialog",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -1132,4 +1145,4 @@ export const LilyLatteAbi = [
     stateMutability: "nonpayable",
     type: "function",
   },
-]
+];

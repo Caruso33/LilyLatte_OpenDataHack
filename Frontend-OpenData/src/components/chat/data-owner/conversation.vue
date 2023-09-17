@@ -15,7 +15,7 @@
   </div>
 
   <div
-    v-if="currentStepInputs != null"
+    v-if="currentStepInputs != null && !isCompleted"
     class="d-flex flex-column justify-center align-center container mx-auto"
   >
     <chat-input
@@ -48,16 +48,10 @@ import MultiBtns from "@/components/chat/inputs/multi-btns.vue";
 import MintDataToken from "@/components/chat/data-owner/mint-data-token.vue";
 import indicator from "@/components/indicator.vue";
 
-import { useLighthouse } from "@/composables/lighthouse";
-import { useLilypad } from "@/composables/lilypad";
 import { useStore } from "vuex";
-import { switchNetwork } from "@/constants/ethereum-functions";
-import { FVM } from "@/constants/chains";
-import { useLilyLatte } from "@/composables/lilylatte";
 import { useOpenAI } from "@/composables/openai";
 import { prompts } from "@/constants/prompts";
 import { useRoute } from "vue-router";
-import { useTableLand } from "@/composables/tableLand";
 
 const props = defineProps({
   topic: String,
@@ -71,13 +65,12 @@ const store = useStore();
 const route = useRoute();
 
 const { openAIFunctions } = useOpenAI();
-const { tableLandFunctions } = useTableLand();
 
 const step = ref(0);
 
 const currentStepInputs = ref("");
 
-const conversationId = ref(null);
+const isCompleted = ref(false);
 
 const chats = ref([
   {
@@ -118,16 +111,19 @@ watch(
 );
 
 const setConversationMetaData = () => {
-  const storageValue = localStorage.getItem(props.topic.title);
+  const storageValue = localStorage.getItem(props.topic.title.trim());
+
   if (storageValue) {
     const parsedData = JSON.parse(storageValue);
     chats.value = parsedData.chats;
-    conversationId.value = parsedData.conversationId;
+    isCompleted.value = parsedData.isCompleted || false;
   }
   store.commit("setProgressStep", {
     step: myMessages.value?.length || 0,
   });
   scrollToEnd();
+
+  currentStepInputs.value = "";
 };
 
 const scrollToEnd = async () => {
@@ -156,10 +152,10 @@ const send = async () => {
 
   if (props.topic.title)
     localStorage.setItem(
-      props.topic.title,
+      props.topic.title.trim(),
       JSON.stringify({
         chats: chats.value,
-        conversationId: conversationId.value,
+        isCompleted: isCompleted.value,
       })
     );
 
@@ -213,7 +209,18 @@ const startMinting = async () => {
     },
     {
       component: MintDataToken,
-      onFinish: () => {},
+      chats: [...chats.value],
+      onFinish: () => {
+        isCompleted.value = true;
+        if (props.topic.title)
+          localStorage.setItem(
+            props.topic.title,
+            JSON.stringify({
+              chats: chats.value,
+              isCompleted: isCompleted.value,
+            })
+          );
+      },
       isMine: true,
     }
   );
@@ -221,52 +228,6 @@ const startMinting = async () => {
   currentStepInputs.value = null;
 
   scrollToEnd();
-
-  const keywords = await fetchConversationKeywords();
-  await addKeywordsToTableLand(keywords);
-};
-
-const fetchConversationKeywords = async () => {
-  try {
-    const firstMessage = prompts.first_message
-      .replaceAll("§question§", route.params.title)
-      .replaceAll("§answer§", chats.value[1].message);
-
-    const { choices } = await openAIFunctions.sendMultiple([
-      {
-        role: "user",
-        content: firstMessage,
-      },
-      ...chats.value.slice(2).map((chat) => ({
-        role: chat.isMine ? "user" : "assistant",
-        content: chat.message,
-      })),
-      {
-        role: "user",
-        content: prompts.keywords,
-      },
-    ]);
-
-    if (choices.length && choices[0].message?.content)
-      return choices[0].message?.content.split("§");
-
-    return [];
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-const addKeywordsToTableLand = async (keywords) => {
-  try {
-    // todo: complete inserting keywords to our global table on tableland
-    const result = await tableLandFunctions.insertIntoTable(
-      { features: "", dataDialog: "", dataRequest: "" },
-      "GLOBAL_TABLE_NAME"
-    );
-    return [];
-  } catch (error) {
-    console.log(error);
-  }
 };
 </script>
 
