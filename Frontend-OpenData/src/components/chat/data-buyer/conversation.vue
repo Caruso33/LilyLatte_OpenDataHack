@@ -113,7 +113,7 @@ const buyDataToken = async () => {
         title: "CONVO PURSACHED",
       },
     ];
-  } catch (error) {}
+  } catch (error) { }
 };
 
 const fetchFile = async () => {

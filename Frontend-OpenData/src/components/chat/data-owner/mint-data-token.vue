@@ -1,10 +1,5 @@
 <template>
-  <multi-steps
-    :step="step"
-    :steps="steps"
-    :hasError="hasError"
-    @retry="retry"
-  />
+  <multi-steps :step="step" :steps="steps" :hasError="hasError" @retry="retry" />
 </template>
 
 <script setup>

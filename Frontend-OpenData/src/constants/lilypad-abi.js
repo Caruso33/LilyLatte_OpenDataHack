@@ -245,4 +245,4 @@ export const LilypadAbi = [
     stateMutability: "nonpayable",
     type: "function",
   },
-];
+]
