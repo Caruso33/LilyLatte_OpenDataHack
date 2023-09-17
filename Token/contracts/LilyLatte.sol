@@ -33,6 +33,7 @@ contract LilyLatte is ERC1155, Ownable {
         bool isMember;
         string[] dialogCids;
         string[] dataQuestCids;
+        string pfpCid;
     }
 
     struct Dialog {
@@ -136,6 +137,10 @@ contract LilyLatte is ERC1155, Ownable {
         tableIdToOwner[tableId] = msg.sender;
 
         emit OwnerAdded(msg.sender, tableId);
+    }
+
+    function addPfpToOwner(string memory pfpCid) public {
+        ownerToData[msg.sender].pfpCid = pfpCid;
     }
 
     function addOwnerAsMember() public {
