@@ -569,7 +569,20 @@ export const LilyLatteAbi = [
         type: "string",
       },
     ],
-    name: "addOwner",
+    name: "addDataQuest",
+    outputs: [],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "string",
+        name: "newDialogCid",
+        type: "string",
+      },
+    ],
+    name: "addNewDialog",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -577,6 +590,19 @@ export const LilyLatteAbi = [
   {
     inputs: [],
     name: "addOwnerAsMember",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "string",
+        name: "pfpCid",
+        type: "string",
+      },
+    ],
+    name: "addPfpToOwner",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -849,6 +875,11 @@ export const LilyLatteAbi = [
         internalType: "bool",
         name: "isMember",
         type: "bool",
+      },
+      {
+        internalType: "string",
+        name: "pfpCid",
+        type: "string",
       },
     ],
     stateMutability: "view",
