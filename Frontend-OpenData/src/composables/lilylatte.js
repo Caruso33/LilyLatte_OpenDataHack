@@ -17,23 +17,6 @@ export const useLilyLatte = () => {
     contract = new Contract(CONTRACT_ADDRESS, LilyLatteAbi, signer);
   });
 
-  const addOwner = async (tableId) => {
-    loading.value = true;
-
-    try {
-      const wallet = await getWallet();
-
-      const tx = await contract.addOwner(tableId);
-
-      const receipt = await tx.wait();
-
-      return receipt;
-    } catch (error) {
-      console.log("error addOwner", error);
-    } finally {
-      loading.value = false;
-    }
-  };
   const addPfpToOwner = async (pfpCid) => {
     loading.value = true;
 
@@ -51,6 +34,7 @@ export const useLilyLatte = () => {
       loading.value = false;
     }
   };
+
   const addOwnerAsMember = async () => {
     loading.value = true;
 
@@ -68,23 +52,7 @@ export const useLilyLatte = () => {
       loading.value = false;
     }
   };
-  const addNewDialog = async (newDialogCid) => {
-    loading.value = true;
 
-    try {
-      const wallet = await getWallet();
-
-      const tx = await contract.addNewDialog(newDialogCid);
-
-      const receipt = await tx.wait();
-
-      return receipt;
-    } catch (error) {
-      console.log("error addNewDialog", error);
-    } finally {
-      loading.value = false;
-    }
-  };
   const requestDialogTokenAccess = async (dialogCid) => {
     loading.value = true;
 
@@ -102,6 +70,7 @@ export const useLilyLatte = () => {
       loading.value = false;
     }
   };
+
   const receiveDialogPayout = async (dialogCid) => {
     loading.value = true;
 
