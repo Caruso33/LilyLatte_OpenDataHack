@@ -11,7 +11,7 @@ interface ModicumContract {
 // got to testnet.lilypadnetwork.org to fund your wallet
 // this contract is deployed to:
 // 0x30a1b68D207c39924513424F2f9969a02eba2E2E
-// 0x63b9f0dfa2a6a3604fb301b376dc3a5b133edd3a
+// 0x86406BD74F67fB3245E380294d59A5d2350Ce20e
 contract LilypadClient {
     address public _contractAddress;
     ModicumContract remoteContractInstance;
@@ -25,8 +25,6 @@ contract LilypadClient {
     }
 
     Result[] public results;
-
-    mapping(address => string) public userToPfp;
 
     event ReceivedJobResults(uint256 jobID, string cid);
 
@@ -101,9 +99,5 @@ contract LilypadClient {
 
     function fetchAllResults() public view returns (Result[] memory) {
         return results;
-    }
-
-    function addPfp(string calldata pfp) public {
-        userToPfp[msg.sender] = pfp;
     }
 }
