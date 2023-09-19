@@ -15,15 +15,17 @@ interface ModicumContract {
 contract LilypadClient {
     address public _contractAddress;
     ModicumContract remoteContractInstance;
-
+    
     uint256 public lilypadFee = 4;
 
     struct Result {
         uint256 jobID;
         string cid;
         string httpString;
+        address sender;
     }
-
+    mapping(uint256 => address) private sendersByJobID;
+    mapping(address => Result[]) userOwner;
     Result[] public results;
 
     event ReceivedJobResults(uint256 jobID, string cid);
@@ -64,7 +66,9 @@ contract LilypadClient {
             msg.value == lilypadFee * 1 ether,
             string(abi.encodePacked("Payment of Ether is required"))
         );
-        return runModule("sdxl:v0.9-lilypad1", prompt);
+        uint256 jobID = runModule("sdxl:v0.9-lilypad1", prompt);
+        sendersByJobID[jobID] = msg.sender;
+        return jobID;
     }
 
     // prompt has to be a cid with the structure like:
@@ -90,14 +94,19 @@ contract LilypadClient {
         Result memory jobResult = Result({
             jobID: _jobID,
             cid: _cid,
-            httpString: string(abi.encodePacked("https://ipfs.io/ipfs/", _cid))
+            httpString: string(abi.encodePacked("https://ipfs.io/ipfs/", _cid)),
+            sender:sendersByJobID[_jobID]
         });
         results.push(jobResult);
-
+        userOwner[sendersByJobID[_jobID]].push(jobResult);
         emit ReceivedJobResults(_jobID, _cid);
     }
 
     function fetchAllResults() public view returns (Result[] memory) {
         return results;
+    }
+
+    function returnUserOwner(address wallet) public view returns(Result[] memory) {
+      return userOwner[wallet];
     }
 }
