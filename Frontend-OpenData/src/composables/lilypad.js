@@ -3,7 +3,7 @@ import { utils, providers, Contract } from "ethers";
 import { LilypadAbi } from "@/constants/lilypad-abi";
 
 // Lilypad deployed Contract address
-const CONTRACT_ADDRESS = "0x63b9f0dfa2a6a3604fb301b376dc3a5b133edd3a";
+const CONTRACT_ADDRESS = "0x86406BD74F67fB3245E380294d59A5d2350Ce20e";
 
 export const useLilypad = () => {
   let provider, contract, signer;
