@@ -568,6 +568,11 @@ export const LilyLatteAbi = [
         name: "tableId",
         type: "string",
       },
+      {
+        internalType: "string",
+        name: "pfpCid",
+        type: "string",
+      },
     ],
     name: "addDataQuest",
     outputs: [],
