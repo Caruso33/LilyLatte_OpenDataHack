@@ -43,6 +43,19 @@ export const LilypadAbi = [
     type: "function",
   },
   {
+    inputs: [
+      {
+        internalType: "string",
+        name: "pfp",
+        type: "string",
+      },
+    ],
+    name: "addPfp",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
     inputs: [],
     name: "fetchAllResults",
     outputs: [
@@ -245,4 +258,23 @@ export const LilypadAbi = [
     stateMutability: "nonpayable",
     type: "function",
   },
-]
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    name: "userToPfp",
+    outputs: [
+      {
+        internalType: "string",
+        name: "",
+        type: "string",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+];

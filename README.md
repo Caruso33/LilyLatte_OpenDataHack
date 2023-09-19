@@ -10,4 +10,4 @@ Deployed to Calibration on `0xee5cf4cc94bb97e2ba0d0a115b69c6075ce42dd1`.
 
 Contract for stable diffusion profile picture generation and user question generation and conversation.
 
-Deployed to Lalechuza on `0x30a1b68D207c39924513424F2f9969a02eba2E2E`. [Please see here for more infos](./Lilypad/README.md).
+Deployed to Lalechuza on `0x63b9f0dfa2a6a3604fb301b376dc3a5b133edd3a`. [Please see here for more infos](./Lilypad/README.md).
