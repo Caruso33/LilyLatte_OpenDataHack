@@ -52,6 +52,10 @@ import { useStore } from "vuex";
 import { useOpenAI } from "@/composables/openai";
 import { prompts } from "@/constants/prompts";
 import { useRoute } from "vue-router";
+import { useTableLand } from "@/composables/tableLand";
+import { useMetamask } from "@/composables/metamask";
+import { useLatteEth } from "@/composables/latte";
+import { useLilypad } from "@/composables/lilypad";
 
 const props = defineProps({
   topic: String,
@@ -63,6 +67,11 @@ const loading = ref(false);
 
 const store = useStore();
 const route = useRoute();
+
+const { tableLandFunctions, setSigner } = useTableLand();
+const { metamaskFunctions } = useMetamask();
+const { lilypadFunctions } = useLilypad();
+const latteEth = useLatteEth();
 
 const { openAIFunctions } = useOpenAI();
 
@@ -81,7 +90,7 @@ const chats = ref([
 
 const myMessages = computed(() => chats.value.filter((chat) => chat.isMine));
 
-onMounted(() => {
+onMounted(async () => {
   if (props.topic)
     chats.value = [
       {
@@ -201,7 +210,7 @@ const sendMessageToOpenAI = async () => {
   return [];
 };
 
-const startMinting = async () => {
+const blockInputs = () => {
   chats.value.push(
     {
       message:
@@ -211,12 +220,18 @@ const startMinting = async () => {
       component: MintDataToken,
       chats: [...chats.value],
       onFinish: () => {
+        console.log("in on finish");
         isCompleted.value = true;
         if (props.topic.title)
           localStorage.setItem(
-            props.topic.title,
+            props.topic.title.trim(),
             JSON.stringify({
-              chats: chats.value,
+              chats: [
+                ...chats.value.slice(0, -1),
+                {
+                  message: "Conversation is finished.",
+                },
+              ],
               isCompleted: isCompleted.value,
             })
           );
@@ -226,8 +241,23 @@ const startMinting = async () => {
   );
 
   currentStepInputs.value = null;
+};
+
+const startMinting = async () => {
+  blockInputs();
 
   scrollToEnd();
+
+  await fetchNFTCid();
+};
+
+const fetchNFTCid = async () => {
+  try {
+    if (localStorage.getItem("nftCID")) return;
+
+    const data = await lilypadFunctions.getMyCIDs();
+    localStorage.setItem("nftCID", data.slice(-1)[0]?.cid);
+  } catch (error) {}
 };
 </script>
 

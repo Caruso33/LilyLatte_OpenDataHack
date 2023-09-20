@@ -1,9 +1,11 @@
 import { onMounted, ref } from "vue";
 import { utils, providers, Contract } from "ethers";
 import { LilypadAbi } from "@/constants/lilypad-abi";
+import { switchNetwork } from "@/constants/ethereum-functions";
+import { Lilypad } from "@/constants/chains";
 
 // Lilypad deployed Contract address
-const CONTRACT_ADDRESS = "0x86406BD74F67fB3245E380294d59A5d2350Ce20e";
+const CONTRACT_ADDRESS = "0x4140c268adae01bb62f1aa8d043000c36e692731";
 
 export const useLilypad = () => {
   let provider, contract, signer;
@@ -19,6 +21,7 @@ export const useLilypad = () => {
   const generate = async (prompt) => {
     loading.value = true;
     try {
+      await switchNetwork(Lilypad.chainId);
       const overrides = {
         gasLimit: 3000000,
         value: utils.parseEther("4"),
@@ -100,9 +103,21 @@ export const useLilypad = () => {
     return tx;
   };
 
+  const getMyCIDs = async () => {
+    const wallet = await signer.getAddress();
+    console.log("wallet before fetch data", wallet);
+
+    const tx = await contract.returnUserOwner(wallet);
+
+    console.log("getMyCIDs", tx);
+
+    return tx;
+  };
+
   const lilypadFunctions = {
     generate,
     getResults,
+    getMyCIDs,
     requestAnswers,
     requestAndGetNewResults,
   };

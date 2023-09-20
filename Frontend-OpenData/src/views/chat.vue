@@ -13,15 +13,20 @@ import { useRoute } from "vue-router";
 import ChatOwnerIntro from "@/components/chat/data-owner/intro.vue";
 import ChatBuyerIntro from "@/components/chat/data-buyer/intro.vue";
 import ChatConversation from "@/components/chat/data-owner/conversation.vue";
-import { useDune } from "@/composables/dune";
-import { useMetamask } from "@/composables/metamask";
+import { useStore } from "vuex";
 
 const route = useRoute();
+const store = useStore();
 
 const selectedTopic = inject("selectedTopic");
 const setSelectedTopic = inject("setSelectedTopic");
 
 const topics = inject("topics");
+
+onMounted(() => {
+  if (localStorage.getItem("isProfileEnabled"))
+    store.commit("setProfileFlag", true);
+});
 
 watch(
   route,

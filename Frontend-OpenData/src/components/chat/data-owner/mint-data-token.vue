@@ -1,9 +1,14 @@
 <template>
-  <multi-steps :step="step" :steps="steps" :hasError="hasError" @retry="retry" />
+  <multi-steps
+    :step="step"
+    :steps="steps"
+    :hasError="hasError"
+    @retry="retry"
+  />
 </template>
 
 <script setup>
-import { onMounted, ref } from "vue";
+import { inject, onMounted, ref } from "vue";
 import MultiSteps from "@/components/chat/multi-steps.vue";
 import { useToast } from "vue-toastification";
 import { switchNetwork } from "@/constants/ethereum-functions";
@@ -18,6 +23,7 @@ import { prompts } from "@/constants/prompts";
 import { useRoute } from "vue-router";
 import { useOpenAI } from "@/composables/openai";
 import { constants } from "@/constants";
+import { ethers } from "ethers";
 
 const props = defineProps({
   chats: Array,
@@ -25,16 +31,14 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  onFinish: Function,
 });
-
-const emit = defineEmits(["onFinish"]);
 
 const toast = useToast();
 const route = useRoute();
 
 const {
   setSigner,
-  tableRef,
   tableLandFunctions,
   loading: tableLandLoading,
 } = useTableLand();
@@ -44,6 +48,8 @@ const { lighthouseFunctions } = useLighthouse();
 const { lilyLatteFunctions } = useLilyLatte();
 const { metamaskFunctions } = useMetamask();
 const latteEth = useLatteEth();
+
+const selectedTopic = inject("selectedTopic");
 
 const hasError = ref(false);
 
@@ -57,20 +63,20 @@ const steps = ref([
     onRun: () => changeNetworkToFVM(),
   },
   {
-    title: "Mint your membership NFT",
-    onRun: () => mintNFT(),
-  },
-  {
-    title: "Upload Keywords",
-    onRun: () => uploadKeywords(),
-  },
-  {
     title: "Encrypt and store your dialog",
     onRun: () => storeEncryptedDialog(),
   },
   {
     title: "Mint an access token",
     onRun: () => mintAccessToken(),
+  },
+  {
+    title: "Mint your membership NFT",
+    onRun: () => mintNFT(),
+  },
+  {
+    title: "Upload Keywords",
+    onRun: () => uploadKeywords(),
   },
   {
     title: "Add your dialog CID to your dataGraph",
@@ -81,8 +87,12 @@ const steps = ref([
 let signer;
 
 onMounted(async () => {
-  if (props.isCompleted) return;
+  if (props.isCompleted) {
+    step.value = steps.value.length;
+    return;
+  }
 
+  await metamaskFunctions.connect();
   signer = await latteEth.getInstance();
   setSigner(signer);
   steps.value[step.value].onRun();
@@ -184,7 +194,7 @@ const changeNetworkToFVM = async () => {
 
 const mintAccessToken = async () => {
   try {
-    // todo: connect mint dataToken for data owner
+    console.log("before mintAccessToken", conversationFileCID.value);
     const result = await lilyLatteFunctions.addNewDialog(
       conversationFileCID.value
     );
@@ -205,33 +215,64 @@ const storeEncryptedDialog = async () => {
 
     conversationFileCID.value = Hash;
 
+    console.log("storeEncryptedDialog hash", Hash);
+
     nextStep();
   } catch (error) {
+    onError(error);
+  }
+};
+
+const getMyNFTTokenId = async () => {
+  const { membershipTokenId } = await lilyLatteFunctions.getOwnerToData();
+
+  console.log("membershipTokenId", membershipTokenId);
+  if (!membershipTokenId) return;
+
+  localStorage.setItem(
+    "nftId",
+    ethers.BigNumber.from(membershipTokenId).toString()
+  );
+};
+
+const mintNFT = async () => {
+  try {
+    await getMyNFTTokenId();
+    if (localStorage.getItem("nftId")) nextStep();
+
+    const tableLandRef = localStorage.getItem("tableRef");
+    if (!tableLandRef) throw "tableland ref not found";
+
+    const nftCid = localStorage.getItem("nftCID");
+    if (!nftCid) throw "nftCID ref not found";
+
+    console.log("before addPFP", nftCid);
+    // todo: i need nft ID here to store it and send it to voting table later
+    await lilyLatteFunctions.addPfpToOwner(nftCid);
+
+    await lilyLatteFunctions.addOwnerAsMember();
+
+    await getMyNFTTokenId();
+
+    nextStep();
+  } catch (error) {
+    console.log(error);
     onError(error);
   }
 };
 
 const addCIDToTableLand = async () => {
   try {
-    // todo: fill and test it later
-    const result = await tableLandFunctions.insertIntoTable({
-      features: "",
-      dataDialog: "",
-      dataRequest: "",
-    });
+    await tableLandFunctions.updateDataDialogWithTitle(
+      conversationFileCID.value,
+      selectedTopic.value.title?.trim()
+    );
     nextStep();
-    emit("afterMintGraph");
+    props.onFinish();
   } catch (error) {
-    onError(error);
-  }
-};
-
-const mintNFT = async () => {
-  try {
+    // onError(error);
     nextStep();
-  } catch (error) {
-    console.log(error);
-    onError(error);
+    props.onFinish();
   }
 };
 </script>

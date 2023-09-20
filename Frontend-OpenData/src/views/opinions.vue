@@ -1,5 +1,5 @@
 <template>
-  <div class="pa-2">
+  <div class="pa-2 overflow-auto">
     <div class="card pa-3">
       <div class="d-flex justify-space-between">
         <h1>Choose your keyword</h1>

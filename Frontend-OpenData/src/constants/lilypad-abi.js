@@ -30,62 +30,6 @@ export const LilypadAbi = [
     type: "event",
   },
   {
-    inputs: [],
-    name: "_contractAddress",
-    outputs: [
-      {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "fetchAllResults",
-    outputs: [
-      {
-        components: [
-          {
-            internalType: "uint256",
-            name: "jobID",
-            type: "uint256",
-          },
-          {
-            internalType: "string",
-            name: "cid",
-            type: "string",
-          },
-          {
-            internalType: "string",
-            name: "httpString",
-            type: "string",
-          },
-        ],
-        internalType: "struct LilypadClient.Result[]",
-        name: "",
-        type: "tuple[]",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "lilypadFee",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
     inputs: [
       {
         internalType: "uint256",
@@ -101,35 +45,6 @@ export const LilypadAbi = [
     name: "receiveJobResults",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    name: "results",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "jobID",
-        type: "uint256",
-      },
-      {
-        internalType: "string",
-        name: "cid",
-        type: "string",
-      },
-      {
-        internalType: "string",
-        name: "httpString",
-        type: "string",
-      },
-    ],
-    stateMutability: "view",
     type: "function",
   },
   {
@@ -245,4 +160,140 @@ export const LilypadAbi = [
     stateMutability: "nonpayable",
     type: "function",
   },
-]
+  {
+    inputs: [],
+    name: "_contractAddress",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "fetchAllResults",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "uint256",
+            name: "jobID",
+            type: "uint256",
+          },
+          {
+            internalType: "string",
+            name: "cid",
+            type: "string",
+          },
+          {
+            internalType: "string",
+            name: "httpString",
+            type: "string",
+          },
+          {
+            internalType: "address",
+            name: "sender",
+            type: "address",
+          },
+        ],
+        internalType: "struct LilypadClient.Result[]",
+        name: "",
+        type: "tuple[]",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "lilypadFee",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    name: "results",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "jobID",
+        type: "uint256",
+      },
+      {
+        internalType: "string",
+        name: "cid",
+        type: "string",
+      },
+      {
+        internalType: "string",
+        name: "httpString",
+        type: "string",
+      },
+      {
+        internalType: "address",
+        name: "sender",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "wallet",
+        type: "address",
+      },
+    ],
+    name: "returnUserOwner",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "uint256",
+            name: "jobID",
+            type: "uint256",
+          },
+          {
+            internalType: "string",
+            name: "cid",
+            type: "string",
+          },
+          {
+            internalType: "string",
+            name: "httpString",
+            type: "string",
+          },
+          {
+            internalType: "address",
+            name: "sender",
+            type: "address",
+          },
+        ],
+        internalType: "struct LilypadClient.Result[]",
+        name: "",
+        type: "tuple[]",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+];
