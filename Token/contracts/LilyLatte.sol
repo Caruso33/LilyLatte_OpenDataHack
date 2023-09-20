@@ -24,6 +24,7 @@ contract LilyLatte is ERC1155, Ownable {
 
     uint256 public constant MEMBERSHIP = 0;
     uint256 currentIndex = 1;
+    uint256 noMembers = 0;
 
     uint256 public dataAccessFee = 0.1 ether;
 
@@ -34,6 +35,7 @@ contract LilyLatte is ERC1155, Ownable {
         string[] dialogCids;
         string[] dataQuestCids;
         string pfpCid;
+        uint256 membershipTokenId;
     }
 
     struct Dialog {
@@ -154,6 +156,8 @@ contract LilyLatte is ERC1155, Ownable {
         }
 
         dataOwner.isMember = true;
+        dataOwner.membershipTokenId = noMembers;
+        noMembers++;
 
         _mint(msg.sender, MEMBERSHIP, 1, "");
 
