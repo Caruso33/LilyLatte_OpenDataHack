@@ -4,7 +4,7 @@ import { LilyLatteAbi } from "@/constants/lilylatte-abi";
 import { getWallet } from "@/constants/ethereum-functions";
 
 // Lilylatte deployed Contract address
-export const CONTRACT_ADDRESS = "0x9abcd049c3c4e62a0cfc761c49fcbd9548540fe0";
+export const CONTRACT_ADDRESS = "0x4140c268adae01bb62f1aa8d043000c36e692731";
 
 export const useLilyLatte = () => {
   let provider, contract, signer;
