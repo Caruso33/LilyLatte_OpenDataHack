@@ -868,6 +868,11 @@ export const LilyLatteAbi = [
         name: "pfpCid",
         type: "string",
       },
+      {
+        internalType: "uint256",
+        name: "membershipTokenId",
+        type: "uint256",
+      },
     ],
     stateMutability: "view",
     type: "function",
