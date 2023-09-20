@@ -568,26 +568,8 @@ export const LilyLatteAbi = [
         name: "tableId",
         type: "string",
       },
-      {
-        internalType: "string",
-        name: "pfpCid",
-        type: "string",
-      },
     ],
-    name: "addDataQuest",
-    outputs: [],
-    stateMutability: "payable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "string",
-        name: "newDialogCid",
-        type: "string",
-      },
-    ],
-    name: "addNewDialog",
+    name: "addOwner",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

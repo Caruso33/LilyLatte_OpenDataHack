@@ -125,15 +125,13 @@ contract LilyLatte is ERC1155, Ownable {
 
     constructor() ERC1155("Lilylatte") {}
 
-    function addOwner(string memory tableId, string memory pfpCid) public {
+    function addOwner(string memory tableId) public {
         if (ownerToData[msg.sender].wallet != address(0)) {
             revert AlreadyOwner();
         }
 
         ownerToData[msg.sender].wallet = msg.sender;
         ownerToData[msg.sender].tableId = tableId;
-        ownerToData[msg.sender].isMember = false;
-        ownerToData[msg.sender].pfpCid = pfpCid;
 
         tableIdToOwner[tableId] = msg.sender;
 
