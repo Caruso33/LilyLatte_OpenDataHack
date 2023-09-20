@@ -38,7 +38,6 @@ const { lilypadFunctions } = useLilypad();
 
 const {
   setSigner,
-  tableRef,
   tableLandFunctions,
   loading: tableLandLoading,
 } = useTableLand();
@@ -164,13 +163,10 @@ const summonLily = async () => {
 };
 
 const addDataToSC = async () => {
-  console.log("in addDataToSC");
   try {
-    // todo: write smart contract call here
-    console.log("addDataToSC", localStorage.getItem("tableRef"));
-    await lilyLatteFunctions.addOwner(localStorage.getItem("tableRef"));
+    const tableRef = localStorage.getItem("tableRef");
+    await lilyLatteFunctions.addOwner(tableRef);
     nextStep();
-    console.log("afterMintGraph in addDataToSC");
   } catch (error) {
     console.log(error);
     onError(error);
@@ -232,8 +228,6 @@ const fetchQuestionsFromOpenAI = async () => {
 
   const { choices } = await openAIFunctions.send(prompt);
 
-  console.log("choices", choices);
-
   if (choices.length && choices[0].message?.content)
     return choices[0].message?.content
       .split("§")
@@ -250,8 +244,6 @@ const insertToTableLand = async (data) => {
 
   const duneFeaturesStr = formatDuneResultsAsObj(duneResults);
 
-  console.log("duneResults", duneResults, duneFeaturesStr);
-
   const recordsStr = data.reduce((str, current) => {
     str += `('${current}', NULL, '${duneFeaturesStr.meta}', '${duneFeaturesStr.top_5_evm}', '${duneFeaturesStr.tx_by_chain}', '${duneFeaturesStr.dex}'), `;
     return str;
@@ -260,7 +252,5 @@ const insertToTableLand = async (data) => {
   const result = await tableLandFunctions.insertMultipleIntoTable(
     recordsStr.slice(0, -2)
   );
-
-  console.log("result in insertToTableLand", result);
 };
 </script>

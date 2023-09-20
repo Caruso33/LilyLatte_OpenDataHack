@@ -64,6 +64,27 @@ export const useTableLand = () => {
     return results;
   };
 
+  const getRowsByTitle = async (title, _tableRef = undefined, db) => {
+    loading.value = true;
+
+    if (!db && signer) db = new Database({ signer });
+    else {
+      toaster.error("Please specify DB Instance or signer first");
+      return null;
+    }
+
+    const { results } = await db
+      .prepare(
+        `SELECT * FROM ${
+          _tableRef ?? tableRef.value
+        } WHERE dataRequest LIKE '${title}';`
+      )
+      .all();
+
+    loading.value = false;
+    return results;
+  };
+
   const getRowsCount = async (db) => {
     loading.value = true;
 
@@ -132,7 +153,7 @@ export const useTableLand = () => {
     return tx;
   };
 
-  const updateDataDialog = async (cid, tableId, _tableRef = undefined) => {
+  const updateDataDialogWithId = async (cid, rowId, _tableRef = undefined) => {
     loading.value = true;
 
     const db = new Database({
@@ -143,7 +164,33 @@ export const useTableLand = () => {
       .prepare(
         `UPDATE ${
           _tableRef ?? tableRef.value
-        } SET dataDialog = ${cid} WHERE id = ${tableId};`
+        } SET dataDialog = ${cid} WHERE id = ${rowId};`
+      )
+      .run();
+
+    const tx = await insert.txn.wait();
+    console.log("after inserting record", tx);
+
+    loading.value = false;
+    return tx;
+  };
+
+  const updateDataDialogWithTitle = async (
+    cid,
+    title,
+    _tableRef = undefined
+  ) => {
+    loading.value = true;
+
+    const db = new Database({
+      signer,
+    });
+
+    const { meta: insert } = await db
+      .prepare(
+        `UPDATE ${
+          _tableRef ?? tableRef.value
+        } SET dataDialog = ${cid} WHERE dataRequest like '${title}';`
       )
       .run();
 
@@ -158,8 +205,10 @@ export const useTableLand = () => {
     createTable,
     insertIntoTable,
     insertMultipleIntoTable,
-    updateDataDialog,
+    updateDataDialogWithId,
+    updateDataDialogWithTitle,
     getRows,
+    getRowsByTitle,
     getRowsCount,
   };
 

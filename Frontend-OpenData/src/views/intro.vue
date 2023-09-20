@@ -6,8 +6,11 @@
       <h3>Earn by chatting with our AI researcher</h3>
       <div class="mt-2 mb-1">How this works?</div>
       <ul>
-        <li>Lorem ipsum dolorem ipsum dolorem ipsum dolorem ipsum dolorem</li>
-        <li>Domine fili Dei misere mei pecatoris</li>
+        <li>
+          Connect you wallet and Lily takes a look at your onchain history
+        </li>
+        <li>Lily propose some topics to talk about</li>
+        <li>You mint ownership of all your opinions and rights</li>
       </ul>
       <base-button
         dark

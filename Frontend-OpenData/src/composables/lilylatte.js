@@ -21,8 +21,6 @@ export const useLilyLatte = () => {
     loading.value = true;
 
     try {
-      const wallet = await getWallet();
-
       const tx = await contract.addPfpToOwner(pfpCid);
 
       const receipt = await tx.wait();
@@ -30,24 +28,6 @@ export const useLilyLatte = () => {
       return receipt;
     } catch (error) {
       console.log("error addPfpToOwner", error);
-    } finally {
-      loading.value = false;
-    }
-  };
-
-  const addOwnerAsMember = async () => {
-    loading.value = true;
-
-    try {
-      const wallet = await getWallet();
-
-      const tx = await contract.addOwnerAsMember();
-
-      const receipt = await tx.wait();
-
-      return receipt;
-    } catch (error) {
-      console.log("error addOwnerAsMember", error);
     } finally {
       loading.value = false;
     }
@@ -160,11 +140,26 @@ export const useLilyLatte = () => {
   const addOwner = async (tableRef) => {
     loading.value = true;
     const overrides = {
-      gasLimit: 3000000,
+      gasLimit: 90000000,
       // value: utils.parseEther("4"),
     };
 
     const tx = await contract.addOwner(tableRef, overrides);
+
+    const receipt = await tx.wait();
+
+    loading.value = false;
+    return receipt;
+  };
+
+  const addOwnerAsMember = async () => {
+    loading.value = true;
+    const overrides = {
+      gasLimit: 90000000,
+      // value: utils.parseEther("4"),
+    };
+
+    const tx = await contract.addOwnerAsMember(overrides);
 
     const receipt = await tx.wait();
 
@@ -190,7 +185,7 @@ export const useLilyLatte = () => {
   const addNewDialog = async (dialogCID) => {
     loading.value = true;
     const overrides = {
-      gasLimit: 3000000,
+      gasLimit: 90000000,
       // value: utils.parseEther("4"),
     };
 
@@ -202,9 +197,24 @@ export const useLilyLatte = () => {
     return receipt;
   };
 
+  const getOwnerToData = async () => {
+    loading.value = true;
+
+    const wallet = await signer.getAddress();
+
+    console.log("wallet", wallet);
+
+    const tx = await contract.ownerToData(wallet);
+
+    console.log("getOwnerToData", tx);
+
+    loading.value = false;
+    return tx;
+  };
+
   const lilyLatteFunctions = {
-    addOwner,
     addPfpToOwner,
+    addOwner,
     addOwnerAsMember,
     addNewDialog,
     requestDialogTokenAccess,
@@ -213,6 +223,7 @@ export const useLilyLatte = () => {
     voteOpinionPoll,
     addDataQuest,
     receiveDataQuestPayout,
+    getOwnerToData,
   };
 
   return {

@@ -42,9 +42,6 @@ import GeneratedQuestionsMessage from "@/components/chat/data-owner/generated-qu
 
 import { useMetamask } from "@/composables/metamask";
 import { useStore } from "vuex";
-import { useOpenAI } from "@/composables/openai";
-import { useTableLand } from "@/composables/tableLand";
-import { useLatteEth } from "@/composables/latte";
 
 const message = ref("");
 
@@ -167,6 +164,7 @@ const afterMintGraph = () => {
   ]);
 
   store.commit("setProfileFlag", true);
+  localStorage.setItem("isProfileEnabled", true);
 
   generateQuestions();
 };
