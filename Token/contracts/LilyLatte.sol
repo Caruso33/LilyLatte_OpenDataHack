@@ -157,7 +157,7 @@ contract LilyLatte is ERC1155, Ownable {
 
         dataOwner.isMember = true;
         dataOwner.membershipTokenId = noMembers;
-        noMembers++;
+        noMembers = noMembers++;
 
         _mint(msg.sender, MEMBERSHIP, 1, "");
 
