@@ -12,10 +12,14 @@ export const useLilyLatte = () => {
   const loading = ref(false);
 
   onMounted(async () => {
+    initContract();
+  });
+
+  const initContract = async () => {
     provider = new providers.Web3Provider(window.ethereum);
     signer = provider.getSigner();
     contract = new Contract(CONTRACT_ADDRESS, LilyLatteAbi, signer);
-  });
+  };
 
   const requestDialogTokenAccess = async (dialogCid) => {
     loading.value = true;
@@ -208,6 +212,7 @@ export const useLilyLatte = () => {
   };
 
   const lilyLatteFunctions = {
+    initContract,
     addOwner,
     addOwnerAsMember,
     addNewDialog,

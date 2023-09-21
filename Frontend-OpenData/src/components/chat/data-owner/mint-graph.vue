@@ -10,9 +10,8 @@
 <script setup>
 import { onMounted, ref } from "vue";
 import MultiSteps from "@/components/chat/multi-steps.vue";
-import { useToast } from "vue-toastification";
 import { addNetwork, switchNetwork } from "@/constants/ethereum-functions";
-import { FVM, Lilypad, Mumbai } from "@/constants/chains";
+import { FVM, Lilypad } from "@/constants/chains";
 
 import { useTableLand } from "@/composables/tableLand";
 import { useLatteEth } from "@/composables/latte";
@@ -107,7 +106,8 @@ const mintGraph = async () => {
     await addNetwork([FVM]);
     await switchNetwork(FVM.chainId);
 
-    // await switchNetwork(Mumbai.chainId);
+    await lilyLatteFunctions.initContract();
+    await lilypadFunctions.initContract();
 
     const signer = await latteEth.getInstance(true);
     setSigner(signer);
@@ -147,6 +147,9 @@ const storeToTableLand = async () => {
 const changeNetworkToLily = async () => {
   try {
     await switchNetwork(Lilypad.chainId);
+
+    await lilyLatteFunctions.initContract();
+    await lilypadFunctions.initContract();
 
     nextStep();
   } catch (error) {

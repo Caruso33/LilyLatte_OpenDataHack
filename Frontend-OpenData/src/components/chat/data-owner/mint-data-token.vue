@@ -186,6 +186,8 @@ const changeNetworkToFVM = async () => {
     signer = await latteEth.getInstance();
     setSigner(signer);
 
+    await lilyLatteFunctions.initContract();
+
     nextStep();
   } catch (error) {
     onError(error);
