@@ -4,7 +4,7 @@ import { LilyLatteAbi } from "@/constants/lilylatte-abi";
 import { getWallet } from "@/constants/ethereum-functions";
 
 // Lilylatte deployed Contract address
-export const CONTRACT_ADDRESS = "0x3311bacc036f0007638cf63820a1bdee00903678";
+export const CONTRACT_ADDRESS = "0x757d0c4f4731b7495d0b4d63eb67a1489f2ca3b4";
 
 export const useLilyLatte = () => {
   let provider, contract, signer;
@@ -196,6 +196,17 @@ export const useLilyLatte = () => {
     return tx;
   };
 
+  const getWallets = async () => {
+    loading.value = true;
+
+    const tx = await contract.ownerList(0);
+
+    console.log("getOwnerToData", tx);
+
+    loading.value = false;
+    return tx;
+  };
+
   const lilyLatteFunctions = {
     addOwner,
     addOwnerAsMember,
@@ -207,6 +218,7 @@ export const useLilyLatte = () => {
     addDataQuest,
     receiveDataQuestPayout,
     getOwnerToData,
+    getWallets,
   };
 
   return {
