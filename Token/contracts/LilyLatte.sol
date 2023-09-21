@@ -140,11 +140,7 @@ contract LilyLatte is ERC1155, Ownable {
         emit OwnerAdded(msg.sender, tableId);
     }
 
-    function addPfpToOwner(string memory pfpCid) public {
-        ownerToData[msg.sender].pfpCid = pfpCid;
-    }
-
-    function addOwnerAsMember() public {
+    function addOwnerAsMember(string memory pfpCid) public {
         DataOwner storage dataOwner = ownerToData[msg.sender];
 
         if (dataOwner.isMember) {
@@ -158,6 +154,7 @@ contract LilyLatte is ERC1155, Ownable {
         dataOwner.isMember = true;
         dataOwner.membershipTokenId = noMembers;
         noMembers = noMembers++;
+        dataOwner.pfpCid = pfpCid;
 
         _mint(msg.sender, MEMBERSHIP, 1, "");
 
