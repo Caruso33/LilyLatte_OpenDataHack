@@ -4,7 +4,7 @@ import { LilyLatteAbi } from "@/constants/lilylatte-abi";
 import { getWallet } from "@/constants/ethereum-functions";
 
 // Lilylatte deployed Contract address
-export const CONTRACT_ADDRESS = "0x4140c268adae01bb62f1aa8d043000c36e692731";
+export const CONTRACT_ADDRESS = "0x3311bacc036f0007638cf63820a1bdee00903678";
 
 export const useLilyLatte = () => {
   let provider, contract, signer;
@@ -16,22 +16,6 @@ export const useLilyLatte = () => {
     signer = provider.getSigner();
     contract = new Contract(CONTRACT_ADDRESS, LilyLatteAbi, signer);
   });
-
-  const addPfpToOwner = async (pfpCid) => {
-    loading.value = true;
-
-    try {
-      const tx = await contract.addPfpToOwner(pfpCid);
-
-      const receipt = await tx.wait();
-
-      return receipt;
-    } catch (error) {
-      console.log("error addPfpToOwner", error);
-    } finally {
-      loading.value = false;
-    }
-  };
 
   const requestDialogTokenAccess = async (dialogCid) => {
     loading.value = true;
@@ -152,14 +136,14 @@ export const useLilyLatte = () => {
     return receipt;
   };
 
-  const addOwnerAsMember = async () => {
+  const addOwnerAsMember = async (nftCid) => {
     loading.value = true;
     const overrides = {
       gasLimit: 90000000,
       // value: utils.parseEther("4"),
     };
 
-    const tx = await contract.addOwnerAsMember(overrides);
+    const tx = await contract.addOwnerAsMember(nftCid, overrides);
 
     const receipt = await tx.wait();
 
@@ -213,7 +197,6 @@ export const useLilyLatte = () => {
   };
 
   const lilyLatteFunctions = {
-    addPfpToOwner,
     addOwner,
     addOwnerAsMember,
     addNewDialog,

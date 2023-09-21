@@ -247,10 +247,7 @@ const mintNFT = async () => {
     if (!nftCid) throw "nftCID ref not found";
 
     console.log("before addPFP", nftCid);
-    // todo: i need nft ID here to store it and send it to voting table later
-    await lilyLatteFunctions.addPfpToOwner(nftCid);
-
-    await lilyLatteFunctions.addOwnerAsMember();
+    await lilyLatteFunctions.addOwnerAsMember(nftCid);
 
     await getMyNFTTokenId();
 
