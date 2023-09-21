@@ -575,13 +575,6 @@ export const LilyLatteAbi = [
     type: "function",
   },
   {
-    inputs: [],
-    name: "addOwnerAsMember",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
     inputs: [
       {
         internalType: "string",
@@ -589,7 +582,7 @@ export const LilyLatteAbi = [
         type: "string",
       },
     ],
-    name: "addPfpToOwner",
+    name: "addOwnerAsMember",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
