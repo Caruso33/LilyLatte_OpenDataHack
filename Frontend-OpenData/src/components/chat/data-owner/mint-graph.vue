@@ -72,11 +72,13 @@ const steps = ref([
 ]);
 
 onMounted(async () => {
-  dunePromise = duneFunctions.getAll();
-
   const signer = await latteEth.getInstance();
   setSigner(signer);
   steps.value[step.value].onRun();
+
+  const wallet = await signer.getAddress();
+  console.log("wallet before get dune features", wallet);
+  dunePromise = duneFunctions.getAll(wallet);
 });
 
 const retry = () => {

@@ -56,6 +56,7 @@ import { useTableLand } from "@/composables/tableLand";
 import { useMetamask } from "@/composables/metamask";
 import { useLatteEth } from "@/composables/latte";
 import { useLilypad } from "@/composables/lilypad";
+import { useLilyLatte } from "@/composables/lilylatte";
 
 const props = defineProps({
   topic: String,
@@ -72,6 +73,7 @@ const { tableLandFunctions, setSigner } = useTableLand();
 const { metamaskFunctions } = useMetamask();
 const { lilypadFunctions } = useLilypad();
 const latteEth = useLatteEth();
+const { lilyLatteFunctions } = useLilyLatte();
 
 const { openAIFunctions } = useOpenAI();
 

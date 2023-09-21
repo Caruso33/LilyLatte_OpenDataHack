@@ -42,7 +42,6 @@ import GeneratedQuestionsMessage from "@/components/chat/data-owner/generated-qu
 
 import { useMetamask } from "@/composables/metamask";
 import { useStore } from "vuex";
-import { addNetwork } from "@/constants/ethereum-functions";
 
 const message = ref("");
 
@@ -132,7 +131,6 @@ const gotIt = () => {
 };
 
 const onSuccessConnectWallet = async () => {
-  await addNetwork();
   nextStep([
     {
       message: "Wallet connected.",
