@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.21;
 
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -76,6 +76,7 @@ contract LilyLatte is ERC1155, Ownable {
 
     /// @dev Mapping owner wallet to his data
     mapping(address => DataOwner) public ownerToData;
+    address[] public ownerList;
 
     /// @dev Mapping tableId to owner
     mapping(string => address) public tableIdToOwner;
@@ -136,6 +137,8 @@ contract LilyLatte is ERC1155, Ownable {
         ownerToData[msg.sender].tableId = tableId;
 
         tableIdToOwner[tableId] = msg.sender;
+
+        ownerList.push(msg.sender);
 
         emit OwnerAdded(msg.sender, tableId);
     }
