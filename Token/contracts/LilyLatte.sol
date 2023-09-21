@@ -408,4 +408,8 @@ contract LilyLatte is ERC1155, Ownable {
     function setURI(string memory newuri) public onlyOwner {
         _setURI(newuri);
     }
+
+    function getOwnerList() public view returns (address[] memory) {
+        return ownerList;
+    }
 }
