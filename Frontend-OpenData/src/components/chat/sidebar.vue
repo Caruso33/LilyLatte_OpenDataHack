@@ -15,10 +15,10 @@
     <div class="mt-auto">
       <topic
         :title="'My profile'"
-        :isActive="route.path == '/profile'"
+        :isActive="route.path == '/myprofile'"
         :withBorder="false"
         :disabled="!$store.state.isProfileEnabled"
-        @click="$router.push(`/profile`)"
+        @click="$router.push(`/myprofile`)"
       />
       <topic
         :title="'Opinions of DAO'"

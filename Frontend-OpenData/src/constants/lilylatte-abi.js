@@ -732,6 +732,19 @@ export const LilyLatteAbi = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "getOwnerList",
+    outputs: [
+      {
+        internalType: "address[]",
+        name: "",
+        type: "address[]",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [
       {
         internalType: "address",
