@@ -13,10 +13,14 @@ export const useLilypad = () => {
   const loading = ref(false);
 
   onMounted(async () => {
+    initContract();
+  });
+
+  const initContract = async () => {
     provider = new providers.Web3Provider(window.ethereum);
     signer = provider.getSigner();
     contract = new Contract(CONTRACT_ADDRESS, LilypadAbi, signer);
-  });
+  };
 
   const generate = async (prompt) => {
     loading.value = true;
@@ -115,6 +119,7 @@ export const useLilypad = () => {
   };
 
   const lilypadFunctions = {
+    initContract,
     generate,
     getResults,
     getMyCIDs,

@@ -4,7 +4,7 @@ export const FVM = {
   nativeCurrency: {
     name: "tFIL",
     symbol: "tFIL",
-    decimals: 314159,
+    decimals: 18,
   },
   rpcUrls: ["https://filecoin-calibration.chainup.net/rpc/v1"],
   blockExplorerUrls: ["https://calibration.filscan.io"],
@@ -16,7 +16,7 @@ export const Lilypad = {
   nativeCurrency: {
     name: "lilETH",
     symbol: "lilETH",
-    decimals: 1337,
+    decimals: 18,
   },
   rpcUrls: ["http://testnet.lilypadnetwork.org:8545"],
   blockExplorerUrls: [""],
