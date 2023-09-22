@@ -44,7 +44,7 @@ export const useLilypad = () => {
     }
   };
 
-  const requestAnswers = async (cid) => {
+  const sendMessage = async (cid) => {
     loading.value = true;
     try {
       const overrides = {
@@ -68,18 +68,18 @@ export const useLilypad = () => {
     }
   };
 
-  const requestAndGetNewResults = async (cid) => {
+  const sendAndGetNewResults = async (cid) => {
     try {
-      const previousResults = await getResults();
+      const previousResults = await getMyCIDs();
 
-      const receipt = await requestAnswers(cid);
+      const receipt = await sendMessage(cid);
 
       const newResults = await new Promise((resolve) => {
         const intervalId = setInterval(async () => {
-          const results = await getResults();
+          const results = await getMyCIDs();
 
           console.log(
-            "results in interval",
+            "results in interval from sendAndGetNewResults function",
             results.length,
             previousResults.length,
             results
@@ -92,7 +92,7 @@ export const useLilypad = () => {
         }, 2000);
       });
 
-      console.log("requestAndGetNewResults", newResults);
+      console.log("sendAndGetNewResults", newResults);
 
       return newResults;
     } catch (error) {
@@ -123,8 +123,8 @@ export const useLilypad = () => {
     generate,
     getResults,
     getMyCIDs,
-    requestAnswers,
-    requestAndGetNewResults,
+    sendMessage,
+    sendAndGetNewResults,
   };
 
   return {

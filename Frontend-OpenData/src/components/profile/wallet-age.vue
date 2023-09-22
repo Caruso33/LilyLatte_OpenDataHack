@@ -38,7 +38,7 @@ const { duneFunctions, loading } = useDune();
 const data = ref({});
 
 onMounted(() => {
-  fetchWalletAge();
+  // fetchWalletAge();
 });
 
 const fetchWalletAge = async () => {

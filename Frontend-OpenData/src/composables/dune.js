@@ -11,6 +11,8 @@ const QUERY_IDs = {
   number_of_tx_by_chain: 3025089,
 };
 
+export const duneTitles = ["meta", "dex", "top_5_evm", "tx_by_chain"];
+
 export const useDune = () => {
   const loading = ref(false);
 

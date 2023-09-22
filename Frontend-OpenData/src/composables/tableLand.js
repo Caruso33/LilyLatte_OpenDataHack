@@ -1,6 +1,7 @@
 import { onMounted, ref } from "vue";
 import { Database } from "@tableland/sdk";
 import { useToast } from "vue-toastification";
+import { providers } from "ethers";
 
 export const useTableLand = () => {
   const toaster = useToast();
@@ -17,6 +18,11 @@ export const useTableLand = () => {
 
   const setSigner = (_signer) => {
     signer = _signer;
+  };
+
+  const initSigner = () => {
+    const provider = new providers.Web3Provider(window.ethereum);
+    signer = provider.getSigner();
   };
 
   const createTable = async (tableName) => {
@@ -210,6 +216,7 @@ export const useTableLand = () => {
     getRows,
     getRowsByTitle,
     getRowsCount,
+    initSigner,
   };
 
   return {

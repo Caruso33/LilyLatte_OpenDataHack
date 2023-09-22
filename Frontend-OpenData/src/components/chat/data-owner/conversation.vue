@@ -52,11 +52,8 @@ import { useStore } from "vuex";
 import { useOpenAI } from "@/composables/openai";
 import { prompts } from "@/constants/prompts";
 import { useRoute } from "vue-router";
-import { useTableLand } from "@/composables/tableLand";
-import { useMetamask } from "@/composables/metamask";
-import { useLatteEth } from "@/composables/latte";
 import { useLilypad } from "@/composables/lilypad";
-import { useLilyLatte } from "@/composables/lilylatte";
+import { useLighthouse } from "@/composables/lighthouse";
 
 const props = defineProps({
   topic: String,
@@ -69,11 +66,9 @@ const loading = ref(false);
 const store = useStore();
 const route = useRoute();
 
-const { tableLandFunctions, setSigner } = useTableLand();
-const { metamaskFunctions } = useMetamask();
 const { lilypadFunctions } = useLilypad();
-const latteEth = useLatteEth();
-const { lilyLatteFunctions } = useLilyLatte();
+
+const { lighthouseFunctions } = useLighthouse();
 
 const { openAIFunctions } = useOpenAI();
 
@@ -195,7 +190,7 @@ const sendMessageToOpenAI = async () => {
     .replaceAll("§question§", route.params.title)
     .replaceAll("§answer§", chats.value[1].message);
 
-  const { choices } = await openAIFunctions.sendMultiple([
+  const messages = [
     {
       role: "user",
       content: firstMessage,
@@ -204,7 +199,12 @@ const sendMessageToOpenAI = async () => {
       role: chat.isMine ? "user" : "assistant",
       content: chat.message,
     })),
-  ]);
+  ];
+
+  // todo: convert from openAI to lilypad
+  // const cid = await lighthouseFunctions.uploadJson(messages);
+  // await lilypadFunctions.sendAndGetNewResults(cid);
+  const { choices } = await openAIFunctions.sendMultiple(messages);
 
   if (choices.length && choices[0].message?.content)
     return choices[0].message?.content;

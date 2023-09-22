@@ -3,14 +3,19 @@
     <div class="container mx-auto">
       <div class="d-flex justify-space-between">
         <div>
-          <h2>walletAddress</h2>
+          <h2>{{ item.wallet.slice(0, 10) }}...{{ item.wallet.slice(-10) }}</h2>
           <div class="d-flex flex-wrap">
             <chip class="ma-1 ml-0"> fav dex: uniswap </chip>
             <chip class="ma-1 ml-0"> fav dex: uniswap </chip>
           </div>
         </div>
 
-        <DAO class="icon icon-80" />
+        <Image
+          v-if="item.pfpCid"
+          class="icon icon-80"
+          :src="`https://ipfs.io/ipfs/${item.pfpCid}/outputs/image-0.png`"
+        />
+        <DAO v-else class="icon icon-80" />
       </div>
     </div>
     <div
@@ -28,6 +33,7 @@
 import Chip from "@/components/chip.vue";
 import Detail from "@/components/profile/detail.vue";
 import DAO from "@/assets/icons/DAO.vue";
+import Image from "@/components/image.vue";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 
@@ -39,11 +45,10 @@ const router = useRouter();
 const store = useStore();
 
 const routeToUserProfile = () => {
-  store.commit("setUserProfile", props.item);
-  router.replace({
+  router.push({
     name: "Profile",
     params: {
-      address: props.item?.address || 1,
+      name: props.item?.tableId || 1,
     },
   });
 };
