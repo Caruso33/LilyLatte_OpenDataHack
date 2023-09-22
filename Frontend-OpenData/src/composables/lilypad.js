@@ -40,7 +40,7 @@ export const useLilypad = () => {
     } catch (error) {
       console.log("error generate", error);
       loading.value = false;
-      return null;
+      throw error;
     }
   };
 
