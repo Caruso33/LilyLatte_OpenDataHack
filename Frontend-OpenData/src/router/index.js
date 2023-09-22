@@ -28,12 +28,12 @@ const routes = [
     component: () => import("@/views/profiles.vue"),
   },
   {
-    path: "/profiles/:address",
+    path: "/profiles/:name",
     name: "Profile",
     component: () => import("@/views/profile.vue"),
   },
   {
-    path: "/profiles/:address/:title",
+    path: "/profiles/:name/:title",
     name: "PrivateChat",
     component: () => import("@/views/privateChat.vue"),
   },

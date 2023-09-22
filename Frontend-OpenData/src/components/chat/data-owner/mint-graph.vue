@@ -17,7 +17,7 @@ import { useTableLand } from "@/composables/tableLand";
 import { useLatteEth } from "@/composables/latte";
 import { useStore } from "vuex";
 import { prompts } from "@/constants/prompts";
-import { useDune } from "@/composables/dune";
+import { duneTitles, useDune } from "@/composables/dune";
 import { useOpenAI } from "@/composables/openai";
 import { useLilyLatte } from "@/composables/lilylatte";
 import { useLilypad } from "@/composables/lilypad";
@@ -206,14 +206,11 @@ const formatDuneResultsAsStr = (results) => {
 };
 
 const formatDuneResultsAsObj = (results) => {
-  const queryTitles = ["meta", "dex", "top_5_evm", "tx_by_chain"];
-
   const duneFeaturesObj = results.reduce((obj, current, i) => {
-    if (!current.rows.length) return obj;
+    const title = duneTitles[i];
 
-    const title = queryTitles[i];
-
-    obj[title] = JSON.stringify(current.rows);
+    if (!current.rows.length) obj[title] = "";
+    else obj[title] = JSON.stringify(current.rows);
 
     return obj;
   }, {});

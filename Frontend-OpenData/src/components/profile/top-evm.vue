@@ -50,7 +50,7 @@ const { duneFunctions, loading } = useDune();
 const data = ref([]);
 
 onMounted(() => {
-  fetchData();
+  // fetchData();
 });
 
 const fetchData = async () => {
