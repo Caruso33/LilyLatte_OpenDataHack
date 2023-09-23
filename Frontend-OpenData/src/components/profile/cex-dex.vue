@@ -25,7 +25,7 @@
           <indicator />
         </div> -->
       </template>
-      <template v-else v-for="(item, i) in data" :key="i">
+      <template v-else v-for="(item, i) in data.dex" :key="i">
         <div class="col-6 mt-1 pl-2">{{ item.project }}</div>
         <div class="col-6 mt-1 blue-text">{{ Math.floor(item.total_usd) }}</div>
         <!-- <div class="col-2 mt-1">~7000$</div> -->
@@ -35,31 +35,11 @@
 </template>
 
 <script setup>
-import { useDune } from "@/composables/dune";
 import Indicator from "@/components/indicator.vue";
-import { onMounted, ref } from "vue";
 
 const props = defineProps({
-  wallet: String,
+  data: Object,
 });
-
-const { duneFunctions, loading } = useDune();
-
-const data = ref([]);
-
-onMounted(() => {
-  // fetchData();
-});
-
-const fetchData = async () => {
-  try {
-    const result = await duneFunctions.get(props.wallet, "dex");
-    console.log("fetchData dex", result);
-    if (result.rows?.length) data.value = result.rows;
-  } catch (error) {
-    console.log(error);
-  }
-};
 </script>
 
 <style></style>

@@ -33,7 +33,7 @@ const routes = [
     component: () => import("@/views/profile.vue"),
   },
   {
-    path: "/profiles/:name/:title",
+    path: "/profiles/:name/:cid",
     name: "PrivateChat",
     component: () => import("@/views/privateChat.vue"),
   },

@@ -1,5 +1,9 @@
 <template>
-  <div class="row overflow-auto pa-1">
+  <div v-if="loading" class="d-flex flex-column flex-center">
+    <indicator class="mb-1" />
+    Loading...
+  </div>
+  <div v-else class="row overflow-auto pa-1">
     <profile-item
       v-for="(item, i) in profiles"
       :key="i"
@@ -10,6 +14,7 @@
 </template>
 
 <script setup>
+import { inject, onMounted, ref } from "vue";
 import ProfileItem from "@/components/profile/item.vue";
 import { useLilyLatte } from "@/composables/lilylatte";
 import { FVM } from "@/constants/chains";
@@ -18,7 +23,7 @@ import {
   getWallet,
   switchNetwork,
 } from "@/constants/ethereum-functions";
-import { inject, onMounted, ref } from "vue";
+import indicator from "@/components/indicator.vue";
 
 const setTopics = inject("setTopics");
 
