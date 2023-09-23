@@ -47,8 +47,8 @@ contract LilyLatte is ERC1155, Ownable {
 
     struct OpinionPoll {
         address ownerAddr;
-        uint64 rowId;
-        uint64 columnId;
+        uint64 tablelandRowId;
+        string topic;
         uint64 pro;
         uint64 contra;
         address[] voters;
@@ -81,10 +81,10 @@ contract LilyLatte is ERC1155, Ownable {
     /// @dev Mapping tableId to owner
     mapping(string => address) public tableIdToOwner;
 
-    /// @dev all available tags
-    string[] public opinionTags;
+    /// @dev all available topics
+    string[] public opinionTopics;
 
-    /// @dev Mapping from tag to array of opinion polls
+    /// @dev Mapping from topic to array of opinion polls
     mapping(string => OpinionPoll[]) public opinionPollMap;
 
     event OwnerAdded(address wallet, string tableId);
@@ -96,18 +96,12 @@ contract LilyLatte is ERC1155, Ownable {
         uint256 tokenId
     );
     event PayedOutDialog(address ownerAddr, string dialogCid, uint256 tokenId);
-    event OpinionPollCreated(
-        address ownerAddr,
-        string tag,
-        uint256 rowId,
-        uint256 columnId
-    );
+    event OpinionPollCreated(address ownerAddr, string topic, uint256 rowId);
     event OpinionPollVoted(
         address ownerAddr,
         address voter,
-        string tag,
-        uint256 rowId,
-        uint256 columnId,
+        string topic,
+        uint256 tablelandRowId,
         bool votedPro,
         uint256 pro,
         uint256 contra
@@ -235,35 +229,52 @@ contract LilyLatte is ERC1155, Ownable {
     }
 
     /// @notice add a new opinion poll
-    function addOpinionPoll(
-        string memory tag,
-        uint64 rowId,
-        uint64 columnId
+    function addOpinionPolls(
+        uint64[] memory tablelandRowIds,
+        string[] memory topics
     ) public {
-        OpinionPoll memory poll = OpinionPoll({
-            ownerAddr: msg.sender,
-            rowId: rowId,
-            columnId: columnId,
-            pro: 0,
-            contra: 0,
-            voters: new address[](0)
-        });
-        opinionPollMap[tag].push(poll);
+        if (balanceOf(msg.sender, MEMBERSHIP) != 1) {
+            revert NotMember();
+        }
+        // TODO: In the future, do we need to ensure a user doesn't create more than 1 batch of polls?
 
-        emit OpinionPollCreated(msg.sender, tag, rowId, columnId);
+        for (uint256 i = 0; i < tablelandRowIds.length; i++) {
+            uint64 tablelandRowId = tablelandRowIds[i];
+            string memory topic = topics[i];
 
-        for (uint256 i = 0; i < opinionTags.length; i++) {
-            if (keccak256(bytes(opinionTags[i])) == keccak256(bytes(tag))) {
-                return;
+            OpinionPoll memory poll = OpinionPoll({
+                ownerAddr: msg.sender,
+                tablelandRowId: tablelandRowId,
+                topic: topic,
+                pro: 0,
+                contra: 0,
+                voters: new address[](0)
+            });
+            opinionPollMap[topic].push(poll);
+
+            emit OpinionPollCreated(msg.sender, topic, tablelandRowId);
+
+            /// @notice add topic to opinion topics if not present
+            bool isPresent = false;
+            for (uint256 j = 0; j < opinionTopics.length; j++) {
+                if (
+                    keccak256(bytes(opinionTopics[j])) ==
+                    keccak256(bytes(topic))
+                ) {
+                    isPresent = true;
+                    break;
+                }
+            }
+            if (!isPresent) {
+                opinionTopics.push(topic);
             }
         }
-        opinionTags.push(tag);
     }
 
     /// @notice vote for pro or contra
     /// @dev only allowed for members, can't be owner of dialog
     function voteOpinionPoll(
-        string memory tag,
+        string memory topic,
         uint256 pollIndex,
         bool votePro
     ) public {
@@ -271,7 +282,7 @@ contract LilyLatte is ERC1155, Ownable {
             revert NotMember();
         }
 
-        OpinionPoll[] memory polls = opinionPollMap[tag];
+        OpinionPoll[] memory polls = opinionPollMap[topic];
         if (polls.length == 0 || pollIndex >= polls.length) {
             revert OpinionPollDoesNotExist();
         }
@@ -295,15 +306,14 @@ contract LilyLatte is ERC1155, Ownable {
             poll.contra += 1;
         }
 
-        opinionPollMap[tag][pollIndex] = poll;
-        opinionPollMap[tag][pollIndex].voters.push(msg.sender);
+        opinionPollMap[topic][pollIndex] = poll;
+        opinionPollMap[topic][pollIndex].voters.push(msg.sender);
 
         emit OpinionPollVoted(
             poll.ownerAddr,
             msg.sender,
-            tag,
-            poll.rowId,
-            poll.columnId,
+            topic,
+            poll.tablelandRowId,
             votePro,
             poll.pro,
             poll.contra
@@ -411,5 +421,15 @@ contract LilyLatte is ERC1155, Ownable {
 
     function getOwnerList() public view returns (address[] memory) {
         return ownerList;
+    }
+
+    function getOpinionPollCount(
+        string memory topic
+    ) public view returns (uint256) {
+        return opinionPollMap[topic].length;
+    }
+
+    function getOpinionTopics() public view returns (string[] memory) {
+        return opinionTopics;
     }
 }
