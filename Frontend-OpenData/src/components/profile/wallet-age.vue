@@ -25,31 +25,11 @@
 </template>
 
 <script setup>
-import { useDune } from "@/composables/dune";
 import Indicator from "@/components/indicator.vue";
-import { onMounted, ref } from "vue";
 
 const props = defineProps({
-  wallet: String,
+  data: Object,
 });
-
-const { duneFunctions, loading } = useDune();
-
-const data = ref({});
-
-onMounted(() => {
-  // fetchWalletAge();
-});
-
-const fetchWalletAge = async () => {
-  try {
-    const result = await duneFunctions.get(props.wallet, "wallet_age");
-    console.log("fetchWalletAge", result);
-    if (result.rows?.length) data.value = result.rows[0];
-  } catch (error) {
-    console.log(error);
-  }
-};
 </script>
 
 <style></style>

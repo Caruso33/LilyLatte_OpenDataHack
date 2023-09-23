@@ -22,7 +22,7 @@
           <indicator />
         </div> -->
       </template>
-      <template v-else v-for="(item, i) in data" :key="i">
+      <template v-else v-for="(item, i) in data.top_5_evm" :key="i">
         <div class="col-6 mt-2">{{ i + 1 }}. {{ item.blockchain }}</div>
         <div class="col-2 mt-2 blue-text">
           {{ Math.round(item.total_usd) }}
@@ -37,31 +37,11 @@
 </template>
 
 <script setup>
-import { useDune } from "@/composables/dune";
 import Indicator from "@/components/indicator.vue";
-import { onMounted, ref } from "vue";
 
 const props = defineProps({
-  wallet: String,
+  data: Object,
 });
-
-const { duneFunctions, loading } = useDune();
-
-const data = ref([]);
-
-onMounted(() => {
-  // fetchData();
-});
-
-const fetchData = async () => {
-  try {
-    const result = await duneFunctions.get(props.wallet, "top_evm_holding");
-    console.log("fetchData", result);
-    if (result.rows?.length) data.value = result.rows;
-  } catch (error) {
-    console.log(error);
-  }
-};
 </script>
 
 <style></style>

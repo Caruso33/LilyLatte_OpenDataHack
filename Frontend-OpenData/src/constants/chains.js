@@ -1,6 +1,6 @@
 export const FVM = {
   chainId: "0x4cb2f",
-  chainName: "Filecoin - Hyperspace testnet",
+  chainName: "Filecoin - Calibration testnet",
   nativeCurrency: {
     name: "tFIL",
     symbol: "tFIL",

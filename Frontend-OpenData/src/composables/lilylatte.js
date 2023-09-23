@@ -56,6 +56,7 @@ export const useLilyLatte = () => {
       loading.value = false;
     }
   };
+
   const addOpinionPoll = async (tag, rowId, columnId) => {
     loading.value = true;
 
@@ -73,6 +74,7 @@ export const useLilyLatte = () => {
       loading.value = false;
     }
   };
+
   const voteOpinionPoll = async (tag, pollIndex, votePro) => {
     loading.value = true;
 

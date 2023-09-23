@@ -2,10 +2,15 @@
   <div class="card pa-3">
     <div class="d-flex justify-space-between">
       <div>
-        <h1>Uniswap</h1>
-        <chip class="mt-1">View Profile</chip>
+        <h1>{{ item.exchange }}</h1>
+        <chip
+          class="mt-1"
+          @click="$router.push(`/profiles/${item.data_owner_id}`)"
+        >
+          View Profile
+        </chip>
       </div>
-      <div v-if="withButtons">
+      <div v-if="hasButton">
         <chip color="green" textColor="white" class="cursor-pointer">
           AGREE
         </chip>
@@ -15,7 +20,7 @@
       </div>
     </div>
     <div class="mt-1">
-      <div class="mt-2">some Desc here</div>
+      <h3 class="my-2">{{ item.summarize }}</h3>
       <div class="d-flex mt-1">
         <detail title="1" desc="Rank" />
         <detail title="+12" desc="Net vote" class="ml-4" />
@@ -34,13 +39,17 @@ import { onMounted, ref } from "vue";
 const props = defineProps({
   wallet: String,
   item: Object,
-  withButtons: {
+  hasButton: {
     type: Boolean,
     default: false,
   },
 });
 
-const data = ref([]);
+const loading = ref(false);
+
+const vote = async (agree) => {
+  loading.value = true;
+};
 </script>
 
 <style></style>
