@@ -91,7 +91,7 @@ export const useTableLand = () => {
     return results;
   };
 
-  const getRowsCount = async (db) => {
+  const getRowsCount = async (_tableRef = undefined, db) => {
     loading.value = true;
 
     if (!db && signer) db = new Database({ signer });
@@ -101,7 +101,7 @@ export const useTableLand = () => {
     }
 
     const { results } = await db
-      .prepare(`SELECT COUNT(*) as count FROM ${tableRef.value};`)
+      .prepare(`SELECT COUNT(*) as count FROM ${_tableRef ?? tableRef.value};`)
       .all();
     loading.value = false;
     return results?.length ? results[0].count : 0;
@@ -170,7 +170,7 @@ export const useTableLand = () => {
       .prepare(
         `UPDATE ${
           _tableRef ?? tableRef.value
-        } SET dataDialog = ${cid} WHERE id = ${rowId};`
+        } SET dataDialog = '${cid}' WHERE id = ${rowId};`
       )
       .run();
 
@@ -196,12 +196,34 @@ export const useTableLand = () => {
       .prepare(
         `UPDATE ${
           _tableRef ?? tableRef.value
-        } SET dataDialog = ${cid} WHERE dataRequest like '${title}';`
+        } SET dataDialog = '${cid}' WHERE dataRequest like '${title}';`
       )
       .run();
 
     const tx = await insert.txn.wait();
-    console.log("after inserting record", tx);
+    console.log("after updating record", tx);
+
+    loading.value = false;
+    return tx;
+  };
+
+  const tempupdate = async (title1, title2, _tableRef = undefined) => {
+    loading.value = true;
+
+    const db = new Database({
+      signer,
+    });
+
+    const { meta: insert } = await db
+      .prepare(
+        `UPDATE ${
+          _tableRef ?? tableRef.value
+        } SET dataRequest = '${title2}' WHERE dataRequest like '${title1}';`
+      )
+      .run();
+
+    const tx = await insert.txn.wait();
+    console.log("after updating record", tx);
 
     loading.value = false;
     return tx;
@@ -217,6 +239,7 @@ export const useTableLand = () => {
     getRowsByTitle,
     getRowsCount,
     initSigner,
+    tempupdate,
   };
 
   return {

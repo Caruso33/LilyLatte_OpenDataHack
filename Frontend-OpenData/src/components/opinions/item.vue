@@ -30,11 +30,10 @@
 </template>
 
 <script setup>
-import { useDune } from "@/composables/dune";
 import Indicator from "@/components/indicator.vue";
 import Chip from "@/components/chip.vue";
 import Detail from "@/components/profile/detail.vue";
-import { onMounted, ref } from "vue";
+import { ref } from "vue";
 
 const props = defineProps({
   wallet: String,

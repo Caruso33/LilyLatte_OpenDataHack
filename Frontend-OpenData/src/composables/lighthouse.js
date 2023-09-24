@@ -111,7 +111,7 @@ export const useLighthouse = () => {
     }
   };
 
-  const putAccessConditions = async (signer, CID) => {
+  const putAccessConditions = async (signer, CID, tokenId) => {
     loading.value = true;
 
     const conditions = [
@@ -119,13 +119,14 @@ export const useLighthouse = () => {
         id: 1,
         chain: "FVM",
         method: "balanceOf",
-        standardContractType: "ERC20",
-        // todo: change it to our lilylatte contract address
+        standardContractType: "ERC1155",
         contractAddress: CONTRACT_ADDRESS,
         returnValueTest: { comparator: ">=", value: "1" },
-        parameters: [":userAddress"],
+        parameters: [":userAddress", tokenId],
       },
     ];
+
+    console.log("inside putAccessConditions function", conditions);
 
     // Aggregator is what kind of operation to apply to access conditions
     // Suppose there are two conditions then you can apply ([1] and [2]), ([1] or [2]), !([1] and [2]).

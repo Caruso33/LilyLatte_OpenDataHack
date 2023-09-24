@@ -14,6 +14,7 @@ import ChatOwnerIntro from "@/components/chat/data-owner/intro.vue";
 import ChatBuyerIntro from "@/components/chat/data-buyer/intro.vue";
 import ChatConversation from "@/components/chat/data-owner/conversation.vue";
 import { useStore } from "vuex";
+import { useLilyLatte } from "@/composables/lilylatte";
 
 const route = useRoute();
 const store = useStore();
@@ -23,9 +24,18 @@ const setSelectedTopic = inject("setSelectedTopic");
 
 const topics = inject("topics");
 
-onMounted(() => {
+const { lilyLatteFunctions } = useLilyLatte();
+
+onMounted(async () => {
   if (localStorage.getItem("isProfileEnabled"))
     store.commit("setProfileFlag", true);
+
+  // console.log(
+  //   "getMintedTokenId",
+  //   await lilyLatteFunctions.getMintedTokenId(
+  //     "QmW6xT4336TB4RpwKxu3fw9rofALprVBQnddvtuafen1RP"
+  //   )
+  // );
 });
 
 watch(

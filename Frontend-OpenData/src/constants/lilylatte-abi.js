@@ -233,19 +233,13 @@ export const LilyLatteAbi = [
       {
         indexed: false,
         internalType: "string",
-        name: "tag",
+        name: "topic",
         type: "string",
       },
       {
         indexed: false,
         internalType: "uint256",
         name: "rowId",
-        type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "columnId",
         type: "uint256",
       },
     ],
@@ -270,19 +264,13 @@ export const LilyLatteAbi = [
       {
         indexed: false,
         internalType: "string",
-        name: "tag",
+        name: "topic",
         type: "string",
       },
       {
         indexed: false,
         internalType: "uint256",
-        name: "rowId",
-        type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "columnId",
+        name: "tablelandRowId",
         type: "uint256",
       },
       {
@@ -541,22 +529,17 @@ export const LilyLatteAbi = [
   {
     inputs: [
       {
-        internalType: "string",
-        name: "tag",
-        type: "string",
+        internalType: "uint64[]",
+        name: "tablelandRowIds",
+        type: "uint64[]",
       },
       {
-        internalType: "uint64",
-        name: "rowId",
-        type: "uint64",
-      },
-      {
-        internalType: "uint64",
-        name: "columnId",
-        type: "uint64",
+        internalType: "string[]",
+        name: "topics",
+        type: "string[]",
       },
     ],
-    name: "addOpinionPoll",
+    name: "addOpinionPolls",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -732,6 +715,38 @@ export const LilyLatteAbi = [
     type: "function",
   },
   {
+    inputs: [
+      {
+        internalType: "string",
+        name: "topic",
+        type: "string",
+      },
+    ],
+    name: "getOpinionPollCount",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getOpinionTopics",
+    outputs: [
+      {
+        internalType: "string[]",
+        name: "",
+        type: "string[]",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [],
     name: "getOwnerList",
     outputs: [
@@ -790,13 +805,13 @@ export const LilyLatteAbi = [
       },
       {
         internalType: "uint64",
-        name: "rowId",
+        name: "tablelandRowId",
         type: "uint64",
       },
       {
-        internalType: "uint64",
-        name: "columnId",
-        type: "uint64",
+        internalType: "string",
+        name: "topic",
+        type: "string",
       },
       {
         internalType: "uint64",
@@ -820,7 +835,7 @@ export const LilyLatteAbi = [
         type: "uint256",
       },
     ],
-    name: "opinionTags",
+    name: "opinionTopics",
     outputs: [
       {
         internalType: "string",
@@ -1143,7 +1158,7 @@ export const LilyLatteAbi = [
     inputs: [
       {
         internalType: "string",
-        name: "tag",
+        name: "topic",
         type: "string",
       },
       {

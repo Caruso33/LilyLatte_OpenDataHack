@@ -54,6 +54,8 @@ import { prompts } from "@/constants/prompts";
 import { useRoute } from "vue-router";
 import { useLilypad } from "@/composables/lilypad";
 import { useLighthouse } from "@/composables/lighthouse";
+import { switchNetwork } from "@/constants/ethereum-functions";
+import { Lilypad } from "@/constants/chains";
 
 const props = defineProps({
   topic: String,
@@ -123,7 +125,7 @@ const setConversationMetaData = () => {
     const parsedData = JSON.parse(storageValue);
     chats.value = parsedData.chats;
     isCompleted.value = parsedData.isCompleted || false;
-  }
+  } else isCompleted.value = false;
   store.commit("setProgressStep", {
     step: myMessages.value?.length || 0,
   });
@@ -213,53 +215,58 @@ const sendMessageToOpenAI = async () => {
 };
 
 const blockInputs = () => {
-  chats.value.push(
-    {
-      message:
-        "Let’s go back to FVM Network. I can mint your surprise for you there :) There are some steps along the way that needs your signature.<br/> <br/> Step 1: Change back to FVM network. <br/> Step 2: Mint an access token to monetize your dialog with Lilly.<br/> Step 3: Encrypt and store your dialog. <br/> Step 4: Add your dialog CID to your dataGraph.<br/> Step 5: Mint your membership NFT. <br/> <br/> Let’s go!!!",
+  chats.value.push({
+    component: MintDataToken,
+    chats: [...chats.value],
+    onFinish: () => {
+      console.log("in on finish");
+      isCompleted.value = true;
+      if (props.topic.title)
+        localStorage.setItem(
+          props.topic.title.trim(),
+          JSON.stringify({
+            chats: [
+              ...chats.value.slice(0, -1),
+              {
+                message: "Conversation is finished.",
+              },
+            ],
+            isCompleted: isCompleted.value,
+          })
+        );
     },
-    {
-      component: MintDataToken,
-      chats: [...chats.value],
-      onFinish: () => {
-        console.log("in on finish");
-        isCompleted.value = true;
-        if (props.topic.title)
-          localStorage.setItem(
-            props.topic.title.trim(),
-            JSON.stringify({
-              chats: [
-                ...chats.value.slice(0, -1),
-                {
-                  message: "Conversation is finished.",
-                },
-              ],
-              isCompleted: isCompleted.value,
-            })
-          );
-      },
-      isMine: true,
-    }
-  );
+    isMine: true,
+  });
 
   currentStepInputs.value = null;
 };
 
 const startMinting = async () => {
+  chats.value.push({
+    message:
+      "Let’s go back to FVM Network. I can mint your surprise for you there :) There are some steps along the way that needs your signature.<br/> <br/> Step 1: Change back to FVM network. <br/> Step 2: Mint an access token to monetize your dialog with Lilly.<br/> Step 3: Encrypt and store your dialog. <br/> Step 4: Add your dialog CID to your dataGraph.<br/> Step 5: Mint your membership NFT. <br/> <br/> Let’s go!!!",
+  });
+
+  await fetchNFTCid();
+
   blockInputs();
 
   scrollToEnd();
-
-  await fetchNFTCid();
 };
 
 const fetchNFTCid = async () => {
   try {
     if (localStorage.getItem("nftCID")) return;
 
+    await switchNetwork(Lilypad.chainId);
+    await lilypadFunctions.initContract();
+
     const data = await lilypadFunctions.getMyCIDs();
-    localStorage.setItem("nftCID", data.slice(-1)[0]?.cid);
-  } catch (error) {}
+    console.log("data in fetchNFTCid", data);
+    if (data.length) localStorage.setItem("nftCID", data.slice(-1)[0]?.cid);
+  } catch (error) {
+    console.log("error in fetchNFTCid", error);
+  }
 };
 </script>
 

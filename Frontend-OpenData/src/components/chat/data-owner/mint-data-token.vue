@@ -53,7 +53,9 @@ const selectedTopic = inject("selectedTopic");
 
 const hasError = ref(false);
 
-const conversationFileCID = ref("");
+const keywords = ref([]);
+
+const dialogCID = ref(""); // conversation file cid stored on lighthouse
 
 const step = ref(0);
 
@@ -75,8 +77,12 @@ const steps = ref([
     onRun: () => mintNFT(),
   },
   {
-    title: "Upload Keywords",
+    title: "Upload Keywords to TableLand",
     onRun: () => uploadKeywords(),
+  },
+  {
+    title: "add Keywords to SC",
+    onRun: () => addKeywordsToSC(),
   },
   {
     title: "Add your dialog CID to your dataGraph",
@@ -96,6 +102,11 @@ onMounted(async () => {
   signer = await latteEth.getInstance();
   setSigner(signer);
   steps.value[step.value].onRun();
+
+  console.log(
+    "getRowsCount",
+    (await tableLandFunctions.getRows(constants.keywordsTable)).slice(-1)
+  );
 });
 
 const retry = () => {
@@ -115,8 +126,10 @@ const nextStep = () => {
 
 const uploadKeywords = async () => {
   try {
-    const keywords = await fetchConversationKeywords();
-    await addKeywordsToTableLand(keywords);
+    const _keywords = await fetchConversationKeywords();
+    keywords.value = _keywords.filter((val) => !!val);
+    console.log("keywords", keywords.value);
+    await addKeywordsToTableLand(_keywords);
     nextStep();
   } catch (error) {
     nextStep();
@@ -180,11 +193,46 @@ const addKeywordsToTableLand = async (keywords) => {
   }
 };
 
+const addKeywordsToSC = async () => {
+  try {
+    const rows = await tableLandFunctions.getRows(constants.keywordsTable);
+    const lastTableRowId = rows.slice(-1)[0].id;
+
+    console.log(
+      "before addOpinionPolls",
+      rows.slice(-1),
+      lastTableRowId,
+      keywords.value,
+      Array(keywords.value.length)
+        .fill(0)
+        .map((_, i) => i + lastTableRowId + 1),
+      keywords.value.map((val) => {
+        const [keyword] = val.split("-");
+        return keyword;
+      })
+    );
+
+    const addPollsResult = await lilyLatteFunctions.addOpinionPolls(
+      Array(keywords.value.length)
+        .fill(0)
+        .map((_, i) => i + lastTableRowId + 1),
+      keywords.value.map((val) => {
+        const [keyword] = val.split("-");
+        return keyword;
+      })
+    );
+    console.log("addKeywordsToSC", addPollsResult);
+  } catch (error) {
+    console.log(error);
+    onError(error);
+  }
+};
+
 const changeNetworkToFVM = async () => {
   try {
     await switchNetwork(FVM.chainId);
-    signer = await latteEth.getInstance();
-    setSigner(signer);
+
+    tableLandFunctions.initSigner();
 
     await lilyLatteFunctions.initContract();
 
@@ -196,9 +244,17 @@ const changeNetworkToFVM = async () => {
 
 const mintAccessToken = async () => {
   try {
-    console.log("before mintAccessToken", conversationFileCID.value);
-    const result = await lilyLatteFunctions.addNewDialog(
-      conversationFileCID.value
+    console.log("before mintAccessToken", dialogCID.value);
+    const result = await lilyLatteFunctions.addNewDialog(dialogCID.value);
+
+    const dialog = await lilyLatteFunctions.getMintedTokenId(dialogCID.value);
+
+    console.log("dialog in mintAccessToken", mintAccessToken);
+
+    await lighthouseFunctions.putAccessConditions(
+      signer,
+      dialogCID.value,
+      ethers.BigNumber.from(dialog.tokenId).toString()
     );
     console.log("mintAccessToken", result);
     nextStep();
@@ -213,9 +269,8 @@ const storeEncryptedDialog = async () => {
       signer,
       JSON.stringify(props.chats)
     );
-    await lighthouseFunctions.putAccessConditions(signer, Hash);
 
-    conversationFileCID.value = Hash;
+    dialogCID.value = Hash;
 
     console.log("storeEncryptedDialog hash", Hash);
 
@@ -225,8 +280,8 @@ const storeEncryptedDialog = async () => {
   }
 };
 
-const getMyNFTTokenId = async () => {
-  const { membershipTokenId } = await lilyLatteFunctions.getOwnerToData();
+const getMyNFTTokenId = async (wallet) => {
+  const { membershipTokenId } = await lilyLatteFunctions.getOwnerToData(wallet);
 
   console.log("membershipTokenId", membershipTokenId);
   if (!membershipTokenId) return;
@@ -239,8 +294,13 @@ const getMyNFTTokenId = async () => {
 
 const mintNFT = async () => {
   try {
-    await getMyNFTTokenId();
-    if (localStorage.getItem("nftId")) nextStep();
+    const wallet = await metamaskFunctions.connect();
+    console.log("wallet in mintNFT", wallet);
+
+    if (localStorage.getItem("nftId")) {
+      nextStep();
+      return;
+    }
 
     const tableLandRef = localStorage.getItem("tableRef");
     if (!tableLandRef) throw "tableland ref not found";
@@ -251,7 +311,7 @@ const mintNFT = async () => {
     console.log("before addPFP", nftCid);
     await lilyLatteFunctions.addOwnerAsMember(nftCid);
 
-    await getMyNFTTokenId();
+    await getMyNFTTokenId(wallet);
 
     nextStep();
   } catch (error) {
@@ -262,13 +322,19 @@ const mintNFT = async () => {
 
 const addCIDToTableLand = async () => {
   try {
+    console.log(
+      "before updateDataDialogWithTitle",
+      dialogCID.value,
+      selectedTopic.value.title?.trim()
+    );
     await tableLandFunctions.updateDataDialogWithTitle(
-      conversationFileCID.value,
+      dialogCID.value,
       selectedTopic.value.title?.trim()
     );
     nextStep();
     props.onFinish();
   } catch (error) {
+    console.log("error in addCIDToTableLand", error);
     // onError(error);
     nextStep();
     props.onFinish();
