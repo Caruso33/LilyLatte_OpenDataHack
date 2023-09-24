@@ -4,7 +4,7 @@ import { LilyLatteAbi } from "@/constants/lilylatte-abi";
 import { getWallet } from "@/constants/ethereum-functions";
 
 // Lilylatte deployed Contract address
-export const CONTRACT_ADDRESS = "0x37ec99eae9a6fecec3263781d00d7c6cc14e4dda";
+export const CONTRACT_ADDRESS = "0x717ab48149c1ae01cf4e23fdb577b058c9b630a0";
 
 export const useLilyLatte = () => {
   let provider, contract, signer;
@@ -60,28 +60,20 @@ export const useLilyLatte = () => {
     }
   };
 
-  const addOpinionPolls = async (tablelandRowIds, topics) => {
+  const addOpinionPolls = async (tablelandRowIds) => {
     loading.value = true;
 
-    try {
-      const overrides = {
-        gasLimit: 900000000,
-      };
+    const overrides = {
+      gasLimit: 900000000,
+    };
 
-      const tx = await contract.addOpinionPolls(
-        tablelandRowIds,
-        topics,
-        overrides
-      );
+    const tx = await contract.addOpinionPolls(tablelandRowIds, overrides);
 
-      const receipt = await tx.wait();
+    const receipt = await tx.wait();
 
-      return receipt;
-    } catch (error) {
-      console.log("error addOpinionPolls", error);
-    } finally {
-      loading.value = false;
-    }
+    return receipt;
+
+    loading.value = false;
   };
 
   const voteOpinionPoll = async (topic, pollIndex, votePro) => {
