@@ -102,11 +102,6 @@ onMounted(async () => {
   signer = await latteEth.getInstance();
   setSigner(signer);
   steps.value[step.value].onRun();
-
-  console.log(
-    "getRowsCount",
-    (await tableLandFunctions.getRows(constants.keywordsTable)).slice(-1)
-  );
 });
 
 const retry = () => {
@@ -205,23 +200,17 @@ const addKeywordsToSC = async () => {
       keywords.value,
       Array(keywords.value.length)
         .fill(0)
-        .map((_, i) => i + lastTableRowId + 1),
-      keywords.value.map((val) => {
-        const [keyword] = val.split("-");
-        return keyword;
-      })
+        .map((_, i) => i + lastTableRowId + 1)
     );
 
     const addPollsResult = await lilyLatteFunctions.addOpinionPolls(
       Array(keywords.value.length)
         .fill(0)
-        .map((_, i) => i + lastTableRowId + 1),
-      keywords.value.map((val) => {
-        const [keyword] = val.split("-");
-        return keyword;
-      })
+        .map((_, i) => i + lastTableRowId + 1)
     );
     console.log("addKeywordsToSC", addPollsResult);
+
+    nextStep();
   } catch (error) {
     console.log(error);
     onError(error);
@@ -246,10 +235,11 @@ const mintAccessToken = async () => {
   try {
     console.log("before mintAccessToken", dialogCID.value);
     const result = await lilyLatteFunctions.addNewDialog(dialogCID.value);
+    console.log("after addNewDialog", result, dialogCID.value);
 
     const dialog = await lilyLatteFunctions.getMintedTokenId(dialogCID.value);
 
-    console.log("dialog in mintAccessToken", mintAccessToken);
+    console.log("dialog in mintAccessToken", dialog);
 
     await lighthouseFunctions.putAccessConditions(
       signer,
