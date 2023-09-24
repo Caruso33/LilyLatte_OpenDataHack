@@ -75,7 +75,7 @@ const currentStepInputs = ref([
       title: "Contract interaction button (Step 1/4)",
       subtitle: "(est. gas fee: 0.05$)",
       distinct: true,
-      click: () => startMinGraph(),
+      click: () => startMintGraph(),
     },
   ],
   [],
@@ -143,7 +143,7 @@ const onSuccessConnectWallet = async () => {
   ]);
 };
 
-const startMinGraph = () => {
+const startMintGraph = () => {
   nextStep([
     {
       component: MintGraph,

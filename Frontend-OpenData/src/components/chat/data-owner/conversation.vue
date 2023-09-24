@@ -14,16 +14,9 @@
     </chat-item>
   </div>
 
-  <div
-    v-if="currentStepInputs != null && !isCompleted"
-    class="d-flex flex-column justify-center align-center container mx-auto"
-  >
-    <chat-input
-      v-if="typeof currentStepInputs == 'string'"
-      v-model="message"
-      :loading="loading"
-      @onSend="send"
-    />
+  <div v-if="currentStepInputs != null && !isCompleted"
+    class="d-flex flex-column justify-center align-center container mx-auto">
+    <chat-input v-if="typeof currentStepInputs == 'string'" v-model="message" :loading="loading" @onSend="send" />
     <multi-btns v-else-if="currentStepInputs" :items="currentStepInputs" />
 
     <base-button v-if="myMessages.length > 5" dark @click="startMinting">
@@ -210,6 +203,31 @@ const sendMessageToOpenAI = async () => {
 
   if (choices.length && choices[0].message?.content)
     return choices[0].message?.content;
+
+  return [];
+};
+
+const sendMessageToLilypad = async () => {
+  const firstMessage = prompts.first_message
+    .replaceAll("§question§", route.params.title)
+    .replaceAll("§answer§", chats.value[1].message);
+
+  // TODO: Still needs to be refined
+  const promptCid = await lighthouseFunctions.uploadJson({
+    template: `${firstMessage} \n \n {question}`,
+    parameters: {
+      question: chat.message
+    }
+  })
+
+  const lilypadResults = await lilypadFunctions.sendAndGetNewResults(promptCid)
+
+  if (lilypadResults) {
+    const latestResult = lilypadResults[lilypadResults.length - 1]
+    console.log(`Lilypad result ${latestResult}`)
+
+    return latestResult
+  }
 
   return [];
 };

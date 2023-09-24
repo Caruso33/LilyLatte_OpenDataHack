@@ -1,10 +1,5 @@
 <template>
-  <multi-steps
-    :step="step"
-    :steps="steps"
-    :hasError="hasError"
-    @retry="retry"
-  />
+  <multi-steps :step="step" :steps="steps" :hasError="hasError" @retry="retry" />
 </template>
 
 <script setup>
@@ -13,6 +8,7 @@ import MultiSteps from "@/components/chat/multi-steps.vue";
 import { addNetwork, switchNetwork } from "@/constants/ethereum-functions";
 import { FVM, Lilypad } from "@/constants/chains";
 
+import { useLighthouse } from "@/composables/lighthouse";
 import { useTableLand } from "@/composables/tableLand";
 import { useLatteEth } from "@/composables/latte";
 import { useStore } from "vuex";
@@ -34,6 +30,8 @@ const { openAIFunctions } = useOpenAI();
 const { lilyLatteFunctions } = useLilyLatte();
 
 const { lilypadFunctions } = useLilypad();
+
+const { lighthouseFunctions } = useLighthouse()
 
 const {
   setSigner,
@@ -245,6 +243,34 @@ const fetchQuestionsFromOpenAI = async () => {
 
   return [];
 };
+
+const fetchQuestionsFromLilypad = async () => {
+  const duneResults = await dunePromise;
+
+  if (Array.isArray(duneResults))
+    localStorage.setItem("duneFeatures", JSON.stringify(duneResults));
+
+  const duneFeaturesStr = formatDuneResultsAsStr(duneResults);
+
+  const promptCid = await lighthouseFunctions.uploadJson({
+    template: `${prompt.pre} \n \n {question}`,
+    parameters: {
+      question: duneFeaturesStr
+    }
+  })
+
+  const lilypadResults = await lilypadFunctions.sendAndGetNewResults(promptCid)
+
+  // TODO: Still needs to be refined
+  if (lilypadResults) {
+    const latestResult = lilypadResults[lilypadResults.length - 1]
+    console.log(`Lilypad result ${latestResult}`)
+
+    return latestResult
+  }
+
+  return []
+}
 
 const insertToTableLand = async (data) => {
   const duneResults = await dunePromise;
