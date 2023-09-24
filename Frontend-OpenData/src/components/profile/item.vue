@@ -66,5 +66,9 @@ const routeToUserProfile = () => {
   &:hover {
     background-color: var(--primary);
   }
+
+  h2 {
+    word-break: break-all;
+  }
 }
 </style>

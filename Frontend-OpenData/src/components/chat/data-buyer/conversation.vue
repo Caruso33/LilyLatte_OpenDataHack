@@ -6,7 +6,12 @@
       <component v-if="item.component" :is="item.component" v-bind="item" />
       <span v-else v-html="item.message" />
     </chat-item>
-    <buy :loading="loading" :data="data" @onBuy="buyDataToken" />
+    <buy
+      v-if="!hasBought || loading"
+      :loading="loading"
+      :data="data"
+      @onBuy="buyDataToken"
+    />
   </div>
 
   <div class="d-flex flex-column justify-center align-center container mx-auto">
@@ -26,6 +31,7 @@ import { useTableLand } from "@/composables/tableLand";
 import { useLatteEth } from "@/composables/latte";
 import { useRoute } from "vue-router";
 import { getWallet } from "@/constants/ethereum-functions";
+import { useLilyLatte } from "@/composables/lilylatte";
 
 const props = defineProps({
   topic: String,
@@ -35,11 +41,13 @@ const conversationCID = ref("");
 const data = ref([]);
 
 const loading = ref(false);
+const hasBought = ref(false);
 
 const route = useRoute();
 
 const { lighthouseFunctions } = useLighthouse();
 const { tableLandFunctions, setSigner } = useTableLand();
+const { lilyLatteFunctions } = useLilyLatte();
 const latteEth = useLatteEth();
 
 const currentStepInputs = ref("");
@@ -66,7 +74,7 @@ onMounted(async () => {
   signer = await latteEth.getInstance();
   setSigner(signer);
 
-  if (route.params.title) fetchTableData();
+  if (route.params.cid) fetchFile();
 });
 
 watch(
@@ -80,30 +88,52 @@ watch(
   }
 );
 
-const fetchTableData = async () => {
-  loading.value = true;
-  try {
-    const tableRows = await tableLandFunctions.getRows("OpenData_314159_282");
-    console.log(tableRows);
-    const foundRow = tableRows.find(
-      (row) => row.dataRequest == route.params.title
-    );
+// const fetchTableData = async () => {
+//   loading.value = true;
+//   try {
+//     const tableRows = await tableLandFunctions.getRows("OpenData_314159_282");
+//     console.log(tableRows);
+//     const foundRow = tableRows.find(
+//       (row) => row.dataRequest == route.params.title
+//     );
 
-    if (!foundRow) throw "row not found!!!";
+//     if (!foundRow) throw "row not found!!!";
 
-    conversationCID.value = foundRow.dataDialog;
-    fetchFile();
-  } catch (error) {
-    console.log(error);
-  }
-  loading.value = false;
-};
+//     conversationCID.value = foundRow.dataDialog;
+//     fetchFile();
+//   } catch (error) {
+//     console.log(error);
+//   }
+//   loading.value = false;
+// };
 
 const buyDataToken = async () => {
+  console.log("buyDataToken", route.params.cid);
+  loading.value = true;
   try {
-    // todo: mint data token
-    // const result = await lilyLatteFunctions.mintNewDialogToken(chatsCid);
+    const result = await lilyLatteFunctions.requestDialogTokenAccess(
+      route.params.cid
+    );
+    console.log("buyDataToken", result);
     await fetchFile();
+  } catch (error) {
+    console.log("buyDataToken", error);
+  } finally {
+    loading.value = false;
+  }
+};
+
+const fetchFile = async () => {
+  loading.value = true;
+  try {
+    const result = await lighthouseFunctions.decrypt(signer, route.params.cid);
+
+    if (!result) throw "Access Denied";
+
+    hasBought.value = true;
+    data.value = JSON.parse(result);
+    chats.value = JSON.parse(result).slice(0, -1);
+    console.log("result of fetchFile", result, data.value);
 
     currentStepInputs.value = [
       {
@@ -113,22 +143,11 @@ const buyDataToken = async () => {
         title: "CONVO PURSACHED",
       },
     ];
-  } catch (error) { }
-};
-
-const fetchFile = async () => {
-  try {
-    const result = await lighthouseFunctions.decrypt(
-      signer,
-      conversationCID.value
-    );
-
-    if (!result) throw "Access Denied";
-
-    console.log("result of fetchFile", result);
-    data.value = JSON.parse(result);
   } catch (error) {
     console.log(error);
+    hasBought.value = false;
+  } finally {
+    loading.value = false;
   }
 };
 </script>

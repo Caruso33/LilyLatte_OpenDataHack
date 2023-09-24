@@ -235,7 +235,12 @@ const fetchQuestionsFromOpenAI = async () => {
       .split("§")
       .slice(0, -1)
       .map((val) =>
-        val.replaceAll(":", "").replaceAll("'", "").replaceAll("\n", "")
+        val
+          .replaceAll(":", "")
+          .replaceAll("'", "")
+          .replaceAll("\n", "")
+          .replaceAll("/", "-")
+          .trim()
       );
 
   return [];

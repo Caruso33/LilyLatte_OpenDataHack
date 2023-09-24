@@ -5,7 +5,7 @@ import { switchNetwork } from "@/constants/ethereum-functions";
 import { Lilypad } from "@/constants/chains";
 
 // Lilypad deployed Contract address
-const CONTRACT_ADDRESS = "0x4140c268adae01bb62f1aa8d043000c36e692731";
+const CONTRACT_ADDRESS = "0x5A34f58E6CCEf29572cf3306742e300585cfa214";
 
 export const useLilypad = () => {
   let provider, contract, signer;

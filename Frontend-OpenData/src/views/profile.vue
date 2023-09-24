@@ -1,8 +1,8 @@
 <template>
   <div class="overflow-auto pa-2">
-    <wallet-age :data="data" />
-    <cex-dex :data="data" />
-    <top-evm :data="data" />
+    <wallet-age :data="data" :loading="loading" />
+    <cex-dex :data="data" :loading="loading" />
+    <top-evm :data="data" :loading="loading" />
   </div>
 </template>
 
@@ -25,25 +25,42 @@ const setTopics = inject("setTopics");
 const loading = ref(false);
 const data = ref({});
 
-onMounted(() => {
+onMounted(async () => {
   tableLandFunctions.initSigner();
   getTable();
+
+  // console.log(
+  //   "updateDataDialogWithTitle",
+  //   await tableLandFunctions.tempupdate(
+  //     "1. What factors influence your preference for using central exchanges compared to decentralized exchanges (CEX/DEX)?",
+  //     "1. What factors influence your preference for using central exchanges compared to decentralized exchanges (CEX-DEX)?"
+  //   )
+  // );
+  // console.log(
+  //   "get rows",
+  //   await tableLandFunctions.getRows("OpenData_314159_376")
+  // );
+  // console.log(
+  //   "get rows",
+  //   await tableLandFunctions.getRowsByTitle(
+  //     "1. What factors influence your preference for using central exchanges compared to decentralized exchanges (CEX/DEX)?",
+  //     route.params.name
+  //   )
+  // );
 });
 
 const getTable = async () => {
   loading.value = true;
   try {
     const rows = await tableLandFunctions.getRows(route.params.name);
+    console.log("rows in getTable", rows);
     if (rows.length) {
       data.value = duneTitles.reduce(
         (obj, key) =>
           key in rows[0]
             ? {
                 ...obj,
-                [key]:
-                  rows[0][key] && rows[0][key] != "undefined"
-                    ? JSON.parse(rows[0][key])
-                    : "",
+                [key]: rows[0][key] || "",
               }
             : obj,
         {}
@@ -51,8 +68,8 @@ const getTable = async () => {
 
       data.value = {
         ...data.value,
-        ...(rows[0].Feature && rows[0].Feature != "undefined"
-          ? JSON.parse(rows[0].Feature)
+        ...(rows[0].Features && rows[0].Features != "undefined"
+          ? rows[0].Features[0]
           : {}),
       };
     }
@@ -61,7 +78,7 @@ const getTable = async () => {
       .filter((row) => row.dataDialog)
       .map((row) => ({
         title: row.dataRequest,
-        path: `${route.fullPath}/${row.dataDialog}`,
+        path: `${route.fullPath}/${row.dataDialog}/${row.dataRequest}`,
       }));
 
     if (conversations.length) setTopics(conversations);
@@ -69,6 +86,8 @@ const getTable = async () => {
     console.log("rows", rows, data.value, conversations, route.fullPath);
   } catch (error) {
     console.log(error);
+  } finally {
+    loading.value = false;
   }
 };
 </script>

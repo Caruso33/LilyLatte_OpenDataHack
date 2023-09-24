@@ -4,7 +4,7 @@ import { LilyLatteAbi } from "@/constants/lilylatte-abi";
 import { getWallet } from "@/constants/ethereum-functions";
 
 // Lilylatte deployed Contract address
-export const CONTRACT_ADDRESS = "0x3b2b510ee05676da38739f5a7c0e870be34eed0d";
+export const CONTRACT_ADDRESS = "0x37ec99eae9a6fecec3263781d00d7c6cc14e4dda";
 
 export const useLilyLatte = () => {
   let provider, contract, signer;
@@ -25,9 +25,12 @@ export const useLilyLatte = () => {
     loading.value = true;
 
     try {
-      const wallet = await getWallet();
+      const overrides = {
+        gasLimit: 90000000,
+        value: utils.parseEther("0.1"),
+      };
 
-      const tx = await contract.requestDialogTokenAccess(dialogCid);
+      const tx = await contract.requestDialogTokenAccess(dialogCid, overrides);
 
       const receipt = await tx.wait();
 
@@ -57,31 +60,37 @@ export const useLilyLatte = () => {
     }
   };
 
-  const addOpinionPoll = async (tag, rowId, columnId) => {
+  const addOpinionPolls = async (tablelandRowIds, topics) => {
     loading.value = true;
 
     try {
-      const wallet = await getWallet();
+      const overrides = {
+        gasLimit: 900000000,
+      };
 
-      const tx = await contract.addOpinionPoll(tag, rowId, columnId);
+      const tx = await contract.addOpinionPolls(
+        tablelandRowIds,
+        topics,
+        overrides
+      );
 
       const receipt = await tx.wait();
 
       return receipt;
     } catch (error) {
-      console.log("error addOpinionPoll", error);
+      console.log("error addOpinionPolls", error);
     } finally {
       loading.value = false;
     }
   };
 
-  const voteOpinionPoll = async (tag, pollIndex, votePro) => {
+  const voteOpinionPoll = async (topic, pollIndex, votePro) => {
     loading.value = true;
 
     try {
       const wallet = await getWallet();
 
-      const tx = await contract.voteOpinionPoll(tag, pollIndex, votePro);
+      const tx = await contract.voteOpinionPoll(topic, pollIndex, votePro);
 
       const receipt = await tx.wait();
 
@@ -135,8 +144,10 @@ export const useLilyLatte = () => {
     };
 
     const tx = await contract.addOwner(tableRef, overrides);
+    console.log("tx addOwner", tx);
 
     const receipt = await tx.wait();
+    console.log("receipt addOwner", receipt);
 
     loading.value = false;
     return receipt;
@@ -209,6 +220,17 @@ export const useLilyLatte = () => {
     return tx;
   };
 
+  const getMintedTokenId = async (dialogCID) => {
+    loading.value = true;
+
+    const tx = await contract.dialogMap(dialogCID);
+
+    console.log("getMintedTokenId", tx);
+
+    loading.value = false;
+    return tx;
+  };
+
   const lilyLatteFunctions = {
     initContract,
     addOwner,
@@ -216,12 +238,13 @@ export const useLilyLatte = () => {
     addNewDialog,
     requestDialogTokenAccess,
     receiveDialogPayout,
-    addOpinionPoll,
+    addOpinionPolls,
     voteOpinionPoll,
     addDataQuest,
     receiveDataQuestPayout,
     getOwnerToData,
     getWallets,
+    getMintedTokenId,
   };
 
   return {

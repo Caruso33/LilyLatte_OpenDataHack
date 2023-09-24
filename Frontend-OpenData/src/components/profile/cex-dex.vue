@@ -39,6 +39,10 @@ import Indicator from "@/components/indicator.vue";
 
 const props = defineProps({
   data: Object,
+  loading: {
+    type: Boolean,
+    default: false,
+  },
 });
 </script>
 
