@@ -117,12 +117,14 @@ export const useLighthouse = () => {
     const conditions = [
       {
         id: 1,
-        chain: "FVM",
+        chain: "Calibration",
         method: "balanceOf",
-        standardContractType: "ERC1155",
+        standardContractType: "Custom",
         contractAddress: CONTRACT_ADDRESS,
-        returnValueTest: { comparator: ">=", value: "1" },
+        returnValueTest: { comparator: "==", value: "1" },
         parameters: [":userAddress", tokenId],
+        inputArrayType: ["address", "uint256"],
+        outputType: "uint256",
       },
     ];
 
