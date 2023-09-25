@@ -301,6 +301,7 @@ const mintNFT = async () => {
     console.log("before addPFP", nftCid);
     await lilyLatteFunctions.addOwnerAsMember(nftCid);
 
+    console.log("before getMyNFTTokenId", wallet);
     await getMyNFTTokenId(wallet);
 
     nextStep();

@@ -223,6 +223,17 @@ export const useLilyLatte = () => {
     return tx;
   };
 
+  const balanceOf = async (wallet, tokenId) => {
+    loading.value = true;
+
+    const tx = await contract.balanceOf(wallet, tokenId);
+
+    console.log("balanceOf", tx);
+
+    loading.value = false;
+    return tx;
+  };
+
   const lilyLatteFunctions = {
     initContract,
     addOwner,
@@ -237,6 +248,7 @@ export const useLilyLatte = () => {
     getOwnerToData,
     getWallets,
     getMintedTokenId,
+    balanceOf,
   };
 
   return {
