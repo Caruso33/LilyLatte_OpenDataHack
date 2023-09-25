@@ -71,28 +71,51 @@ export const useLilyLatte = () => {
 
     const receipt = await tx.wait();
 
-    return receipt;
-
     loading.value = false;
+
+    return receipt;
   };
 
-  const voteOpinionPoll = async (topic, pollIndex, votePro) => {
+  const getOpinionPoll = async (rowId) => {
     loading.value = true;
 
-    try {
-      const wallet = await getWallet();
+    const tx = await contract.opinionPollMap(rowId);
 
-      const tx = await contract.voteOpinionPoll(topic, pollIndex, votePro);
+    loading.value = false;
 
-      const receipt = await tx.wait();
-
-      return receipt;
-    } catch (error) {
-      console.log("error voteOpinionPoll", error);
-    } finally {
-      loading.value = false;
-    }
+    return tx;
   };
+
+  const voteOpinionPoll = async (tablelandRowId, votePro) => {
+    loading.value = true;
+
+    const overrides = {
+      gasLimit: 90000000,
+    };
+
+    const tx = await contract.voteOpinionPoll(
+      tablelandRowId,
+      votePro,
+      overrides
+    );
+
+    const receipt = await tx.wait();
+
+    loading.value = false;
+    return receipt;
+  };
+
+  const getOpinionTableLandRowIds = async () => {
+    loading.value = true;
+
+    const tx = await contract.getOpiniontablelandRowIds();
+
+    console.log("getOpiniontablelandRowIds", tx);
+
+    loading.value = false;
+    return tx;
+  };
+
   const addDataQuest = async (ownerAddr, questionCid) => {
     loading.value = true;
 
@@ -153,21 +176,6 @@ export const useLilyLatte = () => {
     };
 
     const tx = await contract.addOwnerAsMember(nftCid, overrides);
-
-    const receipt = await tx.wait();
-
-    loading.value = false;
-    return receipt;
-  };
-
-  const addOpinionPol = async (tableRef) => {
-    loading.value = true;
-    const overrides = {
-      gasLimit: 3000000,
-      // value: utils.parseEther("4"),
-    };
-
-    const tx = await contract.addOwner(tableRef, overrides);
 
     const receipt = await tx.wait();
 
@@ -249,6 +257,8 @@ export const useLilyLatte = () => {
     getWallets,
     getMintedTokenId,
     balanceOf,
+    getOpinionTableLandRowIds,
+    getOpinionPoll,
   };
 
   return {
