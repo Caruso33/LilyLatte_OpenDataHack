@@ -1,7 +1,7 @@
 import { onMounted, ref } from "vue";
 import OpenAI from "openai";
 
-const API_KEY = "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";
+const API_KEY = "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";
 
 export const useOpenAI = () => {
   const loading = ref(false);
@@ -20,7 +20,7 @@ export const useOpenAI = () => {
 
     const result = await openAiInstance.chat.completions.create({
       messages: [{ role: "user", content: message }],
-      model: "gpt-3.5-turbo",
+      model: "gpt-4",
       conversation_id,
     });
 
@@ -34,7 +34,7 @@ export const useOpenAI = () => {
 
     const result = await openAiInstance.chat.completions.create({
       messages,
-      model: "gpt-3.5-turbo",
+      model: "gpt-4",
       conversation_id,
     });
 

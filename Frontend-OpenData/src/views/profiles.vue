@@ -50,8 +50,6 @@ const getData = async () => {
   try {
     const wallets = await lilyLatteFunctions.getWallets();
 
-    console.log("wallets", wallets);
-
     const data = await Promise.all(
       wallets.map((wallet) => getWalletData(wallet))
     );

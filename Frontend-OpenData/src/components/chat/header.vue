@@ -10,7 +10,7 @@
 
     <div v-if="wallet" class="d-flex cursor-pointer align-center">
       <div class="bullet green-bg mr-1"></div>
-      <small>Address connected</small>
+      <small>Wallet connected</small>
     </div>
 
     <div v-else class="d-flex cursor-pointer align-center">

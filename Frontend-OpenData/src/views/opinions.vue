@@ -70,7 +70,9 @@ onMounted(async () => {
   await getWallet();
   await switchNetwork(FVM.chainId);
 
-  hasButton.value = !!localStorage.getItem("nftId");
+  hasButton.value =
+    !!localStorage.getItem("nftId") &&
+    localStorage.getItem("userType") == "owner";
 
   tableLandFunctions.initSigner();
 

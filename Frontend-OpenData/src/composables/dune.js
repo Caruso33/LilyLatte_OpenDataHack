@@ -18,14 +18,14 @@ export const useDune = () => {
 
   const requestDune = async (walletAddress, queryName) => {
     const client = new DuneClient(API_KEY);
-    // const parameters = [QueryParameter.text("wallet_address", walletAddress)];
-    const parameters = [
-      QueryParameter.text(
-        "wallet_address",
-        "0xB17b3e7910AF9d232Cb683C083eF73c34521FC8A"
-        // "0x275ab2f4e5dd3cb7aa8ec4f16a79f4023cc5f7ef"
-      ),
-    ];
+    const parameters = [QueryParameter.text("wallet_address", walletAddress)];
+    // const parameters = [
+    //   QueryParameter.text(
+    //     "wallet_address",
+    //     "0xB17b3e7910AF9d232Cb683C083eF73c34521FC8A"
+    //     // "0x275ab2f4e5dd3cb7aa8ec4f16a79f4023cc5f7ef"
+    //   ),
+    // ];
 
     const { result } = await client.refresh(QUERY_IDs[queryName], parameters);
 

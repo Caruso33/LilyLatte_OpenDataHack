@@ -49,23 +49,27 @@ const step = ref(0);
 
 const steps = ref([
   {
-    title: "Mint Your DataGraph (Why?)",
+    title:
+      "Mint Your dataGraph: This creates your unique data backpack holding all your digital footprints",
     onRun: () => mintGraph(),
   },
   {
-    title: "Store Your On-chain Achievements in Your DataGraph.",
+    title:
+      "Store Onchain Achievements: We'll add your achievements to your dataGraph for a richer profile",
     onRun: () => storeToTableLand(),
   },
   {
-    title: "Add Your DataGraph to Lilylatte Smart Contract.",
+    title:
+      "dataGraph to Lilylatte: Your dataGraph gets added to the Lilylatte Smart Contract",
     onRun: () => addDataToSC(),
   },
   {
-    title: "Change network to Lily",
+    title:
+      "Network Change: We'll switch from FVM to Lilypad Network, my native environment",
     onRun: () => changeNetworkToLily(),
   },
   {
-    title: "Summon Lily, your AI Interviewer and start your first conversation",
+    title: "Summon Finally, you'll call upon me, Lily, to start your interview",
     onRun: () => summonLily(),
   },
 ]);
@@ -159,7 +163,17 @@ const changeNetworkToLily = async () => {
 
 const summonLily = async () => {
   try {
-    await lilypadFunctions.generate(prompts.nft_generate);
+    const duneResults = await dunePromise;
+    const txNum =
+      duneResults.length > 3
+        ? duneResults[3]?.rows?.reduce(
+            (sum, current) => (sum += current?.n_tx),
+            0
+          )
+        : 1;
+    await lilypadFunctions.generate(
+      prompts.nft_generate.replaceAll("§tx_num§", txNum)
+    );
     nextStep();
     emit("afterMintGraph");
   } catch (error) {
@@ -192,12 +206,12 @@ const formatDuneResultsAsStr = (results) => {
 
     const keys = Object.keys(current.rows[0]);
     str += keys.join(",");
-    str += "\n";
+    str += " \n ";
 
     current.rows.forEach((obj) => {
-      str += Object.values(obj).join(",") + "\n";
+      str += Object.values(obj).join(",") + " \n ";
     });
-    str += "\n";
+    str += " \n ";
 
     return str;
   }, "");
@@ -226,7 +240,9 @@ const fetchQuestionsFromOpenAI = async () => {
 
   const duneFeaturesStr = formatDuneResultsAsStr(duneResults);
 
-  const prompt = prompts.pre + "\n" + duneFeaturesStr;
+  const prompt = prompts.pre + " \n " + duneFeaturesStr;
+
+  console.log("prompt before submitting to open AI", prompt);
 
   const { choices } = await openAIFunctions.send(prompt);
 

@@ -15,6 +15,7 @@ import { switchNetwork } from "@/constants/ethereum-functions";
 import { FVM } from "@/constants/chains";
 
 import { useTableLand } from "@/composables/tableLand";
+import { useKeywords } from "@/composables/keywords";
 import { useLatteEth } from "@/composables/latte";
 import { useLighthouse } from "@/composables/lighthouse";
 import { useLilyLatte } from "@/composables/lilylatte";
@@ -43,6 +44,7 @@ const {
   loading: tableLandLoading,
 } = useTableLand();
 
+const { keywordFunctions } = useKeywords();
 const { openAIFunctions } = useOpenAI();
 const { lighthouseFunctions } = useLighthouse();
 const { lilyLatteFunctions } = useLilyLatte();
@@ -57,7 +59,7 @@ const keywords = ref([]);
 
 const dialogCID = ref(""); // conversation file cid stored on lighthouse
 
-const step = ref(0);
+const step = ref(4);
 
 const steps = ref([
   {
@@ -125,7 +127,7 @@ const uploadKeywords = async () => {
     keywords.value = _keywords.filter((val) => !!val);
     console.log("keywords", keywords.value);
     await addKeywordsToTableLand(_keywords);
-    nextStep();
+    // nextStep();
   } catch (error) {
     nextStep();
   }
@@ -165,24 +167,42 @@ const addKeywordsToTableLand = async (keywords) => {
   try {
     const wallet = await metamaskFunctions.connect();
 
-    const keywordsStr = keywords.reduce((str, current, i) => {
-      if (!current.length) return str;
+    const keywordsArr = keywords.reduce((arr, current, i) => {
+      if (!current.length) return arr;
 
       const [keyword, opinion] = current.split("-");
 
-      if (!keyword?.length || !opinion?.length) return str;
+      if (!keyword?.length || !opinion?.length) return arr;
 
-      str += `('${keyword.trim()}', '${opinion.trim()}', '${wallet}'), `;
+      const str = `'${keyword.trim()}', '${wallet}', '${opinion.trim()}'`;
 
-      return str;
-    }, "");
+      return [...arr, str];
+    }, []);
 
-    const result = await tableLandFunctions.insertMultipleIntoTable(
-      keywordsStr.slice(0, -2),
-      constants.keywordsTable,
-      "exchange,summarize,data_owner_id"
-    );
+    console.log("values before insert", keywordsArr);
+    const result = await keywordFunctions.insert(keywordsArr);
     console.log("addKeywordsToTableLand", result);
+
+    // const wallet = await metamaskFunctions.connect();
+
+    // const keywordsStr = keywords.reduce((str, current, i) => {
+    //   if (!current.length) return str;
+
+    //   const [keyword, opinion] = current.split("-");
+
+    //   if (!keyword?.length || !opinion?.length) return str;
+
+    //   str += `('${keyword.trim()}', '${opinion.trim()}', '${wallet}'), `;
+
+    //   return str;
+    // }, "");
+
+    // const result = await tableLandFunctions.insertMultipleIntoTable(
+    //   keywordsStr.slice(0, -2),
+    //   constants.keywordsTable,
+    //   "exchange,summarize,data_owner_id"
+    // );
+    // console.log("addKeywordsToTableLand", result);
   } catch (error) {
     console.log(error);
   }
