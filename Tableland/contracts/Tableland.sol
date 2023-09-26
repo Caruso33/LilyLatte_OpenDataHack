@@ -30,23 +30,18 @@ contract TablelandUserDataDao is ERC721Holder, Ownable{
         );
     }
 
-    function insert(string memory exchange, string memory data_owner_id, string memory summarize, uint256 membership) public payable {
+    function insert(string[] memory values, uint256 membership) public payable {
         require(contractNft.balanceOf(msg.sender, membership) > 0, "needs to hold our NFT");
         TablelandDeployments.get().mutate(
         address(this),
         _tableId,
-        SQLHelpers.toInsert(
+        SQLHelpers.toBatchInsert(
                 _TABLE_PREFIX,
                 _tableId,
                 "exchange,data_owner_id,summarize",
-                string.concat(
-                SQLHelpers.quote(exchange),
-                ",",
-                SQLHelpers.quote(data_owner_id),
-                ",",
-                SQLHelpers.quote(summarize)
-                )
+                values
             )
         );
     }
 }
+
