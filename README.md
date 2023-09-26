@@ -2,7 +2,12 @@
 
 As part of [the encode.club open data hackathon](https://www.encode.club/open-data-hack)
 
-[Slides](https://docs.google.com/presentation/d/1-twX2cHe6MNfiMDj33VqHA5y5pQx9Lvfh3pyHrJvqfg/edit?usp=sharing)
+[Presentation-Slides](https://docs.google.com/presentation/d/1-twX2cHe6MNfiMDj33VqHA5y5pQx9Lvfh3pyHrJvqfg/edit?usp=sharing)
+
+## Main Features
+
+<img width="12279" alt="lilylatte_features" src="https://github.com/Caruso33/LilyLatte_OpenDataHack/assets/7684178/bb35a475-4754-4b70-b37f-b79aa5b9aa25">
+
 
 ## Token
 
