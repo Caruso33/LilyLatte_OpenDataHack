@@ -1,6 +1,6 @@
 # LilyLatte - Open Data Hack
 
-As part of [this hackathon](https://www.encode.club/open-data-hack)
+As part of [the encode.club open data hackathon](https://www.encode.club/open-data-hack)
 
 [Slides](https://docs.google.com/presentation/d/1-twX2cHe6MNfiMDj33VqHA5y5pQx9Lvfh3pyHrJvqfg/edit?usp=sharing)
 
