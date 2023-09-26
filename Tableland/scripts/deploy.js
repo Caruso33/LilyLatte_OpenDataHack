@@ -9,7 +9,7 @@ const hre = require("hardhat")
 async function main() {
   const [deployer] = await hre.ethers.getSigners()
 
-  const OpenData = await hre.ethers.getContractFactory("LilyLatte", deployer)
+  const OpenData = await hre.ethers.getContractFactory("TablelandUserDataDao", deployer)
   console.log("Deploying contracrt . . .")
 
   const contractNFTaddress = "0x717ab48149c1ae01cf4e23fdb577b058c9b630a0"
