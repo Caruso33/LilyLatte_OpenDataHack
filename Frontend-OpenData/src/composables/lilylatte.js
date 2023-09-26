@@ -203,8 +203,6 @@ export const useLilyLatte = () => {
 
     const tx = await contract.ownerToData(wallet);
 
-    console.log("getOwnerToData", tx);
-
     loading.value = false;
     return tx;
   };

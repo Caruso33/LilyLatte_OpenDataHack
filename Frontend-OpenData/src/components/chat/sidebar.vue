@@ -7,13 +7,15 @@
           :key="topic.path"
           :title="topic.title"
           :isActive="model?.path == topic.path"
-          :withNewText="topic.isNew"
-          @click="$router.push(`${topic.path}`)"
+          :withNewText="topic.withNewText"
+          :disabled="topic.disabled || false"
+          @click="!topic.disabled && $router.push(`${topic.path}`)"
         />
       </transition-group>
     </div>
     <div class="mt-auto">
       <topic
+        v-if="userType == 'owner'"
         :title="'My profile'"
         :isActive="route.path == '/myprofile'"
         :withBorder="false"
@@ -21,12 +23,18 @@
         @click="$router.push(`/myprofile`)"
       />
       <topic
+        v-else-if="userType == 'buyer'"
+        :title="'Browse DAO Members'"
+        :isActive="route.path == '/profiles'"
+        :withBorder="false"
+        @click="$router.push(`/profiles`)"
+      />
+      <topic
         :title="'Opinions of DAO'"
         :withBorder="false"
         @click="$router.push(`/opinions`)"
       />
-      <topic :title="'Gitbook'" :withBorder="false" />
-      <topic :title="'Landing'" :withBorder="false" />
+      <topic :title="'Home'" :withBorder="false" @click="$router.push(`/`)" />
     </div>
   </div>
 </template>
@@ -45,6 +53,8 @@ const emit = defineEmits(["update:modelValue"]);
 const route = useRoute();
 
 const topics = inject("topics");
+
+const userType = computed(() => localStorage.getItem("userType") || "owner");
 
 const model = computed({
   get() {

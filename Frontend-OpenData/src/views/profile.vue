@@ -99,7 +99,14 @@ const getTable = async () => {
         path: `${route.fullPath}/${row.dataDialog}/${row.dataRequest}`,
       }));
 
-    if (conversations.length) setTopics(conversations);
+    setTopics([
+      ...(conversations || []),
+      {
+        title: "Publish Interview Request",
+        path: "publishInterview",
+        disabled: true,
+      },
+    ]);
 
     console.log("rows", rows, data.value, conversations, route.fullPath);
   } catch (error) {
