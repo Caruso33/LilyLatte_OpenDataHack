@@ -14,7 +14,7 @@ As part of [the encode.club open data hackathon](https://www.encode.club/open-da
 
 Contract for storing our logic regarding token membership, data request, data token gated access and payouts.
 
-Deployed to Calibration on `0x717ab48149c1ae01cf4e23fdb577b058c9b630a0`.
+Deployed to Calibration on `0x7b1ed1a7783cc58619147191719cee8e9702888e`.
 
 ## Lilypad
 
