@@ -129,7 +129,8 @@ const uploadKeywords = async () => {
     await addKeywordsToTableLand(_keywords);
     nextStep();
   } catch (error) {
-    nextStep();
+    console.log(error);
+    onError(error);
   }
 };
 
