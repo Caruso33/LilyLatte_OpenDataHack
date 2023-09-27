@@ -127,7 +127,7 @@ const uploadKeywords = async () => {
     keywords.value = _keywords.filter((val) => !!val);
     console.log("keywords", keywords.value);
     await addKeywordsToTableLand(_keywords);
-    // nextStep();
+    nextStep();
   } catch (error) {
     nextStep();
   }
