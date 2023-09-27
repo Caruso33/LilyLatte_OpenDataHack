@@ -126,6 +126,7 @@ const uploadKeywords = async () => {
     const _keywords = await fetchConversationKeywords();
     keywords.value = _keywords.filter((val) => !!val);
     console.log("keywords", keywords.value);
+
     await addKeywordsToTableLand(_keywords);
     nextStep();
   } catch (error) {
@@ -165,48 +166,44 @@ const fetchConversationKeywords = async () => {
 };
 
 const addKeywordsToTableLand = async (keywords) => {
-  try {
-    const wallet = await metamaskFunctions.connect();
+  const wallet = await metamaskFunctions.connect();
 
-    const keywordsArr = keywords.reduce((arr, current, i) => {
-      if (!current.length) return arr;
+  const keywordsArr = keywords.reduce((arr, current, i) => {
+    if (!current.length) return arr;
 
-      const [keyword, opinion] = current.split("-");
+    const [keyword, opinion] = current.split("-");
 
-      if (!keyword?.length || !opinion?.length) return arr;
+    if (!keyword?.length || !opinion?.length) return arr;
 
-      const str = `'${keyword.trim()}', '${wallet}', '${opinion.trim()}'`;
+    const str = `'${keyword.trim()}', '${wallet}', '${opinion.trim()}'`;
 
-      return [...arr, str];
-    }, []);
+    return [...arr, str];
+  }, []);
 
-    console.log("values before insert", keywordsArr);
-    const result = await keywordFunctions.insert(keywordsArr);
-    console.log("addKeywordsToTableLand", result);
+  console.log("values before insert", keywordsArr);
+  const result = await keywordFunctions.insert(keywordsArr);
+  console.log("addKeywordsToTableLand", result);
 
-    // const wallet = await metamaskFunctions.connect();
+  // const wallet = await metamaskFunctions.connect();
 
-    // const keywordsStr = keywords.reduce((str, current, i) => {
-    //   if (!current.length) return str;
+  // const keywordsStr = keywords.reduce((str, current, i) => {
+  //   if (!current.length) return str;
 
-    //   const [keyword, opinion] = current.split("-");
+  //   const [keyword, opinion] = current.split("-");
 
-    //   if (!keyword?.length || !opinion?.length) return str;
+  //   if (!keyword?.length || !opinion?.length) return str;
 
-    //   str += `('${keyword.trim()}', '${opinion.trim()}', '${wallet}'), `;
+  //   str += `('${keyword.trim()}', '${opinion.trim()}', '${wallet}'), `;
 
-    //   return str;
-    // }, "");
+  //   return str;
+  // }, "");
 
-    // const result = await tableLandFunctions.insertMultipleIntoTable(
-    //   keywordsStr.slice(0, -2),
-    //   constants.keywordsTable,
-    //   "exchange,summarize,data_owner_id"
-    // );
-    // console.log("addKeywordsToTableLand", result);
-  } catch (error) {
-    console.log(error);
-  }
+  // const result = await tableLandFunctions.insertMultipleIntoTable(
+  //   keywordsStr.slice(0, -2),
+  //   constants.keywordsTable,
+  //   "exchange,summarize,data_owner_id"
+  // );
+  // console.log("addKeywordsToTableLand", result);
 };
 
 const addKeywordsToSC = async () => {
@@ -243,7 +240,7 @@ const changeNetworkToFVM = async () => {
     await switchNetwork(FVM.chainId);
 
     tableLandFunctions.initSigner();
-
+    await keywordFunctions.initContract();
     await lilyLatteFunctions.initContract();
 
     nextStep();

@@ -26,7 +26,7 @@
     />
     <multi-btns v-else-if="currentStepInputs" :items="currentStepInputs" />
 
-    <base-button v-if="myMessages.length > 5" dark @click="startMinting">
+    <base-button v-if="myMessages.length >= 5" dark @click="startMinting">
       Stop
     </base-button>
   </div>

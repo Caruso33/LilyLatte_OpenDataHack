@@ -234,8 +234,6 @@ export const useLilyLatte = () => {
 
     const tx = await contract.balanceOf(wallet, tokenId);
 
-    console.log("balanceOf", tx);
-
     loading.value = false;
     return tx;
   };

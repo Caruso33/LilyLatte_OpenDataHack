@@ -57,6 +57,8 @@ import Chip from "@/components/chip.vue";
 import Detail from "@/components/profile/detail.vue";
 import { onMounted, ref } from "vue";
 import { useLilyLatte } from "@/composables/lilylatte";
+import { switchNetwork } from "@/constants/ethereum-functions";
+import { FVM } from "@/constants/chains";
 
 const props = defineProps({
   wallet: String,
@@ -99,6 +101,14 @@ onMounted(async () => {
 const vote = async (isAgree) => {
   loading.value = true;
   try {
+    console.log(
+      "before voting - tableLandRow id:",
+      props.item.id,
+      isAgree ? "agree" : "disagree"
+    );
+    await switchNetwork(FVM.chainId);
+    await lilyLatteFunctions.initContract();
+
     const result = await lilyLatteFunctions.voteOpinionPoll(
       props.item.id,
       isAgree
