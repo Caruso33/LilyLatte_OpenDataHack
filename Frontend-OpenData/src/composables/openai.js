@@ -1,7 +1,6 @@
 import { onMounted, ref } from "vue";
 import OpenAI from "openai";
-
-const API_KEY = "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";
+import config from "../../config.json";
 
 export const useOpenAI = () => {
   const loading = ref(false);
@@ -10,7 +9,7 @@ export const useOpenAI = () => {
 
   onMounted(() => {
     openAiInstance = new OpenAI({
-      apiKey: API_KEY,
+      apiKey: config.OPENAI_API_KEY,
       dangerouslyAllowBrowser: true,
     });
   });

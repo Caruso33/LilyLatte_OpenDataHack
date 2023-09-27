@@ -3,7 +3,7 @@ import { providers, Contract } from "ethers";
 import { KeywordsAbi } from "@/constants/keywords-abi";
 
 // keywords deployed Contract address
-const CONTRACT_ADDRESS = "0xF8c47fd0C37e02A022D43f72A3e839608359bB5c";
+const CONTRACT_ADDRESS = "0xD417cd80aAB1Acb46D3E677e87f692B241a608e6";
 
 export const useKeywords = () => {
   let provider, contract, signer;

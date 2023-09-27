@@ -13,17 +13,24 @@
             :src="`https://ipfs.io/ipfs/${nftCID}/outputs/image-0.png`"
           />
           <DAO v-else class="icon icon-80" />
-          <base-button dark class="mt-2"> Claim </base-button>
         </div>
       </div>
     </div>
-    <div
-      class="container mx-auto profile__details d-flex justify-space-between"
-    >
-      <detail :title="walletAge" desc="Wallet age" :loading="loading" />
-      <detail :title="txNum" desc="Total TX" :loading="loading" />
-      <detail :title="volume" desc="Total volume" :loading="loading" />
-      <detail :title="QA" desc="Dialogues num" :loading="loading" />
+    <div class="container mx-auto align-center d-flex justify-space-between">
+      <base-button dark class="mt-2 f-g0"> Claim data income </base-button>
+
+      <div
+        class="container mx-auto profile__details d-flex justify-space-between"
+      >
+        <detail
+          :title="`${walletAge} days`"
+          desc="Wallet age"
+          :loading="loading"
+        />
+        <detail :title="txNum" desc="Total TX" :loading="loading" />
+        <detail :title="volume" desc="Total volume" :loading="loading" />
+        <detail :title="QA" desc="Dialogues num" :loading="loading" />
+      </div>
     </div>
   </div>
 </template>

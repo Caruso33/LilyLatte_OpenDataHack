@@ -17,7 +17,7 @@
           class="cursor-pointer"
           @click="vote(true)"
         >
-          AGREE
+          Agree
         </chip>
         <chip
           color="red"

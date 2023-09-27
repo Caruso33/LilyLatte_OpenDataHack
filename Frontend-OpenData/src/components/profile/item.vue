@@ -4,10 +4,10 @@
       <div class="d-flex justify-space-between">
         <div>
           <h2>{{ item.wallet.slice(0, 10) }}...{{ item.wallet.slice(-10) }}</h2>
-          <div class="d-flex flex-wrap">
+          <!-- <div class="d-flex flex-wrap">
             <chip class="ma-1 ml-0"> fav dex: uniswap </chip>
             <chip class="ma-1 ml-0"> fav dex: uniswap </chip>
-          </div>
+          </div> -->
         </div>
 
         <!-- <Image
@@ -21,7 +21,11 @@
     <div
       class="container mx-auto profile__details d-flex justify-space-between"
     >
-      <detail :title="walletAge" desc="Wallet age" :loading="loading" />
+      <detail
+        :title="`${walletAge} days`"
+        desc="Wallet age"
+        :loading="loading"
+      />
       <detail :title="txNum" desc="Total TX" :loading="loading" />
       <detail :title="volume" desc="Total volume" :loading="loading" />
       <detail :title="QA" desc="Dialogues num" :loading="loading" />
