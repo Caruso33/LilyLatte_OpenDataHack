@@ -48,7 +48,6 @@ contract LilyLatte is ERC1155, Ownable {
     struct OpinionPoll {
         address ownerAddr;
         uint64 tablelandRowId;
-        string topic;
         uint64 pro;
         uint64 contra;
         address[] voters;
@@ -81,11 +80,11 @@ contract LilyLatte is ERC1155, Ownable {
     /// @dev Mapping tableId to owner
     mapping(string => address) public tableIdToOwner;
 
-    /// @dev all available topics
-    string[] public opinionTopics;
+    /// @dev all available opinionPolls
+    uint64[] public opinionTablelandRowIds;
 
-    /// @dev Mapping from topic to array of opinion polls
-    mapping(string => OpinionPoll[]) public opinionPollMap;
+    /// @dev Mapping from tablelandRowId to array of opinion polls
+    mapping(uint64 => OpinionPoll) public opinionPollMap;
 
     event OwnerAdded(address wallet, string tableId);
     event MemberAdded(address wallet, string tableId);
@@ -96,11 +95,10 @@ contract LilyLatte is ERC1155, Ownable {
         uint256 tokenId
     );
     event PayedOutDialog(address ownerAddr, string dialogCid, uint256 tokenId);
-    event OpinionPollCreated(address ownerAddr, string topic, uint256 rowId);
+    event OpinionPollCreated(address ownerAddr, uint256 rowId);
     event OpinionPollVoted(
         address ownerAddr,
         address voter,
-        string topic,
         uint256 tablelandRowId,
         bool votedPro,
         uint256 pro,
@@ -229,10 +227,7 @@ contract LilyLatte is ERC1155, Ownable {
     }
 
     /// @notice add a new opinion poll
-    function addOpinionPolls(
-        uint64[] memory tablelandRowIds,
-        string[] memory topics
-    ) public {
+    function addOpinionPolls(uint64[] memory tablelandRowIds) public {
         if (balanceOf(msg.sender, MEMBERSHIP) != 1) {
             revert NotMember();
         }
@@ -240,54 +235,43 @@ contract LilyLatte is ERC1155, Ownable {
 
         for (uint256 i = 0; i < tablelandRowIds.length; i++) {
             uint64 tablelandRowId = tablelandRowIds[i];
-            string memory topic = topics[i];
 
             OpinionPoll memory poll = OpinionPoll({
                 ownerAddr: msg.sender,
                 tablelandRowId: tablelandRowId,
-                topic: topic,
                 pro: 0,
                 contra: 0,
                 voters: new address[](0)
             });
-            opinionPollMap[topic].push(poll);
+            opinionPollMap[tablelandRowId] = poll;
 
-            emit OpinionPollCreated(msg.sender, topic, tablelandRowId);
+            emit OpinionPollCreated(msg.sender, tablelandRowId);
 
-            /// @notice add topic to opinion topics if not present
+            /// @notice add tablelandRowId to opinionTablelandRowId if not present
             bool isPresent = false;
-            for (uint256 j = 0; j < opinionTopics.length; j++) {
-                if (
-                    keccak256(bytes(opinionTopics[j])) ==
-                    keccak256(bytes(topic))
-                ) {
+            for (uint256 j = 0; j < opinionTablelandRowIds.length; j++) {
+                if (opinionTablelandRowIds[j] == tablelandRowId) {
                     isPresent = true;
                     break;
                 }
             }
             if (!isPresent) {
-                opinionTopics.push(topic);
+                opinionTablelandRowIds.push(tablelandRowId);
             }
         }
     }
 
     /// @notice vote for pro or contra
     /// @dev only allowed for members, can't be owner of dialog
-    function voteOpinionPoll(
-        string memory topic,
-        uint256 pollIndex,
-        bool votePro
-    ) public {
+    function voteOpinionPoll(uint64 tablelandRowId, bool votePro) public {
         if (balanceOf(msg.sender, MEMBERSHIP) != 1) {
             revert NotMember();
         }
 
-        OpinionPoll[] memory polls = opinionPollMap[topic];
-        if (polls.length == 0 || pollIndex >= polls.length) {
+        OpinionPoll memory poll = opinionPollMap[tablelandRowId];
+        if (poll.ownerAddr == address(0)) {
             revert OpinionPollDoesNotExist();
         }
-
-        OpinionPoll memory poll = polls[pollIndex];
 
         if (poll.ownerAddr == msg.sender) {
             revert OwnerOfDialogCantVote();
@@ -306,13 +290,12 @@ contract LilyLatte is ERC1155, Ownable {
             poll.contra += 1;
         }
 
-        opinionPollMap[topic][pollIndex] = poll;
-        opinionPollMap[topic][pollIndex].voters.push(msg.sender);
+        opinionPollMap[tablelandRowId] = poll;
+        opinionPollMap[tablelandRowId].voters.push(msg.sender);
 
         emit OpinionPollVoted(
             poll.ownerAddr,
             msg.sender,
-            topic,
             poll.tablelandRowId,
             votePro,
             poll.pro,
@@ -423,13 +406,7 @@ contract LilyLatte is ERC1155, Ownable {
         return ownerList;
     }
 
-    function getOpinionPollCount(
-        string memory topic
-    ) public view returns (uint256) {
-        return opinionPollMap[topic].length;
-    }
-
-    function getOpinionTopics() public view returns (string[] memory) {
-        return opinionTopics;
+    function getOpiniontablelandRowIds() public view returns (uint64[] memory) {
+        return opinionTablelandRowIds;
     }
 }
