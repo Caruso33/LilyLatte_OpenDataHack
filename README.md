@@ -6,6 +6,8 @@ As part of [the encode.club open data hackathon](https://www.encode.club/open-da
 
 [Frontend of Lilylatte](https://lilylatte.vercel.app)
 
+[![](https://cdn.loom.com/sessions/thumbnails/9174a6b162a240649ebb431ecd941388-1695844471825-with-play.gif)](https://www.loom.com/embed/9174a6b162a240649ebb431ecd941388?sid=48edd4b5-bd00-453b-9cad-4f440220f535)
+
 ## Main Features
 
 <img width="12279" alt="lilylatte_features" src="https://github.com/Caruso33/LilyLatte_OpenDataHack/assets/7684178/bb35a475-4754-4b70-b37f-b79aa5b9aa25">
