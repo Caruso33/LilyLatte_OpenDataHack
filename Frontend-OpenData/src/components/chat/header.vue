@@ -47,7 +47,7 @@ header {
     }
 
     &.router-link-exact-active {
-      color: #a873e9;
+      color: var(--sky-blue);
       text-decoration: underline;
     }
   }
