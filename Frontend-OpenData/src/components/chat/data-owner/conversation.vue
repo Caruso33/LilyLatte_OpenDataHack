@@ -214,6 +214,31 @@ const sendMessageToOpenAI = async () => {
   return [];
 };
 
+const sendMessageToLilypad = async () => {
+  const firstMessage = prompts.first_message
+    .replaceAll("§question§", route.params.title)
+    .replaceAll("§answer§", chats.value[1].message);
+
+  // TODO: Still needs to be refined
+  const promptCid = await lighthouseFunctions.uploadJson({
+    template: `${firstMessage} \n \n {question}`,
+    parameters: {
+      question: chat.message,
+    },
+  });
+
+  const lilypadResults = await lilypadFunctions.sendAndGetNewResults(promptCid);
+
+  if (lilypadResults) {
+    const latestResult = lilypadResults[lilypadResults.length - 1];
+    console.log(`Lilypad result ${latestResult}`);
+
+    return latestResult;
+  }
+
+  return [];
+};
+
 const blockInputs = () => {
   chats.value.push({
     component: MintDataToken,

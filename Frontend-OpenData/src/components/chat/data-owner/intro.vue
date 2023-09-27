@@ -73,7 +73,7 @@ const currentStepInputs = ref([
     {
       title: "Let's do it!",
       distinct: true,
-      click: () => startMinGraph(),
+      click: () => startMintGraph(),
     },
   ],
   [],
@@ -145,7 +145,7 @@ const onSuccessConnectWallet = async () => {
   ]);
 };
 
-const startMinGraph = () => {
+const startMintGraph = () => {
   nextStep([
     {
       component: MintGraph,

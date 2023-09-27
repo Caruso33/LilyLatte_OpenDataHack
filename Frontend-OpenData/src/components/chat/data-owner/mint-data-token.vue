@@ -123,7 +123,7 @@ const nextStep = () => {
 
 const uploadKeywords = async () => {
   try {
-    const _keywords = await fetchConversationKeywords();
+    const _keywords = await fetchConversationKeywordsToOpenAI();
     keywords.value = _keywords.filter((val) => !!val);
     console.log("keywords", keywords.value);
 
@@ -135,7 +135,7 @@ const uploadKeywords = async () => {
   }
 };
 
-const fetchConversationKeywords = async () => {
+const fetchConversationKeywordsToOpenAI = async () => {
   try {
     const firstMessage = prompts.first_message
       .replaceAll("§question§", route.params.title)
@@ -158,6 +158,37 @@ const fetchConversationKeywords = async () => {
 
     if (choices.length && choices[0].message?.content)
       return choices[0].message?.content.replaceAll("\n", "").split("§");
+
+    return [];
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const fetchConversationKeywordsToLilypad = async () => {
+  try {
+    const firstMessage = prompts.first_message
+      .replaceAll("§question§", route.params.title)
+      .replaceAll("§answer§", props.chats[1].message);
+
+    // TODO: Still needs to be refined
+    const promptCid = await lighthouseFunctions.uploadJson({
+      template: `${firstMessage} \n \n {question}`,
+      parameters: {
+        question: chat.message,
+      },
+    });
+
+    const lilypadResults = await lilypadFunctions.sendAndGetNewResults(
+      promptCid
+    );
+
+    if (lilypadResults) {
+      const latestResult = lilypadResults[lilypadResults.length - 1];
+      console.log(`Lilypad result ${latestResult}`);
+
+      return latestResult;
+    }
 
     return [];
   } catch (error) {
