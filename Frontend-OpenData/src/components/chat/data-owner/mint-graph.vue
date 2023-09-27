@@ -1,5 +1,10 @@
 <template>
-  <multi-steps :step="step" :steps="steps" :hasError="hasError" @retry="retry" />
+  <multi-steps
+    :step="step"
+    :steps="steps"
+    :hasError="hasError"
+    @retry="retry"
+  />
 </template>
 
 <script setup>
@@ -31,7 +36,7 @@ const { lilyLatteFunctions } = useLilyLatte();
 
 const { lilypadFunctions } = useLilypad();
 
-const { lighthouseFunctions } = useLighthouse()
+const { lighthouseFunctions } = useLighthouse();
 
 const {
   setSigner,
@@ -271,22 +276,22 @@ const fetchQuestionsFromLilypad = async () => {
   const promptCid = await lighthouseFunctions.uploadJson({
     template: `${prompt.pre} \n \n {question}`,
     parameters: {
-      question: duneFeaturesStr
-    }
-  })
+      question: duneFeaturesStr,
+    },
+  });
 
-  const lilypadResults = await lilypadFunctions.sendAndGetNewResults(promptCid)
+  const lilypadResults = await lilypadFunctions.sendAndGetNewResults(promptCid);
 
   // TODO: Still needs to be refined
   if (lilypadResults) {
-    const latestResult = lilypadResults[lilypadResults.length - 1]
-    console.log(`Lilypad result ${latestResult}`)
+    const latestResult = lilypadResults[lilypadResults.length - 1];
+    console.log(`Lilypad result ${latestResult}`);
 
-    return latestResult
+    return latestResult;
   }
 
-  return []
-}
+  return [];
+};
 
 const insertToTableLand = async (data) => {
   const duneResults = await dunePromise;

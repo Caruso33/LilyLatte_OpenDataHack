@@ -1,5 +1,10 @@
 <template>
-  <multi-steps :step="step" :steps="steps" :hasError="hasError" @retry="retry" />
+  <multi-steps
+    :step="step"
+    :steps="steps"
+    :hasError="hasError"
+    @retry="retry"
+  />
 </template>
 
 <script setup>
@@ -170,24 +175,26 @@ const fetchConversationKeywordsToLilypad = async () => {
     const promptCid = await lighthouseFunctions.uploadJson({
       template: `${firstMessage} \n \n {question}`,
       parameters: {
-        question: chat.message
-      }
-    })
+        question: chat.message,
+      },
+    });
 
-    const lilypadResults = await lilypadFunctions.sendAndGetNewResults(promptCid)
+    const lilypadResults = await lilypadFunctions.sendAndGetNewResults(
+      promptCid
+    );
 
     if (lilypadResults) {
-      const latestResult = lilypadResults[lilypadResults.length - 1]
-      console.log(`Lilypad result ${latestResult}`)
+      const latestResult = lilypadResults[lilypadResults.length - 1];
+      console.log(`Lilypad result ${latestResult}`);
 
-      return latestResult
+      return latestResult;
     }
 
     return [];
   } catch (error) {
     console.log(error);
   }
-}
+};
 
 const addKeywordsToTableLand = async (keywords) => {
   const wallet = await metamaskFunctions.connect();

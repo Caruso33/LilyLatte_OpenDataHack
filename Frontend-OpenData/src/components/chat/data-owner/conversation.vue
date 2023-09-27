@@ -14,9 +14,16 @@
     </chat-item>
   </div>
 
-  <div v-if="currentStepInputs != null && !isCompleted"
-    class="d-flex flex-column justify-center align-center container mx-auto">
-    <chat-input v-if="typeof currentStepInputs == 'string'" v-model="message" :loading="loading" @onSend="send" />
+  <div
+    v-if="currentStepInputs != null && !isCompleted"
+    class="d-flex flex-column justify-center align-center container mx-auto"
+  >
+    <chat-input
+      v-if="typeof currentStepInputs == 'string'"
+      v-model="message"
+      :loading="loading"
+      @onSend="send"
+    />
     <multi-btns v-else-if="currentStepInputs" :items="currentStepInputs" />
 
     <base-button v-if="myMessages.length >= 5" dark @click="startMinting">
@@ -216,17 +223,17 @@ const sendMessageToLilypad = async () => {
   const promptCid = await lighthouseFunctions.uploadJson({
     template: `${firstMessage} \n \n {question}`,
     parameters: {
-      question: chat.message
-    }
-  })
+      question: chat.message,
+    },
+  });
 
-  const lilypadResults = await lilypadFunctions.sendAndGetNewResults(promptCid)
+  const lilypadResults = await lilypadFunctions.sendAndGetNewResults(promptCid);
 
   if (lilypadResults) {
-    const latestResult = lilypadResults[lilypadResults.length - 1]
-    console.log(`Lilypad result ${latestResult}`)
+    const latestResult = lilypadResults[lilypadResults.length - 1];
+    console.log(`Lilypad result ${latestResult}`);
 
-    return latestResult
+    return latestResult;
   }
 
   return [];
