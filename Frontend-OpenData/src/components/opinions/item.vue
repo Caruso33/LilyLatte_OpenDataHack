@@ -5,7 +5,8 @@
         <h1>{{ item.exchange }}</h1>
         <chip
           class="mt-1"
-          @click="$router.push(`/profiles/${item.data_owner_id}`)"
+          :color="tableLandRef ? 'var(--sky-blue)' : 'grey'"
+          @click="tableLandRef && $router.push(`/profiles/${tableLandRef}`)"
         >
           View Profile
         </chip>
@@ -86,9 +87,13 @@ const loading = ref(false);
 
 const isVotingEnabled = ref(true);
 
+const tableLandRef = ref(null);
+
 onMounted(async () => {
   const votedIds = getStoredVotes();
   isVotingEnabled.value = !votedIds.includes(props.item.id);
+
+  getWalletData();
 });
 
 const vote = async (isAgree) => {
@@ -113,6 +118,19 @@ const vote = async (isAgree) => {
       localStorage.setItem("votedIds", JSON.stringify(votedIds));
       isVotingEnabled.value = false;
     }
+  }
+};
+
+const getWalletData = async () => {
+  try {
+    const data = await lilyLatteFunctions.getOwnerToData(
+      props.item.data_owner_id
+    );
+
+    tableLandRef.value = data.tableId;
+    console.log("getWalletData", data);
+  } catch (error) {
+    console.log(error);
   }
 };
 

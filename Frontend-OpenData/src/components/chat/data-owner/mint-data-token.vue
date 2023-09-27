@@ -63,31 +63,31 @@ const step = ref(0);
 
 const steps = ref([
   {
-    title: "Change back to FVM network",
+    title: "Switch back to the FVM network",
     onRun: () => changeNetworkToFVM(),
   },
   {
-    title: "Encrypt and store your dialog",
+    title: "Encrypt and save your dataDialog",
     onRun: () => storeEncryptedDialog(),
   },
   {
-    title: "Mint an access token",
+    title: "Mint an access token for this Dialogue",
     onRun: () => mintAccessToken(),
   },
   {
-    title: "Mint your membership NFT",
+    title: "Mint your unique DAO membership NFT",
     onRun: () => mintNFT(),
   },
   {
-    title: "Upload Keywords to TableLand",
+    title: "Extract and add topics/opinions to Opinions of DAO dataGraph",
     onRun: () => uploadKeywords(),
   },
   {
-    title: "add Keywords to SC",
+    title: "Associate DAO opinion rowID with Lilylatte SC",
     onRun: () => addKeywordsToSC(),
   },
   {
-    title: "Add your dialog CID to your dataGraph",
+    title: "Link your dialogue CID to your personal dataGraph",
     onRun: () => addCIDToTableLand(),
   },
 ]);
