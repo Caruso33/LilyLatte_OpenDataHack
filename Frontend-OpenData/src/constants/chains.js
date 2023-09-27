@@ -6,7 +6,8 @@ export const FVM = {
     symbol: "tFIL",
     decimals: 18,
   },
-  rpcUrls: ["https://filecoin-calibration.chainup.net/rpc/v1"],
+  // rpcUrls: ["https://filecoin-calibration.chainup.net/rpc/v1"],
+  rpcUrls: ["https://filecoin-calibration.chainstacklabs.com/rpc/v1"],
   blockExplorerUrls: ["https://calibration.filscan.io"],
 };
 

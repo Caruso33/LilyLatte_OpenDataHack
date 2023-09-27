@@ -26,7 +26,11 @@
       v-for="(item, i) in filteredData"
       :key="i"
       :item="item"
+      :rank="i + 1"
       :hasButton="hasButton"
+      :votesByRowId="votesByRowId"
+      :pollIndexes="pollIndexes"
+      @update="getTableLandData"
     />
   </div>
 </template>
@@ -34,22 +38,26 @@
 <script setup>
 import OpinionItem from "@/components/opinions/item.vue";
 import Chip from "@/components/chip.vue";
-import { useRoute } from "vue-router";
 import { computed, onMounted, ref } from "vue";
 import { useTableLand } from "@/composables/tableLand";
 import { constants } from "@/constants";
 import { getWallet, switchNetwork } from "@/constants/ethereum-functions";
 import { FVM } from "@/constants/chains";
 import indicator from "@/components/indicator.vue";
+import { useLilyLatte } from "@/composables/lilylatte";
+import { ethers } from "ethers";
 
 const { tableLandFunctions } = useTableLand();
+const { lilyLatteFunctions } = useLilyLatte();
 
 const data = ref([]);
 const uniqueKeywords = ref([]);
+const votesByRowId = ref({});
+const pollIndexes = ref([]);
 
 const selectedKeyword = ref(null);
 
-const hasButton = ref(true);
+const hasButton = ref(false);
 const loading = ref(false);
 
 const filteredData = computed(() =>
@@ -62,6 +70,10 @@ onMounted(async () => {
   await getWallet();
   await switchNetwork(FVM.chainId);
 
+  hasButton.value =
+    !!localStorage.getItem("nftId") &&
+    localStorage.getItem("userType") == "owner";
+
   tableLandFunctions.initSigner();
 
   getTableLandData();
@@ -71,7 +83,6 @@ const getTableLandData = async () => {
   loading.value = true;
   try {
     const rows = await tableLandFunctions.getRows(constants.keywordsTable);
-    data.value = rows;
     uniqueKeywords.value = rows.reduce(
       (arr, current, i) =>
         rows.findIndex((row) => row.exchange == current.exchange) == i
@@ -79,11 +90,57 @@ const getTableLandData = async () => {
           : arr,
       []
     );
-    console.log("getTableLandData", rows, uniqueKeywords.value);
+
+    const votes = await Promise.all(rows.map((row) => getOpinionData(row.id)));
+
+    const votesObjById = votes.reduce(
+      (obj, current) =>
+        current?.tablelandRowId && bigNumToNum(current.tablelandRowId) != 0
+          ? {
+              ...obj,
+              [bigNumToNum(current.tablelandRowId)]: {
+                ...current,
+                point: bigNumToNum(current.pro) - bigNumToNum(current.contra),
+              },
+            }
+          : obj,
+      {}
+    );
+
+    data.value = rows.sort(
+      (a, b) =>
+        (votesObjById[b.id]?.point ?? -99999) -
+        (votesObjById[a.id]?.point ?? -99999)
+    );
+
+    votesByRowId.value = votesObjById;
+
+    const rowIds = await lilyLatteFunctions.getOpinionTableLandRowIds();
+    pollIndexes.value = rowIds.map((id) => bigNumToNum(id));
+
+    console.log(
+      "getTableLandData",
+      uniqueKeywords.value,
+      votes,
+      votesObjById,
+      pollIndexes.value
+    );
   } catch (error) {
     console.log(error);
   } finally {
     loading.value = false;
+  }
+};
+
+const bigNumToNum = (bigNum) => ethers.BigNumber.from(bigNum).toNumber();
+
+const getOpinionData = async (rowId) => {
+  try {
+    const data = await lilyLatteFunctions.getOpinionPoll(rowId);
+    return { rowId, ...data };
+  } catch (error) {
+    console.log(error);
+    return null;
   }
 };
 

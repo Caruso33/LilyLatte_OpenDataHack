@@ -58,22 +58,20 @@ const step = ref(0);
 const currentStepInputs = ref([
   [
     {
-      title: "Let's go! ",
-      subtitle: "I get it, lots of Metamask popups, I’m used to it.",
+      title: "Sure, let's go!",
       click: () => gotIt(),
     },
   ],
   [
     {
-      title: "Connect your wallet",
+      title: "Connect wallet",
       distinct: true,
       click: () => metamaskFunctions.connect(onSuccessConnectWallet),
     },
   ],
   [
     {
-      title: "Contract interaction button (Step 1/4)",
-      subtitle: "(est. gas fee: 0.05$)",
+      title: "Let's do it!",
       distinct: true,
       click: () => startMintGraph(),
     },
@@ -85,19 +83,22 @@ const currentStepInputs = ref([
 const chats = ref([
   {
     message:
-      "Before we start: <br/> We are at beta, so this process will require several confirmation on metamask",
+      "Welcome to Lilylatte! We're still in beta, so you'll encounter a few wallet (Metamask) confirmations along the way. Are you cool with that?",
   },
 ]);
 
 onMounted(() => {
   // temp _ todo: remove it later
-  if (localStorage.getItem("questions")) {
+  if (
+    localStorage.getItem("questions") &&
+    localStorage.getItem("userType") == "owner"
+  ) {
     const parsedQuestions = JSON.parse(localStorage.getItem("questions"));
     setTopics(
       parsedQuestions.map((question) => ({
         path: `/chat/owner/${question}`,
         title: question,
-        withNewText: true,
+        withNewText: !localStorage.getItem(question),
       }))
     );
   }
@@ -121,11 +122,12 @@ const nextStep = (newChats) => {
 const gotIt = () => {
   nextStep([
     {
-      message: "I get it, lots of metamask popups, I’m used to it.",
+      message: "Sure, let's go!",
       isMine: true,
     },
     {
-      message: "Connect your wallet please.",
+      message:
+        "Fantastic! Now let’s connect your wallet to get started. We’re going to look at your onchain activity. This helps us to personalize this experience and bring up topics that are most relevant to you. If your connected wallet has no history, your experience is less unique.",
     },
   ]);
 };
@@ -138,7 +140,7 @@ const onSuccessConnectWallet = async () => {
     },
     {
       message:
-        "<b>Nice! Almost there! Before we start your interview </b>  you need to accept several popups. This steps will needs a little gas fee. (Why?)  It wont cost you more than 2-3 (?) usd equivalent FIL. <br/> <br/><ol><li>Mint Your DataGraph (Why?) </li><li>Store Your On-chain Achievements in Your DataGraph.</li><li>Add Your DataGraph to Lilylatte Smart Contract.</li><li>Change the Network from FVM to Lilypad Network</li><li>Summon Lily, Your AI Interviewer. </li></ol> <br/> <br/>Let’s go!!!",
+        "Awesome, you're in! Before we dive into your personalized interview, you'll need to approve a few actions. They'll need a bit of gas in FIL on Calibration testnet. Help yourself <a href='https://faucet.calibration.fildev.network/' target='_blank'>here</a>. <br/> Here are the steps you'll need to complete <br/> <br/><ul><li>(1/5) Mint Your dataGraph: This creates your unique data backpack holding all your digital footprints. </li><li>(2/5) Store Onchain Achievements: We'll add your achievements to your dataGraph for a richer profile.</li><li>(3/5) dataGraph to Lilylatte: Your dataGraph gets added to the Lilylatte Smart Contract. <br/> <div class='sky-blue-text'>(if you got stuck here on your second attempt, try jumping by choosing conversation starters on the left bar!)</div></li><li>(4/5) Network Change: We'll switch from FVM to Lilypad Network, my native environment. <br/> <br/> <div class='lilypad-network'><small>You need to manually add this network, since Lilypad’s RPC is HTTP: <br/> Network name: Lilypad Lalechuza testnet <br/>RPC URL: http://testnet.lilypadnetwork.org:8545 <br/> Chain ID: 1337 <br/> Currency symbol: lilETH (Help yourself <a href='http://testnet.lilypadnetwork.org/' target='_blank'>here</a>) <br/> Block explorer URL: (leave blank) <br/></small></div> <br/></li><li>(5/5) Summon Finally, you'll call upon me, Lily, to start your interview. </li></ul> <br/> <br/>Ready to begin?",
     },
   ]);
 };
@@ -159,7 +161,7 @@ const afterMintGraph = () => {
   nextStep([
     {
       message:
-        "🌺 Hey there, I'm Lily, your AI Interviewer! 🌺 <br/>I've just taken a quick peek at your on-chain behavior, and I must say, you're a true web3 citizen! 🚀 <br/>🤔 Curious Topics Await!You'll see some topics popping up on the left side of your screen. These are subjects I'm really curious to dive into with you. <br/>👈 Your Choice, Your Voice!Feel free to pick any topic that piques your interest. Remember, this is all about you and your thoughts! <br/> <br/> Please Wait...",
+        "Hey there! I'm Lily, your AI interviewer. I've cooked up 5 conversation starters based on what we know about you. Take a look at the conversation openers on the left. Click on any topic that grabs your attention, and we'll dive right in!!! ",
     },
   ]);
 
@@ -177,14 +179,21 @@ const generateQuestions = async () => {
       withNewText: true,
     }))
   );
-
-  nextStep([
-    {
-      component: GeneratedQuestionsMessage,
-    },
-  ]);
 };
 </script>
+
+<style>
+.lilypad-network {
+  border: 2px solid var(--sky-blue);
+  border-radius: 8px;
+  padding: 10px;
+  width: fit-content;
+}
+
+.sky-blue-text {
+  color: var(--sky-blue);
+}
+</style>
 
 <style scoped lang="scss">
 .chat {

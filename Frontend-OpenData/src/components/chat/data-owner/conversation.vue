@@ -19,7 +19,7 @@
     <chat-input v-if="typeof currentStepInputs == 'string'" v-model="message" :loading="loading" @onSend="send" />
     <multi-btns v-else-if="currentStepInputs" :items="currentStepInputs" />
 
-    <base-button v-if="myMessages.length > 5" dark @click="startMinting">
+    <base-button v-if="myMessages.length >= 5" dark @click="startMinting">
       Stop
     </base-button>
   </div>
@@ -76,7 +76,7 @@ const isCompleted = ref(false);
 const chats = ref([
   {
     message:
-      "Before we start: <br/> We are at beta, so this process will require several confirmation on metamask",
+      "Welcome to Lilylatte! We're still in beta, so you'll encounter a few wallet (Metamask) confirmations along the way. Are you cool with that?",
   },
 ]);
 
@@ -239,6 +239,7 @@ const blockInputs = () => {
     onFinish: () => {
       console.log("in on finish");
       isCompleted.value = true;
+
       if (props.topic.title)
         localStorage.setItem(
           props.topic.title.trim(),
@@ -252,6 +253,11 @@ const blockInputs = () => {
             isCompleted: isCompleted.value,
           })
         );
+
+      chats.value.push({
+        message:
+          "You've done it! Your opinions are now up for curation by our DAO, and your dialogues are available for purchase right on your profile. And remember, you call the shots. You decide the rules, and you give consent if and when someone can buy access to your dialogues. Now, I'd love to invite you to explore a few next steps: <br/> <br/> <h3>My profile:</h3> Take a sneak peek at your shiny new NFT and browse through your list of conversations. Claim any earnings from purchased dialogues or check if someone wants to conduct an interview with you through Lily <br/> <br/><h3>Opinions of DAO:</h3>  Jump into the mix and see what other DAO members are saying. Feel free to voice your opinions on their stances by polling agree or disagree. <br/> <br/><h3>More Conversations:</h3> Not done chatting? Pick more conversation starters from the sidebar and let's keep this party rolling!",
+      });
     },
     isMine: true,
   });
@@ -262,7 +268,7 @@ const blockInputs = () => {
 const startMinting = async () => {
   chats.value.push({
     message:
-      "Let’s go back to FVM Network. I can mint your surprise for you there :) There are some steps along the way that needs your signature.<br/> <br/> Step 1: Change back to FVM network. <br/> Step 2: Mint an access token to monetize your dialog with Lilly.<br/> Step 3: Encrypt and store your dialog. <br/> Step 4: Add your dialog CID to your dataGraph.<br/> Step 5: Mint your membership NFT. <br/> <br/> Let’s go!!!",
+      "Great conversation! Now, let's finalize a few things to make your data work for you and our DAO. Also, heads up! We've taken the liberty to extract some key topics and opinion statements from our chat. These will be up for curation by the DAO members, who can vote to agree or disagree with your views. Ready? <br/> <ul><li> (1/7) Switch back to the FVM network </li> <li>(2/7) Encrypt and save your dataDialog</li> <li>(3/7) Mint an access token for this Dialogue</li> <li>(4/7) Mint your unique DAO membership NFT</li> <li>(5/7) Extract and add topics/opinions to Opinions of DAO dataGraph</li> <li>(6/7) Associate DAO opinion rowID with Lilylatte SC</li> <li>(7/7) Link your dialogue CID to your personal dataGraph</li></ul>",
   });
 
   await fetchNFTCid();

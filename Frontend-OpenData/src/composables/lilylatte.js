@@ -4,7 +4,7 @@ import { LilyLatteAbi } from "@/constants/lilylatte-abi";
 import { getWallet } from "@/constants/ethereum-functions";
 
 // Lilylatte deployed Contract address
-export const CONTRACT_ADDRESS = "0x37ec99eae9a6fecec3263781d00d7c6cc14e4dda";
+export const CONTRACT_ADDRESS = "0x7b1ed1a7783cc58619147191719cee8e9702888e";
 
 export const useLilyLatte = () => {
   let provider, contract, signer;
@@ -60,47 +60,62 @@ export const useLilyLatte = () => {
     }
   };
 
-  const addOpinionPolls = async (tablelandRowIds, topics) => {
+  const addOpinionPolls = async (tablelandRowIds) => {
     loading.value = true;
 
-    try {
-      const overrides = {
-        gasLimit: 900000000,
-      };
+    const overrides = {
+      gasLimit: 900000000,
+    };
 
-      const tx = await contract.addOpinionPolls(
-        tablelandRowIds,
-        topics,
-        overrides
-      );
+    const tx = await contract.addOpinionPolls(tablelandRowIds, overrides);
 
-      const receipt = await tx.wait();
+    const receipt = await tx.wait();
 
-      return receipt;
-    } catch (error) {
-      console.log("error addOpinionPolls", error);
-    } finally {
-      loading.value = false;
-    }
+    loading.value = false;
+
+    return receipt;
   };
 
-  const voteOpinionPoll = async (topic, pollIndex, votePro) => {
+  const getOpinionPoll = async (rowId) => {
     loading.value = true;
 
-    try {
-      const wallet = await getWallet();
+    const tx = await contract.opinionPollMap(rowId);
 
-      const tx = await contract.voteOpinionPoll(topic, pollIndex, votePro);
+    loading.value = false;
 
-      const receipt = await tx.wait();
-
-      return receipt;
-    } catch (error) {
-      console.log("error voteOpinionPoll", error);
-    } finally {
-      loading.value = false;
-    }
+    return tx;
   };
+
+  const voteOpinionPoll = async (tablelandRowId, votePro) => {
+    loading.value = true;
+
+    const overrides = {
+      gasLimit: 90000000,
+    };
+
+    const tx = await contract.voteOpinionPoll(
+      tablelandRowId,
+      votePro,
+      overrides
+    );
+
+    const receipt = await tx.wait();
+
+    loading.value = false;
+    return receipt;
+  };
+
+  const getOpinionTableLandRowIds = async () => {
+    loading.value = true;
+
+    const tx = await contract.getOpiniontablelandRowIds();
+
+    console.log("getOpiniontablelandRowIds", tx);
+
+    loading.value = false;
+    return tx;
+  };
+
   const addDataQuest = async (ownerAddr, questionCid) => {
     loading.value = true;
 
@@ -168,21 +183,6 @@ export const useLilyLatte = () => {
     return receipt;
   };
 
-  const addOpinionPol = async (tableRef) => {
-    loading.value = true;
-    const overrides = {
-      gasLimit: 3000000,
-      // value: utils.parseEther("4"),
-    };
-
-    const tx = await contract.addOwner(tableRef, overrides);
-
-    const receipt = await tx.wait();
-
-    loading.value = false;
-    return receipt;
-  };
-
   const addNewDialog = async (dialogCID) => {
     loading.value = true;
     const overrides = {
@@ -202,8 +202,6 @@ export const useLilyLatte = () => {
     loading.value = true;
 
     const tx = await contract.ownerToData(wallet);
-
-    console.log("getOwnerToData", tx);
 
     loading.value = false;
     return tx;
@@ -231,6 +229,15 @@ export const useLilyLatte = () => {
     return tx;
   };
 
+  const balanceOf = async (wallet, tokenId) => {
+    loading.value = true;
+
+    const tx = await contract.balanceOf(wallet, tokenId);
+
+    loading.value = false;
+    return tx;
+  };
+
   const lilyLatteFunctions = {
     initContract,
     addOwner,
@@ -245,6 +252,9 @@ export const useLilyLatte = () => {
     getOwnerToData,
     getWallets,
     getMintedTokenId,
+    balanceOf,
+    getOpinionTableLandRowIds,
+    getOpinionPoll,
   };
 
   return {

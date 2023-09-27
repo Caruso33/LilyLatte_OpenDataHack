@@ -1,7 +1,6 @@
 import { onMounted, ref } from "vue";
 import OpenAI from "openai";
-
-const API_KEY = "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";
+import config from "../../config.json";
 
 export const useOpenAI = () => {
   const loading = ref(false);
@@ -10,7 +9,7 @@ export const useOpenAI = () => {
 
   onMounted(() => {
     openAiInstance = new OpenAI({
-      apiKey: API_KEY,
+      apiKey: config.OPENAI_API_KEY,
       dangerouslyAllowBrowser: true,
     });
   });
@@ -20,7 +19,7 @@ export const useOpenAI = () => {
 
     const result = await openAiInstance.chat.completions.create({
       messages: [{ role: "user", content: message }],
-      model: "gpt-3.5-turbo",
+      model: "gpt-4",
       conversation_id,
     });
 
@@ -34,7 +33,7 @@ export const useOpenAI = () => {
 
     const result = await openAiInstance.chat.completions.create({
       messages,
-      model: "gpt-3.5-turbo",
+      model: "gpt-4",
       conversation_id,
     });
 

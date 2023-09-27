@@ -16,9 +16,11 @@ import CexDex from "@/components/profile/cex-dex.vue";
 import TopEvm from "@/components/profile/top-evm.vue";
 import { useTableLand } from "@/composables/tableLand";
 import { duneTitles } from "@/composables/dune";
+import { useLilyLatte } from "@/composables/lilylatte";
 
 const route = useRoute();
 const { tableLandFunctions } = useTableLand();
+const { lilyLatteFunctions } = useLilyLatte();
 
 const setTopics = inject("setTopics");
 
@@ -29,6 +31,22 @@ onMounted(async () => {
   tableLandFunctions.initSigner();
   getTable();
 
+  // console.log(
+  //   "balanceOf",
+  //   await lilyLatteFunctions.balanceOf(
+  //     "0xc546888bbe9b864f86eCFED38C5a2b7edc791C31",
+  //     "10"
+  //   )
+  // );
+
+  // console.log("get rows", await tableLandFunctions.getRows());
+  // console.log(
+  //   "updateDataDialogWithTitle",
+  //   await tableLandFunctions.updateDataDialogWithTitle(
+  //     "Qmc73QPLnLgMssN1rXJQLrcmxKtoJbpKPADiM1ic4Pfd9H",
+  //     "5. As an experienced user in the web3 space, how do you see the future of decentralized finance (DeFi) and cryptocurrency trading evolving? Are there any trends or developments that youre particularly excited about?"
+  //   )
+  // );
   // console.log(
   //   "updateDataDialogWithTitle",
   //   await tableLandFunctions.tempupdate(
@@ -81,7 +99,14 @@ const getTable = async () => {
         path: `${route.fullPath}/${row.dataDialog}/${row.dataRequest}`,
       }));
 
-    if (conversations.length) setTopics(conversations);
+    setTopics([
+      ...(conversations || []),
+      {
+        title: "Publish Interview Request",
+        path: "publishInterview",
+        disabled: true,
+      },
+    ]);
 
     console.log("rows", rows, data.value, conversations, route.fullPath);
   } catch (error) {

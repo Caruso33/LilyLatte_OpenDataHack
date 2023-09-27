@@ -107,17 +107,24 @@ watch(
 //   loading.value = false;
 // };
 
+let timeout = null;
 const buyDataToken = async () => {
   console.log("buyDataToken", route.params.cid);
+  if (timeout) clearTimeout(timeout);
   loading.value = true;
   try {
     const result = await lilyLatteFunctions.requestDialogTokenAccess(
       route.params.cid
     );
     console.log("buyDataToken", result);
-    await fetchFile();
+
+    // todo: remove it later -> it is a temp solution for FVM Calibration slow network
+    setTimeout(() => {
+      fetchFile();
+    }, 10000);
   } catch (error) {
     console.log("buyDataToken", error);
+    if (timeout) clearTimeout(timeout);
   } finally {
     loading.value = false;
   }

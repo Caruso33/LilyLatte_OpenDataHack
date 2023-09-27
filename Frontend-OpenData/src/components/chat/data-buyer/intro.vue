@@ -32,7 +32,7 @@
 </template>
 
 <script setup>
-import { inject, nextTick, ref } from "vue";
+import { inject, nextTick, onMounted, ref } from "vue";
 
 import ChatInput from "@/components/chat/inputs/input.vue";
 import ChatItem from "@/components/chat/item.vue";
@@ -55,21 +55,23 @@ const step = ref(0);
 const currentStepInputs = ref([
   [
     {
-      title: "Start Research Wizard to determine ",
-      subtitle: "your research objectives and interview questions ",
-      disabled: true,
-    },
-    {
-      title: "Browse Profiles of verified degens",
-      subtitle: "to conduct your research",
-      click: () => gotIt(),
+      title: "Connect your wallet",
+      distinct: true,
+      click: () => metamaskFunctions.connect(onSuccessConnectWallet),
     },
   ],
   [
     {
-      title: "Connect your wallet",
-      distinct: true,
-      click: () => metamaskFunctions.connect(onSuccessConnectWallet),
+      title: "Browse DAO Members",
+      click: () => router.replace("/profiles"),
+    },
+    {
+      title: "Opinions of DAO",
+      click: () => router.replace("/opinions"),
+    },
+    {
+      title: "Research Wizard",
+      disabled: true,
     },
   ],
   [],
@@ -78,9 +80,20 @@ const currentStepInputs = ref([
 const chats = ref([
   {
     message:
-      "Before we start: <br/> We are at beta, so this process will require several confirmation on metamask",
+      "Welcome to Lilylatte! Are you curious to uncover the collective wisdom and insights from our vibrant community of web3 citizens? Great, you're in the right place! <br/>First things first, please connect your wallet to proceed.",
   },
 ]);
+
+onMounted(() => {
+  if (localStorage.getItem("userType") == "buyer") {
+    setTopics([
+      {
+        path: `/chat/buyer`,
+        title: "Intro",
+      },
+    ]);
+  }
+});
 
 const scrollToEnd = async () => {
   await nextTick();
@@ -97,27 +110,17 @@ const nextStep = (newChats) => {
   isInputsDisable.value = false;
 };
 
-const gotIt = () => {
-  nextStep([
-    {
-      message: "I get it, lots of metamask popups, I’m used to it.",
-      isMine: true,
-    },
-    {
-      message: "Connect your wallet please.",
-    },
-  ]);
-};
-
 const onSuccessConnectWallet = () => {
   nextStep([
     {
       message: "Wallet connected.",
       isMine: true,
     },
+    {
+      message:
+        "Awesome, you're all set! Here's what we have lined up for you: <br/> <br/> <h3>Opinions of DAO:</h3> Step into our curated garden of opinions, harvested directly from meaningful dialogues among our DAO members & Lily. See an opinion that piques your interest? Click on the contributor's profile to learn more, or perhaps purchase access to their full dialogues. You can even initiate an interview with them. <br/> <br/><h3>Browse DAO Members:</h3>  Fancy a little profile hopping? Browse through our list of DAO members, each rich with onchain activities that might just catch your eye. Once you find a profile you're interested in, you can dive deeper by purchasing access to their full dialogues or even initiate an interview with them.<br/> <br/><h3>Research Wizard (Coming Soon):</h3> Ready to take your research to the next level? Meet your AI-powered Research Wizard, capable of assisting you in creating partially or fully autonomous surveys and interviews. Let technology amplify your capabilities!",
+    },
   ]);
-
-  router.replace("/profiles");
 };
 </script>
 

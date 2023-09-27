@@ -10,6 +10,7 @@ import { switchNetwork } from "@/constants/ethereum-functions";
 import { FVM } from "@/constants/chains";
 
 import { useTableLand } from "@/composables/tableLand";
+import { useKeywords } from "@/composables/keywords";
 import { useLatteEth } from "@/composables/latte";
 import { useLighthouse } from "@/composables/lighthouse";
 import { useLilyLatte } from "@/composables/lilylatte";
@@ -38,6 +39,7 @@ const {
   loading: tableLandLoading,
 } = useTableLand();
 
+const { keywordFunctions } = useKeywords();
 const { openAIFunctions } = useOpenAI();
 const { lighthouseFunctions } = useLighthouse();
 const { lilyLatteFunctions } = useLilyLatte();
@@ -56,31 +58,31 @@ const step = ref(0);
 
 const steps = ref([
   {
-    title: "Change back to FVM network",
+    title: "Switch back to the FVM network",
     onRun: () => changeNetworkToFVM(),
   },
   {
-    title: "Encrypt and store your dialog",
+    title: "Encrypt and save your dataDialog",
     onRun: () => storeEncryptedDialog(),
   },
   {
-    title: "Mint an access token",
+    title: "Mint an access token for this Dialogue",
     onRun: () => mintAccessToken(),
   },
   {
-    title: "Mint your membership NFT",
+    title: "Mint your unique DAO membership NFT",
     onRun: () => mintNFT(),
   },
   {
-    title: "Upload Keywords to TableLand",
+    title: "Extract and add topics/opinions to Opinions of DAO dataGraph",
     onRun: () => uploadKeywords(),
   },
   {
-    title: "add Keywords to SC",
+    title: "Associate DAO opinion rowID with Lilylatte SC",
     onRun: () => addKeywordsToSC(),
   },
   {
-    title: "Add your dialog CID to your dataGraph",
+    title: "Link your dialogue CID to your personal dataGraph",
     onRun: () => addCIDToTableLand(),
   },
 ]);
@@ -97,11 +99,6 @@ onMounted(async () => {
   signer = await latteEth.getInstance();
   setSigner(signer);
   steps.value[step.value].onRun();
-
-  console.log(
-    "getRowsCount",
-    (await tableLandFunctions.getRows(constants.keywordsTable)).slice(-1)
-  );
 });
 
 const retry = () => {
@@ -124,10 +121,12 @@ const uploadKeywords = async () => {
     const _keywords = await fetchConversationKeywordsToOpenAI();
     keywords.value = _keywords.filter((val) => !!val);
     console.log("keywords", keywords.value);
+
     await addKeywordsToTableLand(_keywords);
     nextStep();
   } catch (error) {
-    nextStep();
+    console.log(error);
+    onError(error);
   }
 };
 
@@ -191,30 +190,44 @@ const fetchConversationKeywordsToLilypad = async () => {
 }
 
 const addKeywordsToTableLand = async (keywords) => {
-  try {
-    const wallet = await metamaskFunctions.connect();
+  const wallet = await metamaskFunctions.connect();
 
-    const keywordsStr = keywords.reduce((str, current, i) => {
-      if (!current.length) return str;
+  const keywordsArr = keywords.reduce((arr, current, i) => {
+    if (!current.length) return arr;
 
-      const [keyword, opinion] = current.split("-");
+    const [keyword, opinion] = current.split("-");
 
-      if (!keyword?.length || !opinion?.length) return str;
+    if (!keyword?.length || !opinion?.length) return arr;
 
-      str += `('${keyword.trim()}', '${opinion.trim()}', '${wallet}'), `;
+    const str = `'${keyword.trim()}', '${wallet}', '${opinion.trim()}'`;
 
-      return str;
-    }, "");
+    return [...arr, str];
+  }, []);
 
-    const result = await tableLandFunctions.insertMultipleIntoTable(
-      keywordsStr.slice(0, -2),
-      constants.keywordsTable,
-      "exchange,summarize,data_owner_id"
-    );
-    console.log("addKeywordsToTableLand", result);
-  } catch (error) {
-    console.log(error);
-  }
+  console.log("values before insert", keywordsArr);
+  const result = await keywordFunctions.insert(keywordsArr);
+  console.log("addKeywordsToTableLand", result);
+
+  // const wallet = await metamaskFunctions.connect();
+
+  // const keywordsStr = keywords.reduce((str, current, i) => {
+  //   if (!current.length) return str;
+
+  //   const [keyword, opinion] = current.split("-");
+
+  //   if (!keyword?.length || !opinion?.length) return str;
+
+  //   str += `('${keyword.trim()}', '${opinion.trim()}', '${wallet}'), `;
+
+  //   return str;
+  // }, "");
+
+  // const result = await tableLandFunctions.insertMultipleIntoTable(
+  //   keywordsStr.slice(0, -2),
+  //   constants.keywordsTable,
+  //   "exchange,summarize,data_owner_id"
+  // );
+  // console.log("addKeywordsToTableLand", result);
 };
 
 const addKeywordsToSC = async () => {
@@ -229,23 +242,17 @@ const addKeywordsToSC = async () => {
       keywords.value,
       Array(keywords.value.length)
         .fill(0)
-        .map((_, i) => i + lastTableRowId + 1),
-      keywords.value.map((val) => {
-        const [keyword] = val.split("-");
-        return keyword;
-      })
+        .map((_, i) => i + lastTableRowId + 1)
     );
 
     const addPollsResult = await lilyLatteFunctions.addOpinionPolls(
       Array(keywords.value.length)
         .fill(0)
-        .map((_, i) => i + lastTableRowId + 1),
-      keywords.value.map((val) => {
-        const [keyword] = val.split("-");
-        return keyword;
-      })
+        .map((_, i) => i + lastTableRowId + 1)
     );
     console.log("addKeywordsToSC", addPollsResult);
+
+    nextStep();
   } catch (error) {
     console.log(error);
     onError(error);
@@ -257,7 +264,7 @@ const changeNetworkToFVM = async () => {
     await switchNetwork(FVM.chainId);
 
     tableLandFunctions.initSigner();
-
+    await keywordFunctions.initContract();
     await lilyLatteFunctions.initContract();
 
     nextStep();
@@ -270,10 +277,11 @@ const mintAccessToken = async () => {
   try {
     console.log("before mintAccessToken", dialogCID.value);
     const result = await lilyLatteFunctions.addNewDialog(dialogCID.value);
+    console.log("after addNewDialog", result, dialogCID.value);
 
     const dialog = await lilyLatteFunctions.getMintedTokenId(dialogCID.value);
 
-    console.log("dialog in mintAccessToken", mintAccessToken);
+    console.log("dialog in mintAccessToken", dialog);
 
     await lighthouseFunctions.putAccessConditions(
       signer,
@@ -335,6 +343,7 @@ const mintNFT = async () => {
     console.log("before addPFP", nftCid);
     await lilyLatteFunctions.addOwnerAsMember(nftCid);
 
+    console.log("before getMyNFTTokenId", wallet);
     await getMyNFTTokenId(wallet);
 
     nextStep();
