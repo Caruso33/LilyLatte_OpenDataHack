@@ -59,7 +59,7 @@ const keywords = ref([]);
 
 const dialogCID = ref(""); // conversation file cid stored on lighthouse
 
-const step = ref(4);
+const step = ref(0);
 
 const steps = ref([
   {
