@@ -127,7 +127,7 @@ const gotIt = () => {
     },
     {
       message:
-        "Fantastic! Now let's connect your wallet to get started. We're currently going to look at your onchain activity. This helps us to personalize this experience and bring up topics that are most relevant to you.",
+        "Fantastic! Now let’s connect your wallet to get started. We’re going to look at your onchain activity. This helps us to personalize this experience and bring up topics that are most relevant to you. If your connected wallet has no history, your experience is less unique.",
     },
   ]);
 };

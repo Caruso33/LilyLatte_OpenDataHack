@@ -1,8 +1,6 @@
 import { ref } from "vue";
 import { DuneClient, QueryParameter } from "@cowprotocol/ts-dune-client";
-
-// API key name: opendata
-const API_KEY = "qxk2LaHPfNJxx8PPQiarTy4ouiIwjIac";
+import config from "../../config.json";
 
 const QUERY_IDs = {
   wallet_age: 3024874,
@@ -17,7 +15,7 @@ export const useDune = () => {
   const loading = ref(false);
 
   const requestDune = async (walletAddress, queryName) => {
-    const client = new DuneClient(API_KEY);
+    const client = new DuneClient(config.DUNE_API_KEY);
     const parameters = [QueryParameter.text("wallet_address", walletAddress)];
     // const parameters = [
     //   QueryParameter.text(

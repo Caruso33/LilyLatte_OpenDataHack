@@ -1,3 +1,3 @@
 export const constants = {
-  keywordsTable: "UserDataDao_314159_484",
+  keywordsTable: "UserDataDao_314159_503",
 };
